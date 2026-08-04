@@ -87,14 +87,14 @@ const CHANNELS = [
   {
     num: "01",
     name: "DD RETRO",
-    video: "", // TODO: paste a video ID from the official "Doordarshan National" YouTube channel
-    desc: "Doordarshan's golden reruns — Malgudi Days, Chitrahaar and more, straight from the national broadcaster's own archive.",
+    video: "Mg4h9Au7JpE", // Doordarshan National (official) — "Office Office Chali Mussaddi Ki Beti"
+    desc: "Doordarshan's own channel, reviving classics like Office Office. Dig into their archive for more DD-era gems.",
   },
   {
     num: "02",
     name: "SHEMAROO CLASSICS",
-    video: "", // TODO: paste a video ID from Shemaroo's official YouTube channel (e.g. @IndianTVClassics)
-    desc: "Nukkad, Dekh Bhai Dekh and other DD-era sitcoms, remastered by Shemaroo's official classics channel.",
+    video: "74FQYh2j0cE", // Shemaroo Indian TV Classics (official) — "Waah Bhai Waah", Full Episode 200
+    desc: "Hasya Kavi Sammelans, comedy specials and DD-era classics from Shemaroo's official Indian TV Classics channel.",
   },
   {
     num: "03",
@@ -105,7 +105,7 @@ const CHANNELS = [
   {
     num: "04",
     name: "ULTRA BLOCKBUSTERS",
-    video: "", // TODO: paste a video ID from Ultra's official channel (Ultra Bollywood / Ultra Movie Parlour)
+    video: "G9jk_mk-s7w", // Ultra Bollywood (official) — "Barood" (1998), full movie
     desc: "90s Bollywood masala, full movies, from Ultra's official film library.",
   },
   {
@@ -123,8 +123,8 @@ const CHANNELS = [
   {
     num: "07",
     name: "CRICKET CORNER",
-    video: "", // TODO: paste a video ID from ICC's or BCCI's official YouTube channel
-    desc: "World Cup thrillers and India classics from ICC and BCCI's own archives.",
+    video: "KrAN51nZ1HM", // ICC (official) — Virat Kohli / India vs Pakistan highlight package
+    desc: "Cricket highlights and India matches, official uploads straight from ICC's own channel.",
   },
 ];
 
@@ -142,20 +142,20 @@ const CHANNELS = [
    ------------------------------------------------------------------------ */
 const SHOWS = [
   {
-    title: "Malgudi Days",
+    title: "Office Office: Chali Mussaddi Ki Beti",
     channel: "DD RETRO",
     category: "CLASSIC",
     tagColor: "lime",
-    desc: "R.K. Narayan's timeless small-town tales that raised a generation on Doordarshan.",
-    video: "",
+    desc: "Musaddi Lal is back — Pankaj Kapur's classic babu battles the system all over again, straight from DD National.",
+    video: "Mg4h9Au7JpE",
   },
   {
-    title: "Nukkad",
+    title: "Waah Bhai Waah",
     channel: "SHEMAROO CLASSICS",
-    category: "SITCOM",
+    category: "COMEDY",
     tagColor: "pink",
-    desc: "The street-corner gang that made Sunday nights unmissable.",
-    video: "",
+    desc: "A hasya kavi sammelan special — the kind of comic-poetry night that ruled Doordarshan Sundays.",
+    video: "74FQYh2j0cE",
   },
   {
     title: "Hum Aapke Hain Koun",
@@ -182,12 +182,20 @@ const SHOWS = [
     video: "1YddSDFIsk4",
   },
   {
-    title: "World Cup Flashback",
+    title: "Barood",
+    channel: "ULTRA BLOCKBUSTERS",
+    category: "MOVIE",
+    tagColor: "orange",
+    desc: "Akshay Kumar and Raveena Tandon in a 1998 full-throttle actioner, straight from Ultra's own vault.",
+    video: "G9jk_mk-s7w",
+  },
+  {
+    title: "India vs Pakistan Thriller",
     channel: "CRICKET CORNER",
     category: "SPORTS",
     tagColor: "yellow",
-    desc: "Relive India's greatest World Cup moments, from Kapil's Devils to '96.",
-    video: "",
+    desc: "Kohli's heroics in front of a packed house — an official ICC highlight package. (Not 90s footage — swap in a verified World Cup 1983/'96 clip here once you find one; see README.)",
+    video: "KrAN51nZ1HM",
   },
 ];
 
@@ -203,9 +211,9 @@ const TRACKS = [
     video: "1YddSDFIsk4",
   },
   {
-    title: "Add your first track",
-    artist: "Paste a video ID from an official label channel",
-    video: "",
+    title: "Taare Hain Baraati",
+    artist: "Virasat (1997) — Saregama Carvaan (official label channel)",
+    video: "AJObEYtVGvA",
   },
   {
     title: "Add another track",
