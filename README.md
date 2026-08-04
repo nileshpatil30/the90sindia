@@ -164,6 +164,42 @@ channels routinely borrow official-sounding titles. Before you trust an ID:
    guessing — the site will show the "add a video ID" placeholder instead
    of risking a bad embed.
 
+**The reliable trick: check a channel's own RSS feed.** Search results and
+even a channel's `/videos` page are easy to get fooled by (reupload channels
+borrow the real name, and video titles claim "official" freely). A channel's
+own YouTube RSS feed only ever lists videos *that channel itself* uploaded —
+there's no way for another channel's video to show up in it, so it's a much
+stronger check than eyeballing a title:
+
+```
+https://www.youtube.com/feeds/videos.xml?channel_id=UCxxxxxxxxxxxxxxxxxxxxxx
+```
+
+or, for older `/user/name` style channels:
+
+```
+https://www.youtube.com/feeds/videos.xml?user=channelusername
+```
+
+1. Get the channel ID: open the channel's page → "..." / Share → Copy
+   channel ID (or view page source and search for `"channelId"`).
+2. Open the feed URL above in a browser — it's plain XML, readable without
+   any tooling.
+3. Every `<entry>` has a `<yt:videoId>` — those IDs are guaranteed to be
+   genuine uploads from that exact channel. Pick one that fits and paste its
+   ID into `js/config.js`.
+4. Feeds only show a channel's ~15 most recent uploads, not its full
+   back-catalog — so this is great for confirming a channel is legit, but
+   won't necessarily surface an old specific episode. For that, browse the
+   channel manually and cross-check the channel name once you find a
+   candidate.
+
+This is exactly how the video IDs already in `js/config.js` were sourced —
+several channels this project wanted to use (DD National, Shemaroo, Ultra,
+ICC) turned out, on the first search pass, to mostly return reupload or
+unrelated channels. Their real RSS feeds are what turned up the entries that
+actually ship in this repo.
+
 ## The Arcade game
 
 The Arcade section is an **original HTML5 `<canvas>` dodge-the-obstacle
