@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90s REWIND — The 90s India Nostalgia Hub</title>
+<meta name="description" content="90s REWIND — relive 90s India: Doordarshan classics, Bollywood, cricket, WWF and Hit Parade jukebox, all in one nostalgia portal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header id="site-header">
+  <div class="ticker-bar">
+    <div class="ticker-track" id="ticker-track">
+      <!-- JS duplicates the ticker text here for a seamless loop -->
+    </div>
+  </div>
+
+  <div class="wave-nav">
+    <a href="#hero" class="wave-seg" style="--seg-color: var(--lime);">HOME</a>
+    <a href="#channel-guide" class="wave-seg" style="--seg-color: var(--pink);">CHANNELS</a>
+    <a href="#shows" class="wave-seg" style="--seg-color: var(--purple);">SHOWS</a>
+    <a href="#arcade" class="wave-seg" style="--seg-color: var(--orange);">ARCADE</a>
+    <a href="#hit-parade" class="wave-seg" style="--seg-color: var(--cyan);">HIT PARADE</a>
+    <a href="#photo-wall" class="wave-seg" style="--seg-color: var(--yellow);">PHOTOS</a>
+    <a href="#vault" class="wave-seg" style="--seg-color: var(--pink);">VAULT</a>
+    <a href="#adda" class="wave-seg" style="--seg-color: var(--lime);">ADDA</a>
+  </div>
+
+  <div class="logo-strip">
+    <h1 class="logo">90s <span>REWIND</span><sup>!</sup></h1>
+    <p class="tagline">the90sindia.com — apna zamaana, wapas!</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ HERO + SIDEBAR ============ -->
+  <div class="hero-layout">
+
+    <section id="hero" aria-label="Now playing">
+      <div class="console">
+        <div class="console-vents" aria-hidden="true"></div>
+
+        <div class="screen" id="screen">
+          <div class="static-flash" id="static-flash" aria-hidden="true"></div>
+          <iframe
+            id="hero-frame"
+            src=""
+            title="90s REWIND player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+          <div class="video-placeholder" id="video-placeholder">
+            <p>📼</p>
+            <p>No video ID yet for this channel.</p>
+            <p class="small">Add one in <code>js/config.js</code> — see README.</p>
+          </div>
+        </div>
+
+        <div class="console-glass" aria-hidden="true"></div>
+
+        <div class="console-controls">
+          <button type="button" id="prev-btn" class="ctrl-btn">⏮ PREV</button>
+          <button type="button" id="play-btn" class="ctrl-btn ctrl-btn--play">▶ PLAY</button>
+          <button type="button" id="next-btn" class="ctrl-btn">NEXT ⏭</button>
+        </div>
+      </div>
+
+      <div class="channel-info">
+        <span class="channel-info-num" id="hero-channel-num">01</span>
+        <div>
+          <h2 id="hero-channel-name">Loading…</h2>
+          <p id="hero-channel-desc">Loading channel guide…</p>
+        </div>
+      </div>
+
+      <nav class="channel-tabs" id="channel-tabs" aria-label="Switch channel"></nav>
+    </section>
+
+    <aside class="sidebar">
+      <div class="widget poll-widget">
+        <h3 class="widget-title">📊 Daily Poll</h3>
+        <p class="poll-question" id="poll-question">Which channel do you flip to first?</p>
+        <form id="poll-form">
+          <div id="poll-options" class="poll-options"></div>
+          <button type="submit" class="btn-chunky btn-block">VOTE!</button>
+        </form>
+        <p id="poll-result" class="poll-result hidden"></p>
+      </div>
+
+      <div class="widget adda-teaser">
+        <h3 class="widget-title">💬 Adda Corner</h3>
+        <p>Jump into the chat and gupshup about your favorite 90s memories with fellow 90s kids.</p>
+        <a href="#adda" class="btn-chunky btn-block">JOIN THE ADDA →</a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ CHANNEL GUIDE ============ -->
+  <section id="channel-guide" class="section">
+    <h2 class="section-title"><span>📡</span> Channel Guide</h2>
+    <div id="channel-grid" class="channel-grid"></div>
+  </section>
+
+  <!-- ============ TODAY ON 90s REWIND ============ -->
+  <section id="shows" class="section">
+    <h2 class="section-title"><span>📺</span> Today on 90s REWIND!</h2>
+    <div id="shows-list" class="shows-list"></div>
+  </section>
+
+  <!-- ============ ARCADE ============ -->
+  <section id="arcade" class="section">
+    <h2 class="section-title"><span>🕹️</span> The Arcade</h2>
+    <div class="arcade-cabinet">
+      <div class="arcade-readout">
+        <span>SCORE <strong id="game-score">0</strong></span>
+        <span>HI-SCORE <strong id="game-hiscore">0</strong></span>
+      </div>
+      <canvas id="game-canvas" width="600" height="280"></canvas>
+      <div class="arcade-footer">
+        <p class="arcade-hint">SPACE / TAP screen to jump — dodge the obstacles!</p>
+        <button type="button" id="coin-btn" class="btn-chunky btn-coin">🪙 INSERT COIN</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PHOTO WALL ============ -->
+  <section id="photo-wall" class="section">
+    <h2 class="section-title"><span>📸</span> Photo Wall</h2>
+    <p class="section-sub">Pins from the 90s India community — school photos, cricket cards, cassette covers &amp; more.</p>
+    <div id="photo-grid" class="photo-grid"></div>
+    <!--
+      TO ADD THE REAL PINTEREST BOARD:
+      1. Go to your Pinterest board → "..." menu → Embed → Board widget → copy the <script> + <a> snippet.
+      2. Replace the #photo-grid placeholder blocks below with that snippet, e.g.:
+
+      <a data-pin-do="embedBoard" data-pin-board-width="900" data-pin-scale-height="240"
+         data-pin-scale-width="80" href="PINTEREST_BOARD_URL_FROM_CONFIG"></a>
+      <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
+
+      3. PINTEREST_BOARD_URL already lives in js/config.js — reuse it instead of hardcoding here.
+    -->
+  </section>
+
+  <!-- ============ HIT PARADE ============ -->
+  <section id="hit-parade" class="section">
+    <h2 class="section-title"><span>🎵</span> Hit Parade</h2>
+    <p class="section-sub">Click a track to spin it up in the console above.</p>
+    <div class="jukebox">
+      <ol id="track-list" class="track-list"></ol>
+    </div>
+  </section>
+
+  <!-- ============ CRICKET & WWF VAULT ============ -->
+  <section id="vault" class="section">
+    <h2 class="section-title"><span>🏏</span> Cricket &amp; WWF Vault</h2>
+    <div id="sports-cards" class="sports-cards"></div>
+  </section>
+
+  <!-- ============ ADDA ============ -->
+  <section id="adda" class="section">
+    <h2 class="section-title"><span>💬</span> The Adda</h2>
+    <div class="adda-card">
+      <p>This is where a live chat would go — an embedded <strong>Discord widget</strong> or
+      <strong>Disqus</strong> comment thread. No custom backend needed.</p>
+      <p class="small">
+        To wire this up: create a Discord server + invite link, then use Discord's
+        "Server Widget" (Server Settings → Widget) and drop the provided
+        <code>&lt;iframe src="https://discord.com/widget?id=YOUR_SERVER_ID&amp;theme=dark"&gt;</code>
+        in place of this card. For a comments-style adda instead, use
+        <a href="https://disqus.com/" target="_blank" rel="noopener noreferrer">Disqus</a>'s
+        universal embed code.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer id="site-footer">
+  <p class="footer-logo">90s <span>REWIND</span><sup>!</sup></p>
+  <p>Made with 💜 for every 90s kid in India. All embedded videos stream directly from their official rights-holder YouTube channels.</p>
+  <p class="small">© <span id="footer-year"></span> the90sindia.com — a fan nostalgia project, not affiliated with any channel, network or rights holder shown above.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
