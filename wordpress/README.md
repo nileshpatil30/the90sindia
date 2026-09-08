@@ -82,6 +82,31 @@ at a time rather than all at once. Uploads are sized to fit the box they land
 in, so an oversized image cannot break the fixed-width layout. An image that
 fails to load falls back to the text version rather than leaving a hole.
 
+### You may not need to upload much at all
+
+Any item with a YouTube video ID **already has artwork**: the tiles use that
+video's own still automatically, with no upload and no setting to switch on.
+
+The order of preference is:
+
+1. The **Featured image**, if you set one — an upload always wins.
+2. The **video's YouTube still**, when the item has a video ID.
+3. A generated **two-letter monogram**, if it has neither.
+
+So uploads are for the things a video can't cover: the logo, the promos, the
+badges, the ad banners, and playlist-only channels (a playlist ID alone has no
+still).
+
+### The player opens on a still
+
+The big player shows the video's thumbnail with a play button until someone
+presses it. Nothing loads from YouTube — no player, no YouTube cookies — until
+that click. The page is lighter, and a visitor who never presses play never
+contacts YouTube at all.
+
+If a still can't be fetched, the player loads normally instead, so the stage is
+never stuck behind a broken image.
+
 ### Tile artwork
 
 Set a **Featured image** and it fills every tile for that item at once — the
@@ -123,7 +148,10 @@ php wordpress/tests/test-logic.php
 Both templates were rendered in a browser against a WordPress-shaped payload —
 featured images, a playlist channel, uploaded logo/ad/badge/promo artwork, a
 caption-only slot and deliberately broken image paths — and produce the same
-output as the static site with no console errors. The frame stays 760px wide
+output as the static site with no console errors. The thumbnail behaviour was
+checked both ways: with stills reachable (correct URL derived, poster shown,
+player not loaded until clicked) and unreachable (poster skipped, player loads
+directly, tiles fall back to monograms). The frame stays 760px wide
 and the page never scrolls sideways whatever is uploaded.
 
 **It has not been run against a live WordPress install**, because this build

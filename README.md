@@ -47,9 +47,19 @@ an avatar carousel, a three-column body and a 2-up card grid. Only the era's
 generic layout conventions are reconstructed — all branding, copy and content
 are this project's own.
 
+### Tile artwork comes free from the videos
+
+A portal tile uses, in order: an `image` you set, else the YouTube still for
+that item's `video` ID, else a generated two-letter monogram. So most items
+already have real artwork without any image files at all.
+
+Set `image` when you want to override the still, or for playlist-only channels,
+which have no still to derive.
+
 ### Adding tile artwork
 
-Portal tiles draw a generated two-letter monogram by default. To use real
+Portal tiles draw a generated two-letter monogram when there is no image and no
+video to take a still from. To use real
 artwork, drop a square-ish image in `img/` and add an `image` field to the
 entry in `js/config.js`:
 

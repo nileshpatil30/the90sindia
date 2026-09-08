@@ -68,10 +68,11 @@
      so dropping an image into config.js updates the carousel, the card, the
      rail thumb and the bottom show strip at once. */
   function paintTile(host, entry, tone, label) {
-    if (entry && entry.image) {
+    const src = (entry && entry.image) || youtubeThumb(entry);
+    if (src) {
       const img = document.createElement("img");
       img.className = "tile-art";
-      img.src = entry.image;
+      img.src = src;
       img.alt = "";
       img.loading = "lazy";
       /* A dead path shouldn't leave a blank square — fall back to the monogram. */
@@ -87,6 +88,14 @@
     host.style.background = tone.bg;
     host.style.color = tone.fg;
     host.textContent = label;
+  }
+
+  /* YouTube publishes a still for every video at a predictable URL, so an
+     entry with a video ID already has artwork and needs no upload. hqdefault
+     is the size that always exists — maxresdefault 404s on older uploads. */
+  function youtubeThumb(entry) {
+    if (!entry || !entry.video) return "";
+    return "https://img.youtube.com/vi/" + entry.video + "/hqdefault.jpg";
   }
 
   function hasVideo(entry) {
@@ -112,14 +121,79 @@
   const stageFrame = document.getElementById("stage-frame");
   const stageEmpty = document.getElementById("stage-empty");
 
-  function playEntry(entry, autoplay) {
+  /* Poster shown in place of the player until someone asks to watch. Nothing
+     loads from YouTube — no player, no cookies — until that click. */
+  let stagePoster = null;
+
+  function clearPoster() {
+    if (stagePoster && stagePoster.parentNode) {
+      stagePoster.parentNode.removeChild(stagePoster);
+    }
+    stagePoster = null;
+  }
+
+  function showPoster(entry) {
+    clearPoster();
+
+    const thumb = (entry && entry.image) || youtubeThumb(entry);
+    if (!thumb) return false;
+
+    stagePoster = document.createElement("button");
+    stagePoster.type = "button";
+    stagePoster.className = "stage-poster";
+    stagePoster.setAttribute("aria-label", "Play " + (entry.name || entry.title || "video"));
+
+    const art = document.createElement("img");
+    art.src = thumb;
+    art.alt = "";
+    /* No still available — drop straight to the player rather than showing a
+       broken poster. */
+    art.addEventListener("error", function () {
+      playEntry(entry, false, true);
+    });
+
+    const play = document.createElement("span");
+    play.className = "stage-play";
+    play.textContent = "▶";
+
+    const cap = document.createElement("span");
+    cap.className = "stage-cap";
+    cap.textContent = entry.name || entry.title || "";
+
+    stagePoster.appendChild(art);
+    stagePoster.appendChild(play);
+    stagePoster.appendChild(cap);
+    stagePoster.addEventListener("click", function () {
+      playEntry(entry, true);
+    });
+
+    document.getElementById("stage").appendChild(stagePoster);
+    return true;
+  }
+
+  /**
+   * @param {Object}  entry     Channel, show or track to show.
+   * @param {boolean} autoplay  True when a person asked for it — loads the player.
+   * @param {boolean} skipPoster Load the player even when not autoplaying.
+   */
+  function playEntry(entry, autoplay, skipPoster) {
     const url = buildEmbedUrl(entry, autoplay);
     if (!url) {
+      clearPoster();
       stageFrame.removeAttribute("src");
       stageEmpty.classList.remove("hidden");
       return;
     }
+
     stageEmpty.classList.add("hidden");
+
+    /* Idle arrival at the page: show the still, keep YouTube unloaded. */
+    if (!autoplay && !skipPoster && showPoster(entry)) {
+      stageFrame.removeAttribute("src");
+      return;
+    }
+
+    clearPoster();
     stageFrame.src = url;
   }
 
