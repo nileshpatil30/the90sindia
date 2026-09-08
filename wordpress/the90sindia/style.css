@@ -1,0 +1,31 @@
+/*
+Theme Name: 90s REWIND
+Theme URI: https://the90sindia.com/
+Author: the90sindia.com
+Description: The 90s India nostalgia hub — Doordarshan classics, Bollywood, cricket, WWF, an arcade game and a Hit Parade jukebox. Ships two front-page layouts: the main hub and a fixed-width kids'-portal skin. Channels, shows, tracks and vault cards are edited from wp-admin.
+Version: 1.0.0
+Requires at least: 6.0
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: the90sindia
+Tags: one-page, custom-colors, custom-menu, featured-images, entertainment
+*/
+
+/*
+ * The real stylesheets are assets/css/style.css (main hub) and
+ * assets/css/portal.css (portal layout); functions.php enqueues whichever the
+ * current template needs. This file carries the theme header WordPress
+ * requires, plus the few admin-bar corrections the fixed-width layout needs.
+ */
+
+/* The admin bar overlaps a fixed header, so push the page down when it shows. */
+body.admin-bar #site-header { top: 32px; }
+
+@media screen and (max-width: 782px) {
+	body.admin-bar #site-header { top: 46px; }
+}
+
+/* The portal frame is centred on its own grey ground; keep the admin bar clear. */
+body.admin-bar .portal-scroll { padding-top: 8px; }

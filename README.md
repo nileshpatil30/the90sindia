@@ -21,6 +21,20 @@ img/               Tile artwork (optional) — see img/README.md
 README.md          This file
 ```
 
+## Running this on WordPress
+
+There is a WordPress theme in `wordpress/the90sindia/` that renders the same
+two pages with the content moved into wp-admin, so channels and shows are added
+from a browser instead of by editing `js/config.js` and pushing.
+
+The look and behaviour are unchanged — the theme reuses these same stylesheets
+and renderers, and `inc/config.php` feeds them the same JavaScript globals this
+file defines. See `wordpress/README.md` for install steps.
+
+Keeping the static site is a perfectly good choice: it is faster, free to host
+and has nothing to keep patched. Move to WordPress when you want to edit
+content without a git push, or hand editing access to someone who doesn't code.
+
 ## Two front pages, one content file
 
 `index.html` and `portal.html` are two skins over the same data. Both read the

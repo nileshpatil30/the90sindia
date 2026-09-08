@@ -1,0 +1,276 @@
+<?php
+/**
+ * Starter import — brings the existing js/config.js content into WordPress so
+ * a fresh install opens with the real site, not an empty one.
+ *
+ * Runs once, from a button under Tools. Every created post is stamped, so a
+ * second run skips whatever is already there and never duplicates.
+ *
+ * @package The90sIndia
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+const REWIND_SEED_FLAG = '_rw_seeded';
+
+/**
+ * The content that shipped in js/config.js.
+ *
+ * @return array
+ */
+function rewind_seed_data() {
+	return array(
+		'rewind_channel' => array(
+			array(
+				'title' => 'DD RETRO',
+				'body'  => "Doordarshan's own channel, reviving classics like Office Office. Dig into their archive for more DD-era gems.",
+				'meta'  => array( '_rw_number' => '01', '_rw_video' => 'Mg4h9Au7JpE' ),
+			),
+			array(
+				'title' => 'SHEMAROO CLASSICS',
+				'body'  => "Hasya Kavi Sammelans, comedy specials and DD-era classics from Shemaroo's official Indian TV Classics channel.",
+				'meta'  => array( '_rw_number' => '02', '_rw_video' => '74FQYh2j0cE' ),
+			),
+			array(
+				'title' => 'RAJSHRI TALKIES',
+				'body'  => "Family blockbusters from the studio that gave us Hum Aapke Hain Koun — straight from Rajshri's own channel.",
+				'meta'  => array( '_rw_number' => '03', '_rw_playlist' => 'PL0CaUqi81mPnxS08v67qqzJawvLRakSud' ),
+			),
+			array(
+				'title' => 'ULTRA BLOCKBUSTERS',
+				'body'  => "90s Bollywood masala, full movies, from Ultra's official film library.",
+				'meta'  => array( '_rw_number' => '04', '_rw_video' => 'G9jk_mk-s7w' ),
+			),
+			array(
+				'title' => 'WWF ARENA',
+				'body'  => "Hulk Hogan, The Undertaker, Shawn Michaels — classic 90s slams from WWE's own channel.",
+				'meta'  => array( '_rw_number' => '05', '_rw_video' => 'BvZ2KQuCTds' ),
+			),
+			array(
+				'title' => 'HIT MUSIC',
+				'body'  => 'Chartbusters and remixes, sourced only from official record label channels.',
+				'meta'  => array( '_rw_number' => '06', '_rw_video' => '1YddSDFIsk4' ),
+			),
+			array(
+				'title' => 'CRICKET CORNER',
+				'body'  => "Cricket highlights and India matches, official uploads straight from ICC's own channel.",
+				'meta'  => array( '_rw_number' => '07', '_rw_video' => 'KrAN51nZ1HM' ),
+			),
+		),
+		'rewind_show'    => array(
+			array(
+				'title' => 'Office Office: Chali Mussaddi Ki Beti',
+				'body'  => "Musaddi Lal is back — Pankaj Kapur's classic babu battles the system all over again, straight from DD National.",
+				'meta'  => array( '_rw_category' => 'CLASSIC', '_rw_tag_color' => 'lime', '_rw_video' => 'Mg4h9Au7JpE' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
+				'title' => 'Waah Bhai Waah',
+				'body'  => 'A hasya kavi sammelan special — the kind of comic-poetry night that ruled Doordarshan Sundays.',
+				'meta'  => array( '_rw_category' => 'COMEDY', '_rw_tag_color' => 'pink', '_rw_video' => '74FQYh2j0cE' ),
+				'channel' => 'SHEMAROO CLASSICS',
+			),
+			array(
+				'title' => 'Hum Aapke Hain Koun',
+				'body'  => 'Weddings, songs and Tuffy the dog — the family blockbuster that broke records.',
+				'meta'  => array( '_rw_category' => 'MOVIE', '_rw_tag_color' => 'purple', '_rw_playlist' => 'PL0CaUqi81mPnxS08v67qqzJawvLRakSud' ),
+				'channel' => 'RAJSHRI TALKIES',
+			),
+			array(
+				'title' => 'Hell in a Cell, 1997',
+				'body'  => 'Undertaker vs Shawn Michaels — the match that invented a whole new kind of brutal.',
+				'meta'  => array( '_rw_category' => 'WWF', '_rw_tag_color' => 'orange', '_rw_video' => 'BvZ2KQuCTds' ),
+				'channel' => 'WWF ARENA',
+			),
+			array(
+				'title' => '90s Bollywood Hit Mix',
+				'body'  => 'Non-stop chartbusters to take you straight back to the golden decade.',
+				'meta'  => array( '_rw_category' => 'MUSIC', '_rw_tag_color' => 'cyan', '_rw_video' => '1YddSDFIsk4' ),
+				'channel' => 'HIT MUSIC',
+			),
+			array(
+				'title' => 'Barood',
+				'body'  => "Akshay Kumar and Raveena Tandon in a 1998 full-throttle actioner, straight from Ultra's own vault.",
+				'meta'  => array( '_rw_category' => 'MOVIE', '_rw_tag_color' => 'orange', '_rw_video' => 'G9jk_mk-s7w' ),
+				'channel' => 'ULTRA BLOCKBUSTERS',
+			),
+			array(
+				'title' => 'India vs Pakistan Thriller',
+				'body'  => "Kohli's heroics in front of a packed house — an official ICC highlight package.",
+				'meta'  => array( '_rw_category' => 'SPORTS', '_rw_tag_color' => 'yellow', '_rw_video' => 'KrAN51nZ1HM' ),
+				'channel' => 'CRICKET CORNER',
+			),
+		),
+		'rewind_track'   => array(
+			array(
+				'title' => '90s Bollywood Hit Mix',
+				'meta'  => array( '_rw_artist' => 'Tips Official (official label channel)', '_rw_video' => '1YddSDFIsk4' ),
+			),
+			array(
+				'title' => 'Taare Hain Baraati',
+				'meta'  => array( '_rw_artist' => 'Virasat (1997) — Saregama Carvaan (official label channel)', '_rw_video' => 'AJObEYtVGvA' ),
+			),
+		),
+		'rewind_vault'   => array(
+			array(
+				'title' => '1983 World Cup Glory',
+				'body'  => "Kapil's Devils lifted India's first World Cup at Lord's — find the highlights on ICC's official channel.",
+				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'cyan' ),
+			),
+			array(
+				'title' => 'Hell in a Cell, 1997',
+				'body'  => "The cell match that changed wrestling forever, from WWE's own Vault.",
+				'meta'  => array( '_rw_label' => 'WWF', '_rw_theme' => 'orange' ),
+			),
+		),
+	);
+}
+
+/**
+ * Creates any starter item that is not already present.
+ *
+ * Matching is by post type + title, so an item you renamed or deleted on
+ * purpose is not silently recreated as a duplicate of something you edited.
+ *
+ * @return array Counts keyed by post type.
+ */
+function rewind_run_seed() {
+	$created  = array();
+	$channels = array();
+
+	foreach ( rewind_seed_data() as $type => $items ) {
+		$created[ $type ] = 0;
+		$order            = 0;
+
+		foreach ( $items as $item ) {
+			++$order;
+
+			$existing = rewind_find_by_title( $item['title'], $type );
+			if ( $existing ) {
+				if ( 'rewind_channel' === $type ) {
+					$channels[ $item['title'] ] = $existing->ID;
+				}
+				continue;
+			}
+
+			$post_id = wp_insert_post(
+				array(
+					'post_type'    => $type,
+					'post_status'  => 'publish',
+					'post_title'   => $item['title'],
+					'post_content' => isset( $item['body'] ) ? $item['body'] : '',
+					'menu_order'   => $order,
+				),
+				true
+			);
+
+			if ( is_wp_error( $post_id ) ) {
+				continue;
+			}
+
+			foreach ( $item['meta'] as $key => $value ) {
+				update_post_meta( $post_id, $key, $value );
+			}
+
+			/* Shows point at a channel by ID, so channels must exist first —
+			   they do, because seed data is ordered channels-first. */
+			if ( isset( $item['channel'] ) && isset( $channels[ $item['channel'] ] ) ) {
+				update_post_meta( $post_id, '_rw_channel', $channels[ $item['channel'] ] );
+			}
+
+			if ( 'rewind_channel' === $type ) {
+				$channels[ $item['title'] ] = $post_id;
+			}
+
+			update_post_meta( $post_id, REWIND_SEED_FLAG, '1' );
+			++$created[ $type ];
+		}
+	}
+
+	return $created;
+}
+
+/**
+ * Finds a post of a type by exact title.
+ *
+ * get_page_by_title() is deprecated as of WordPress 6.2, so this uses the
+ * WP_Query `title` parameter instead.
+ *
+ * @param string $title Exact post title.
+ * @param string $type  Post type.
+ * @return WP_Post|null
+ */
+function rewind_find_by_title( $title, $type ) {
+	$found = get_posts(
+		array(
+			'post_type'        => $type,
+			'title'            => $title,
+			'post_status'      => array( 'publish', 'draft', 'pending', 'private' ),
+			'posts_per_page'   => 1,
+			'suppress_filters' => false,
+		)
+	);
+
+	return $found ? $found[0] : null;
+}
+
+/**
+ * Adds the import screen under Tools.
+ */
+function rewind_seed_menu() {
+	add_management_page(
+		__( '90s REWIND starter content', 'the90sindia' ),
+		__( '90s REWIND import', 'the90sindia' ),
+		'manage_options',
+		'rewind-seed',
+		'rewind_seed_screen'
+	);
+}
+add_action( 'admin_menu', 'rewind_seed_menu' );
+
+/**
+ * Renders the import screen and handles the button.
+ */
+function rewind_seed_screen() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$done = false;
+	$made = array();
+
+	if ( isset( $_POST['rewind_seed_nonce'] ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['rewind_seed_nonce'] ) );
+		if ( wp_verify_nonce( $nonce, 'rewind_seed' ) ) {
+			$made = rewind_run_seed();
+			$done = true;
+		}
+	}
+
+	echo '<div class="wrap">';
+	echo '<h1>' . esc_html__( '90s REWIND starter content', 'the90sindia' ) . '</h1>';
+
+	if ( $done ) {
+		$total = array_sum( $made );
+		echo '<div class="notice notice-success"><p>';
+		if ( $total ) {
+			printf(
+				/* translators: %d: number of items created. */
+				esc_html__( 'Imported %d items. Anything already present was left alone.', 'the90sindia' ),
+				(int) $total
+			);
+		} else {
+			esc_html_e( 'Nothing to import — every starter item is already here.', 'the90sindia' );
+		}
+		echo '</p></div>';
+	}
+
+	echo '<p>' . esc_html__( 'Creates the channels, shows, tracks and vault cards that shipped with the static site, so you can start from the real content instead of a blank site.', 'the90sindia' ) . '</p>';
+	echo '<p>' . esc_html__( 'Safe to run more than once: it matches on title and skips anything that already exists, so nothing is duplicated or overwritten.', 'the90sindia' ) . '</p>';
+
+	echo '<form method="post">';
+	wp_nonce_field( 'rewind_seed', 'rewind_seed_nonce' );
+	submit_button( __( 'Import starter content', 'the90sindia' ) );
+	echo '</form>';
+	echo '</div>';
+}
