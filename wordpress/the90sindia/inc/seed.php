@@ -95,6 +95,42 @@ function rewind_seed_data() {
 				'channel' => 'ULTRA BLOCKBUSTERS',
 			),
 			array(
+				'title' => 'Shaktimaan',
+				'body'  => 'India\'s own superhero — Mukesh Khanna spinning into the sky every Sunday from 1997. Look for it on Doordarshan\'s official channel.',
+				'meta'  => array( '_rw_category' => 'SUPERHERO', '_rw_tag_color' => 'orange', '_rw_video' => '' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
+				'title' => 'Byomkesh Bakshi',
+				'body'  => 'Rajit Kapur as Sharadindu Bandyopadhyay\'s satyanweshi, solving cases in 1930s Calcutta. DD has run the full series on its own channel.',
+				'meta'  => array( '_rw_category' => 'DETECTIVE', '_rw_tag_color' => 'cyan', '_rw_video' => '' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
+				'title' => 'Chandrakanta',
+				'body'  => 'Tilismi forts, ayyaars and Crookbond — the Sunday-morning fantasy that had the whole country guessing. Look for it on DD\'s channel.',
+				'meta'  => array( '_rw_category' => 'FANTASY', '_rw_tag_color' => 'purple', '_rw_video' => '' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
+				'title' => 'Malgudi Days',
+				'body'  => 'R.K. Narayan\'s stories, Shankar Nag\'s direction, and that theme tune. Check DD\'s official uploads before any reupload channel.',
+				'meta'  => array( '_rw_category' => 'CLASSIC', '_rw_tag_color' => 'lime', '_rw_video' => '' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
+				'title' => 'Jungle Book: Mowgli',
+				'body'  => 'The dubbed anime that ruled after-school hours, with Gulzar\'s title song. Rights sit with the studio — verify the channel before embedding.',
+				'meta'  => array( '_rw_category' => 'KIDS', '_rw_tag_color' => 'yellow', '_rw_video' => '' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
+				'title' => 'Surabhi',
+				'body'  => 'Siddharth Kak and Renuka Shahane touring India\'s crafts, festivals and forgotten corners — and those postcard entries by the sackful.',
+				'meta'  => array( '_rw_category' => 'CULTURE', '_rw_tag_color' => 'pink', '_rw_video' => '' ),
+				'channel' => 'DD RETRO',
+			),
+			array(
 				'title' => 'India vs Pakistan Thriller',
 				'body'  => "Kohli's heroics in front of a packed house — an official ICC highlight package.",
 				'meta'  => array( '_rw_category' => 'SPORTS', '_rw_tag_color' => 'yellow', '_rw_video' => 'KrAN51nZ1HM' ),
@@ -110,17 +146,71 @@ function rewind_seed_data() {
 				'title' => 'Taare Hain Baraati',
 				'meta'  => array( '_rw_artist' => 'Virasat (1997) — Saregama Carvaan (official label channel)', '_rw_video' => 'AJObEYtVGvA' ),
 			),
+			array(
+				'title' => 'Made in India',
+				'meta'  => array( '_rw_artist' => 'Alisha Chinai (1995) — look on Sony Music India / Magnasound', '_rw_video' => '' ),
+			),
+			array(
+				'title' => 'Bolo Ta Ra Ra',
+				'meta'  => array( '_rw_artist' => 'Daler Mehndi (1995) — look on Magnasound / Sony Music India', '_rw_video' => '' ),
+			),
+			array(
+				'title' => 'O Sanam',
+				'meta'  => array( '_rw_artist' => 'Lucky Ali, from Sunoh (1996) — look on Sony Music India', '_rw_video' => '' ),
+			),
+			array(
+				'title' => 'Dooba Dooba',
+				'meta'  => array( '_rw_artist' => 'Silk Route, from Boondein (1998) — look on Sony Music India', '_rw_video' => '' ),
+			),
+			array(
+				'title' => 'Ab Ke Sawan',
+				'meta'  => array( '_rw_artist' => 'Shubha Mudgal (1999) — look on the label\'s official channel', '_rw_video' => '' ),
+			),
+			array(
+				'title' => 'Maa Tujhe Salaam',
+				'meta'  => array( '_rw_artist' => 'A.R. Rahman, Vande Mataram (1997) — look on Sony Music India', '_rw_video' => '' ),
+			),
 		),
 		'rewind_vault'   => array(
 			array(
 				'title' => '1983 World Cup Glory',
-				'body'  => "Kapil's Devils lifted India's first World Cup at Lord's — find the highlights on ICC's official channel.",
+				'body'  => 'Kapil\'s Devils beat the mighty West Indies at Lord\'s — India\'s first World Cup, and the day the country fell for the one-day game.',
 				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'cyan' ),
 			),
 			array(
+				'title' => 'Hero Cup Semi-Final, 1993',
+				'body'  => 'South Africa needed six off the last over at Eden Gardens. Azhar tossed the ball to Sachin — a part-time bowler — and India won by two runs.',
+				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'lime' ),
+			),
+			array(
+				'title' => 'Bangalore Quarter-Final, 1996',
+				'body'  => 'India vs Pakistan in the World Cup quarter-final at the Chinnaswamy. Ajay Jadeja tore into Waqar Younis at the death and India went through.',
+				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'yellow' ),
+			),
+			array(
+				'title' => 'Desert Storm, Sharjah 1998',
+				'body'  => 'A sandstorm stopped play; Sachin restarted it. 143 against Australia to reach the final, then 134 in the final itself — on his 25th birthday.',
+				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'orange' ),
+			),
+			array(
+				'title' => 'Kumble\'s Perfect Ten, 1999',
+				'body'  => 'All ten Pakistani wickets at the Feroz Shah Kotla — only the second bowler in Test history to take all ten in an innings.',
+				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'pink' ),
+			),
+			array(
+				'title' => 'Taunton, World Cup 1999',
+				'body'  => 'Ganguly 183, Dravid 145, and a stand of 318 against Sri Lanka — the biggest partnership in World Cup cricket at the time.',
+				'meta'  => array( '_rw_label' => 'CRICKET', '_rw_theme' => 'purple' ),
+			),
+			array(
 				'title' => 'Hell in a Cell, 1997',
-				'body'  => "The cell match that changed wrestling forever, from WWE's own Vault.",
+				'body'  => 'Undertaker vs Shawn Michaels at Badd Blood — the very first Cell match, and Kane\'s arrival to tear the door off it.',
 				'meta'  => array( '_rw_label' => 'WWF', '_rw_theme' => 'orange' ),
+			),
+			array(
+				'title' => 'Austin 3:16, 1996',
+				'body'  => 'Stone Cold\'s King of the Ring promo — three words that turned a mid-card heel into the biggest star of the Attitude Era.',
+				'meta'  => array( '_rw_label' => 'WWF', '_rw_theme' => 'cyan' ),
 			),
 		),
 	);
