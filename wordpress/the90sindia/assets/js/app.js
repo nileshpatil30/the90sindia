@@ -13,6 +13,35 @@
   /* Embed URL helpers                                                   */
   /* ------------------------------------------------------------------ */
 
+  /* YouTube publishes a still for every video at a predictable URL, so any
+     entry with a video ID already has artwork — nothing to upload. hqdefault
+     is the size that always exists; maxresdefault 404s on older uploads. */
+  function youtubeThumb(entry) {
+    if (entry && entry.image) return entry.image;
+    if (entry && entry.video) {
+      return "https://img.youtube.com/vi/" + entry.video + "/hqdefault.jpg";
+    }
+    return "";
+  }
+
+  /* Builds a thumbnail for `entry`, or returns null when it has no still.
+     A still that fails to load removes itself, leaving the card exactly as it
+     looked before thumbnails existed — never a broken-image box. */
+  function makeThumb(entry, className) {
+    const src = youtubeThumb(entry);
+    if (!src) return null;
+
+    const img = document.createElement("img");
+    img.className = className;
+    img.src = src;
+    img.alt = "";
+    img.loading = "lazy";
+    img.addEventListener("error", function () {
+      if (img.parentNode) img.parentNode.removeChild(img);
+    });
+    return img;
+  }
+
   function hasVideo(entry) {
     return Boolean((entry && entry.video) || (entry && entry.playlistId));
   }
@@ -49,18 +78,72 @@
     heroDesc.textContent = desc || "";
   }
 
+  /* Poster shown in place of the player until someone asks to watch, so the
+     page opens on a still and contacts YouTube only after a click. */
+  let heroPoster = null;
+
+  function clearHeroPoster() {
+    if (heroPoster && heroPoster.parentNode) {
+      heroPoster.parentNode.removeChild(heroPoster);
+    }
+    heroPoster = null;
+  }
+
+  function showHeroPoster(entry) {
+    clearHeroPoster();
+
+    const art = makeThumb(entry, "hero-poster-art");
+    if (!art) return false;
+
+    heroPoster = document.createElement("button");
+    heroPoster.type = "button";
+    heroPoster.className = "hero-poster";
+    heroPoster.setAttribute("aria-label", "Play " + (entry.name || entry.title || "video"));
+
+    /* No still available — load the player rather than show a blank poster. */
+    art.addEventListener("error", function () {
+      clearHeroPoster();
+      loadHeroPlayer(entry, false);
+    });
+
+    const play = document.createElement("span");
+    play.className = "hero-poster-play";
+    play.textContent = "▶";
+
+    heroPoster.appendChild(art);
+    heroPoster.appendChild(play);
+    heroPoster.addEventListener("click", function () {
+      loadHeroPlayer(entry, true);
+    });
+
+    document.getElementById("screen").appendChild(heroPoster);
+    return true;
+  }
+
+  function loadHeroPlayer(entry, autoplay) {
+    clearHeroPoster();
+    if (hasVideo(entry)) {
+      heroFrame.src = buildEmbedUrl(entry, autoplay);
+      heroFrame.classList.remove("hidden");
+      videoPlaceholder.classList.add("hidden");
+    } else {
+      heroFrame.src = "";
+      heroFrame.classList.add("hidden");
+      videoPlaceholder.classList.remove("hidden");
+    }
+  }
+
   function flashAndLoad(entry, autoplay) {
     staticFlash.classList.add("active");
     window.setTimeout(function () {
-      if (hasVideo(entry)) {
-        heroFrame.src = buildEmbedUrl(entry, autoplay);
-        heroFrame.classList.remove("hidden");
-        videoPlaceholder.classList.add("hidden");
-      } else {
+      /* Idle arrival at the page: show the still, keep YouTube unloaded. */
+      if (!autoplay && hasVideo(entry) && showHeroPoster(entry)) {
         heroFrame.src = "";
         heroFrame.classList.add("hidden");
-        videoPlaceholder.classList.remove("hidden");
+        videoPlaceholder.classList.add("hidden");
+        return;
       }
+      loadHeroPlayer(entry, autoplay);
     }, 150);
     window.setTimeout(function () {
       staticFlash.classList.remove("active");
@@ -149,6 +232,9 @@
         '<h3>' + ch.name + '</h3>' +
         '<p>' + ch.desc + '</p>' +
         '<button type="button" class="btn-chunky btn-block">WATCH →</button>';
+      const chThumb = makeThumb(ch, "card-thumb");
+      if (chThumb) card.insertBefore(chThumb, card.firstChild);
+
       card.querySelector("button").addEventListener("click", function () {
         switchToChannel(i, true);
         document.getElementById("hero").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -174,6 +260,9 @@
           '<p>' + show.desc + ' <span class="show-channel">— ' + show.channel + '</span></p>' +
         '</div>' +
         '<button type="button" class="btn-chunky btn-go">GO! &gt;&gt;</button>';
+      const showThumb = makeThumb(show, "row-thumb");
+      if (showThumb) row.insertBefore(showThumb, row.querySelector(".show-body"));
+
       row.querySelector("button").addEventListener("click", function () {
         playEntry(show, show.category, show.title, show.desc + " — " + show.channel);
         document.getElementById("hero").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -196,6 +285,9 @@
         '<span class="track-index">' + String(i + 1).padStart(2, "0") + '</span>' +
         '<span class="track-info"><strong>' + t.title + '</strong><small>' + t.artist + '</small></span>' +
         '<span class="track-play">▶</span>';
+      const trackThumb = makeThumb(t, "track-thumb");
+      if (trackThumb) row.insertBefore(trackThumb, row.querySelector(".track-info"));
+
       row.addEventListener("click", function () {
         playTrack(i);
         document.getElementById("hero").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -232,11 +324,29 @@
     grid.innerHTML = "";
     const colors = ["lime", "pink", "purple", "orange", "cyan", "yellow"];
     const sizes = ["short", "tall", "medium", "medium", "tall", "short", "medium", "tall", "short", "medium"];
+
+    /* Pin the wall with stills from anything that has a video, so the section
+       carries real imagery instead of empty tiles. The coloured block stays
+       underneath as the backdrop, and shows through if a still won't load. */
+    const pinnable = CHANNELS.concat(SHOWS).concat(TRACKS).filter(function (e) {
+      return youtubeThumb(e);
+    });
+
     sizes.forEach(function (size, i) {
       const block = document.createElement("div");
       block.className = "photo-block photo-block--" + size;
       block.style.setProperty("--block-color", "var(--" + colors[i % colors.length] + ")");
       block.innerHTML = "<span>📌</span>";
+
+      const source = pinnable[i % pinnable.length];
+      if (source) {
+        const pin = makeThumb(source, "photo-thumb");
+        if (pin) {
+          pin.alt = source.name || source.title || "";
+          block.appendChild(pin);
+        }
+      }
+
       grid.appendChild(block);
     });
   }
