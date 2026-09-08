@@ -12,6 +12,7 @@ define( 'REWIND_VERSION', '1.0.0' );
 require_once get_template_directory() . '/inc/cpt.php';
 require_once get_template_directory() . '/inc/meta.php';
 require_once get_template_directory() . '/inc/config.php';
+require_once get_template_directory() . '/inc/chrome.php';
 require_once get_template_directory() . '/inc/seed.php';
 
 /**

@@ -16,6 +16,20 @@
     ? REWIND_HOME_URL
     : "index.html";
 
+  /* Artwork uploaded in the WordPress Customizer for the slots that are not
+     attached to a channel or show. Undefined on the static site, where every
+     slot keeps the text version below. */
+  function chrome(key) {
+    if (typeof REWIND_CHROME !== "object" || !REWIND_CHROME) return null;
+    const slot = REWIND_CHROME[key];
+    if (!slot) return null;
+    return {
+      image: slot.image || "",
+      text: slot.text || "",
+      href: slot.href || "",
+    };
+  }
+
   /* Rotating swatch set used for every generated tile, so a given item keeps
      the same colour in the carousel, the cards and the bottom show strip. */
   const SWATCHES = [
@@ -365,10 +379,24 @@
       document.getElementById("rail-next-meta").textContent = next.category + " • " + next.channel;
     }
 
-    const promos = [
-      { cap: "e-COLLECTIBLES", art: "PHOTO WALL", tone: swatch(2), href: HOME + "#photo-wall" },
-      { cap: "JUKEBOX", art: "HIT PARADE", tone: swatch(5), href: HOME + "#hit-parade" },
+    /* Each promo takes an uploaded image, caption and link when one is set,
+       and falls back to its text tile otherwise. */
+    const promoDefaults = [
+      { key: "promo_1", cap: "e-COLLECTIBLES", art: "PHOTO WALL", tone: swatch(2), href: HOME + "#photo-wall" },
+      { key: "promo_2", cap: "JUKEBOX", art: "HIT PARADE", tone: swatch(5), href: HOME + "#hit-parade" },
     ];
+
+    const promos = promoDefaults.map(function (base) {
+      const slot = chrome(base.key);
+      if (!slot) return base;
+      return {
+        cap: slot.text || base.cap,
+        art: slot.text || base.art,
+        tone: base.tone,
+        href: slot.href || base.href,
+        image: slot.image,
+      };
+    });
     const holder = document.getElementById("rail-promos");
     promos.forEach(function (p) {
       const a = document.createElement("a");
@@ -394,20 +422,39 @@
     const strip = document.getElementById("badge-strip");
     if (!strip) return;
 
-    const badges = [
-      { text: "PICK LIVE", href: HOME + "#channel-guide", tone: swatch(3) },
-      { text: "TEEN REWIND", href: HOME + "#shows", tone: swatch(2) },
-      { text: "LET'S PLAY", href: HOME + "#arcade", tone: swatch(4) },
-      { text: "THE VAULT", href: HOME + "#vault", tone: swatch(1) },
+    const badgeDefaults = [
+      { key: "badge_1", text: "PICK LIVE", href: HOME + "#channel-guide", tone: swatch(3) },
+      { key: "badge_2", text: "TEEN REWIND", href: HOME + "#shows", tone: swatch(2) },
+      { key: "badge_3", text: "LET'S PLAY", href: HOME + "#arcade", tone: swatch(4) },
+      { key: "badge_4", text: "THE VAULT", href: HOME + "#vault", tone: swatch(1) },
     ];
 
-    badges.forEach(function (b) {
+    badgeDefaults.forEach(function (base) {
+      const slot = chrome(base.key);
+      const label = (slot && slot.text) || base.text;
+
       const a = document.createElement("a");
       a.className = "badge";
-      a.href = b.href;
-      a.style.background = b.tone.bg;
-      a.style.color = b.tone.fg;
-      a.textContent = b.text;
+      a.href = (slot && slot.href) || base.href;
+
+      if (slot && slot.image) {
+        const img = document.createElement("img");
+        img.className = "badge-img";
+        img.src = slot.image;
+        img.alt = label;
+        img.addEventListener("error", function () {
+          a.removeChild(img);
+          a.style.background = base.tone.bg;
+          a.style.color = base.tone.fg;
+          a.textContent = label;
+        });
+        a.appendChild(img);
+      } else {
+        a.style.background = base.tone.bg;
+        a.style.color = base.tone.fg;
+        a.textContent = label;
+      }
+
       strip.appendChild(a);
     });
   }
@@ -452,7 +499,44 @@
   /* Boot                                                                */
   /* ------------------------------------------------------------------ */
 
+  /* Swaps the text wordmark for an uploaded logo. */
+  function buildLogo() {
+    const slot = chrome("logo");
+    const plate = document.querySelector(".wordmark-plate");
+    if (!slot || !slot.image || !plate) return;
+
+    const img = document.createElement("img");
+    img.className = "wordmark-img";
+    img.src = slot.image;
+    img.alt = slot.text || "";
+    img.addEventListener("error", function () {
+      img.parentNode.replaceChild(plate.cloneNode(true), img);
+    });
+    plate.parentNode.replaceChild(img, plate);
+  }
+
+  /* Drops an uploaded banner into an ad slot, replacing its placeholder. */
+  function buildAd(key, host) {
+    const slot = chrome(key);
+    if (!slot || !slot.image || !host) return;
+
+    const img = document.createElement("img");
+    img.className = "ad-img";
+    img.src = slot.image;
+    img.alt = slot.text || "";
+
+    const holder = slot.href ? document.createElement("a") : document.createDocumentFragment();
+    if (slot.href) holder.href = slot.href;
+    holder.appendChild(img);
+
+    host.textContent = "";
+    host.appendChild(holder);
+  }
+
   function init() {
+    buildLogo();
+    buildAd("ad_top", document.querySelector(".ad-face"));
+    buildAd("ad_side", document.querySelector(".rail-right-face"));
     buildCarousel();
     buildCards("");
     buildShowStrip();

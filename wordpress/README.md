@@ -70,6 +70,18 @@ rejected rather than saved as a broken embed.
 
 Use a video ID **or** a playlist ID, never both.
 
+### The rest of the images
+
+Everything on the portal page that isn't a channel or show tile — the logo, the
+two sidebar promos, the four bottom badges and both ad banners — is uploaded
+under **Appearance → Customize → 90s REWIND artwork**. Nine slots, each with an
+upload button, a caption and a link.
+
+Leave a slot empty and it keeps its text version, so you can replace them a few
+at a time rather than all at once. Uploads are sized to fit the box they land
+in, so an oversized image cannot break the fixed-width layout. An image that
+fails to load falls back to the text version rather than leaving a hole.
+
 ### Tile artwork
 
 Set a **Featured image** and it fills every tile for that item at once — the
@@ -100,11 +112,19 @@ portal together; there is no second place to edit.
 
 ## Testing status
 
-The PHP was syntax-checked on PHP 8.4 and the pure logic (YouTube URL parsing,
-the config-bridge output) is covered by the checks described below, which pass.
+The PHP was syntax-checked on PHP 8.4. `wordpress/tests/test-logic.php` covers
+the YouTube URL parsing, the config-bridge output and the artwork slots — 41
+checks, all passing. Run it with:
+
+```
+php wordpress/tests/test-logic.php
+```
+
 Both templates were rendered in a browser against a WordPress-shaped payload —
-including featured images, a playlist channel and a deliberately broken image
-path — and produce the same output as the static site with no console errors.
+featured images, a playlist channel, uploaded logo/ad/badge/promo artwork, a
+caption-only slot and deliberately broken image paths — and produce the same
+output as the static site with no console errors. The frame stays 760px wide
+and the page never scrolls sideways whatever is uploaded.
 
 **It has not been run against a live WordPress install**, because this build
 environment has no MySQL. Install it on a staging site before pointing a domain

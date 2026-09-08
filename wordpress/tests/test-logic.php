@@ -27,6 +27,7 @@ function strip_shortcodes( $s ) { return $s; }
 function sanitize_text_field( $s ) { return trim( strip_tags( $s ) ); }
 function wp_unslash( $s ) { return $s; }
 
+require __DIR__ . '/../the90sindia/inc/chrome.php';
 require __DIR__ . '/../the90sindia/inc/config.php';
 require __DIR__ . '/../the90sindia/inc/meta.php';
 
@@ -58,7 +59,16 @@ $js = rewind_config_inline_script();
 foreach ( array( 'REWIND_HOME_URL', 'TICKER_TEXT', 'CHANNELS', 'SHOWS', 'TRACKS', 'SPORTS_CARDS', 'POLL', 'PINTEREST_BOARD_URL' ) as $g ) {
 	check( "declares $g", (bool) preg_match( '/\bvar ' . $g . ' = /', $js ), true );
 }
+check( 'declares REWIND_CHROME', (bool) preg_match( '/\bvar REWIND_CHROME = /', $js ), true );
 check( 'no const (safe to re-declare)', strpos( $js, 'const ' ), false );
+
+echo "\nArtwork slots — every image on the portal is uploadable:\n";
+$chrome = rewind_chrome_config();
+foreach ( array( 'logo', 'promo_1', 'promo_2', 'badge_1', 'badge_2', 'badge_3', 'badge_4', 'ad_top', 'ad_side' ) as $slot ) {
+	check( "slot $slot exists", isset( $chrome[ $slot ] ), true );
+	check( "slot $slot has image/text/href", array_keys( $chrome[ $slot ] ), array( 'image', 'text', 'href' ) );
+}
+check( 'slot count', count( $chrome ), 9 );
 
 echo "\n" . ( $fail ? "$fail check(s) FAILED\n" : "All checks passed.\n" );
 exit( $fail ? 1 : 0 );

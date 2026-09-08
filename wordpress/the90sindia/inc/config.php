@@ -171,7 +171,8 @@ function rewind_config_inline_script() {
 
 	$flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
 
-	return 'var REWIND_HOME_URL = ' . wp_json_encode( home_url( '/' ), $flags ) . ';' . "\n"
+	return 'var REWIND_CHROME = ' . wp_json_encode( rewind_chrome_config(), $flags ) . ';' . "\n"
+		. 'var REWIND_HOME_URL = ' . wp_json_encode( home_url( '/' ), $flags ) . ';' . "\n"
 		. 'var TICKER_TEXT = ' . wp_json_encode( $config['ticker'], $flags ) . ';' . "\n"
 		. 'var CHANNELS = ' . wp_json_encode( $config['channels'], $flags ) . ';' . "\n"
 		. 'var SHOWS = ' . wp_json_encode( $config['shows'], $flags ) . ';' . "\n"

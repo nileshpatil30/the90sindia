@@ -1,3 +1,6 @@
 .claude/
 .DS_Store
 Thumbs.db
+
+# Built theme package — rebuild with: cd wordpress && zip -r the90sindia-theme.zip the90sindia
+wordpress/*.zip
