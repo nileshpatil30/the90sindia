@@ -44,6 +44,25 @@
    it's safer than guessing an ID and shipping a dead/wrong embed.
 
    ------------------------------------------------------------------------
+   ARTWORK — THE OPTIONAL `image` FIELD
+   ------------------------------------------------------------------------
+   Any channel, show, track or sports card can carry an `image` field:
+
+       image: "img/dd-retro.png",
+
+   Drop the file in the img/ folder and point at it with a path relative to
+   the page. That one line fills every tile for that entry at once — the
+   avatar carousel, its card icon, the sidebar thumb and the bottom show
+   strip — on portal.html.
+
+   Leave it out and the tile draws a generated two-letter monogram instead,
+   so the page is never broken by missing art. A path that 404s falls back to
+   the monogram too.
+
+   Use square-ish art, around 200x200px. Only use artwork you own, made
+   yourself, or hold a licence for — the same rule as the videos below.
+
+   ------------------------------------------------------------------------
    COPYRIGHT RULE — READ BEFORE ADDING CONTENT
    ------------------------------------------------------------------------
    Only ever use video/playlist IDs from OFFICIAL rights-holder YouTube

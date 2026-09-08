@@ -42,6 +42,32 @@
     return String(title).slice(0, 2).toUpperCase();
   }
 
+  /* Fills a tile with `entry.image` if one is set in config.js, otherwise
+     with the generated monogram. Every tile on the page routes through here,
+     so dropping an image into config.js updates the carousel, the card, the
+     rail thumb and the bottom show strip at once. */
+  function paintTile(host, entry, tone, label) {
+    if (entry && entry.image) {
+      const img = document.createElement("img");
+      img.className = "tile-art";
+      img.src = entry.image;
+      img.alt = "";
+      img.loading = "lazy";
+      /* A dead path shouldn't leave a blank square — fall back to the monogram. */
+      img.addEventListener("error", function () {
+        host.removeChild(img);
+        host.style.background = tone.bg;
+        host.style.color = tone.fg;
+        host.textContent = label;
+      });
+      host.appendChild(img);
+      return;
+    }
+    host.style.background = tone.bg;
+    host.style.color = tone.fg;
+    host.textContent = label;
+  }
+
   function hasVideo(entry) {
     return Boolean((entry && entry.video) || (entry && entry.playlistId));
   }
@@ -96,9 +122,7 @@
 
       const face = document.createElement("span");
       face.className = "avatar-face";
-      face.style.background = tone.bg;
-      face.style.color = tone.fg;
-      face.textContent = monogram(item.name || item.title);
+      paintTile(face, item, tone, monogram(item.name || item.title));
       btn.appendChild(face);
 
       btn.addEventListener("click", function () {
@@ -248,9 +272,7 @@
 
       const icon = document.createElement("span");
       icon.className = "card-icon";
-      icon.style.background = tone.bg;
-      icon.style.color = tone.fg;
-      icon.textContent = monogram(card.title);
+      paintTile(icon, card.entry || card, tone, monogram(card.title));
       body.appendChild(icon);
 
       const copy = document.createElement("span");
@@ -297,9 +319,7 @@
 
       const face = document.createElement("span");
       face.className = "showstrip-tile-face";
-      face.style.background = tone.bg;
-      face.style.color = tone.fg;
-      face.textContent = monogram(item.title || item.name);
+      paintTile(face, item, tone, monogram(item.title || item.name));
       btn.appendChild(face);
 
       btn.addEventListener("click", function () {
@@ -326,9 +346,7 @@
       const tone = swatch(0);
       name.textContent = featured.name;
       blurb.textContent = "Channel " + featured.num + " — flip over and start watching.";
-      thumb.style.background = tone.bg;
-      thumb.style.color = tone.fg;
-      thumb.textContent = monogram(featured.name);
+      paintTile(thumb, featured, tone, monogram(featured.name));
       document.getElementById("rail-featured-go").addEventListener("click", function (ev) {
         ev.preventDefault();
         playEntry(featured, true);
@@ -351,9 +369,7 @@
       a.href = p.href;
       const art = document.createElement("span");
       art.className = "promo-art";
-      art.style.background = p.tone.bg;
-      art.style.color = p.tone.fg;
-      art.textContent = p.art;
+      paintTile(art, p, p.tone, p.art);
       const cap = document.createElement("span");
       cap.className = "promo-cap";
       cap.textContent = "▶ " + p.cap;

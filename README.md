@@ -11,11 +11,42 @@ as-is to any static host.
 
 ```
 index.html        Page structure / markup for every section
+portal.html       Alternate front page in the classic kids'-portal layout
 css/style.css      All styling (colors, fonts, layout, responsive rules)
+css/portal.css     Styling for portal.html only
 js/config.js       ALL CONTENT LIVES HERE — the only file you should need to edit
 js/app.js          Rendering logic + the arcade game. Reads from config.js.
+js/portal.js       Rendering logic for portal.html. Also reads from config.js.
+img/               Tile artwork (optional) — see img/README.md
 README.md          This file
 ```
+
+## Two front pages, one content file
+
+`index.html` and `portal.html` are two skins over the same data. Both read the
+same arrays from `js/config.js`, so adding a channel, show or track updates
+both pages — you never edit content in two places.
+
+`portal.html` reconstructs the fixed-width layout of a mid-2000s kids' web
+portal: leaderboard and skyscraper ad slots, angled tab nav with a search bar,
+an avatar carousel, a three-column body and a 2-up card grid. Only the era's
+generic layout conventions are reconstructed — all branding, copy and content
+are this project's own.
+
+### Adding tile artwork
+
+Portal tiles draw a generated two-letter monogram by default. To use real
+artwork, drop a square-ish image in `img/` and add an `image` field to the
+entry in `js/config.js`:
+
+```js
+{ num: "01", name: "DD RETRO", video: "…", image: "img/dd-retro.png", desc: "…" }
+```
+
+That one line fills the avatar carousel tile, the card icon, the sidebar
+thumbnail and the bottom show strip for that entry. A missing or broken path
+falls back to the monogram, so the page never breaks. Use only artwork you own
+or hold a licence for — see `img/README.md`.
 
 ## Adding content — edit only `js/config.js`
 

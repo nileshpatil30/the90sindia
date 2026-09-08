@@ -325,7 +325,7 @@ input:focus-visible {
 }
 
 .subnav-search input {
-  width: 190px;
+  width: 340px;
   height: 14px;
   padding: 0 4px;
   font-family: var(--font-ui);
@@ -417,6 +417,28 @@ input:focus-visible {
 .avatar:hover { border-color: var(--tang); }
 
 .avatar.is-current { border-color: var(--tang); box-shadow: inset 0 0 0 2px var(--sun); }
+
+/* Artwork slots — used wherever config.js supplies an `image` for an entry.
+   Without one the tile falls back to its generated monogram, so the page is
+   never broken by missing art. */
+.tile-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 3px;
+  background: var(--paper);
+}
+
+.avatar:has(.tile-art) { background: var(--paper); }
+
+.card-icon:has(.tile-art) { padding: 0; overflow: hidden; }
+
+.card-icon .tile-art { border-radius: 6px; }
+
+.promo-art:has(.tile-art) { padding: 0; }
+
+.promo-art .tile-art { border-radius: 0; }
 
 /* --------------------------------------------------------------------------
    Body — three columns
@@ -708,6 +730,14 @@ input:focus-visible {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
+  background: var(--ink);
+}
+
+/* Card grid and badge row share one bordered white panel. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   border: 2px solid var(--ink);
   background: var(--ink);
 }
@@ -803,7 +833,6 @@ input:focus-visible {
   gap: 6px;
   padding: 10px 6px;
   background: var(--paper);
-  border: 2px solid var(--ink);
   align-items: center;
 }
 
