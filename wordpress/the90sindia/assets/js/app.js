@@ -95,13 +95,21 @@
     const art = makeThumb(entry, "hero-poster-art");
     if (!art) return false;
 
-    heroPoster = document.createElement("button");
-    heroPoster.type = "button";
-    heroPoster.className = "hero-poster";
-    heroPoster.setAttribute("aria-label", "Play " + (entry.name || entry.title || "video"));
+    /* The console is the one image worth fetching immediately — a lazy hero
+       still is never requested when the page opens scrolled to an anchor, so
+       its error never fires and the poster sits blank forever. */
+    art.loading = "eager";
 
-    /* No still available — load the player rather than show a blank poster. */
+    const poster = document.createElement("button");
+    poster.type = "button";
+    poster.className = "hero-poster";
+    poster.setAttribute("aria-label", "Play " + (entry.name || entry.title || "video"));
+
+    /* No still available — load the player rather than show a blank poster.
+       A blocked host can fail slowly, so by the time this arrives the visitor
+       may have picked something else; only act if this poster is still up. */
     art.addEventListener("error", function () {
+      if (heroPoster !== poster) return;
       clearHeroPoster();
       loadHeroPlayer(entry, false);
     });
@@ -110,13 +118,15 @@
     play.className = "hero-poster-play";
     play.textContent = "▶";
 
-    heroPoster.appendChild(art);
-    heroPoster.appendChild(play);
-    heroPoster.addEventListener("click", function () {
+    poster.appendChild(art);
+    poster.appendChild(play);
+    poster.addEventListener("click", function () {
+      if (heroPoster !== poster) return;
       loadHeroPlayer(entry, true);
     });
 
-    document.getElementById("screen").appendChild(heroPoster);
+    heroPoster = poster;
+    document.getElementById("screen").appendChild(poster);
     return true;
   }
 

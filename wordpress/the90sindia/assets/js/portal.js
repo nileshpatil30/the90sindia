@@ -68,7 +68,7 @@
      so dropping an image into config.js updates the carousel, the card, the
      rail thumb and the bottom show strip at once. */
   function paintTile(host, entry, tone, label) {
-    const src = (entry && entry.image) || youtubeThumb(entry);
+    const src = youtubeThumb(entry);
     if (src) {
       const img = document.createElement("img");
       img.className = "tile-art";
@@ -94,8 +94,11 @@
      entry with a video ID already has artwork and needs no upload. hqdefault
      is the size that always exists — maxresdefault 404s on older uploads. */
   function youtubeThumb(entry) {
-    if (!entry || !entry.video) return "";
-    return "https://img.youtube.com/vi/" + entry.video + "/hqdefault.jpg";
+    if (entry && entry.image) return entry.image;
+    if (entry && entry.video) {
+      return "https://img.youtube.com/vi/" + entry.video + "/hqdefault.jpg";
+    }
+    return "";
   }
 
   function hasVideo(entry) {
@@ -135,20 +138,23 @@
   function showPoster(entry) {
     clearPoster();
 
-    const thumb = (entry && entry.image) || youtubeThumb(entry);
+    const thumb = youtubeThumb(entry);
     if (!thumb) return false;
 
-    stagePoster = document.createElement("button");
-    stagePoster.type = "button";
-    stagePoster.className = "stage-poster";
-    stagePoster.setAttribute("aria-label", "Play " + (entry.name || entry.title || "video"));
+    const poster = document.createElement("button");
+    poster.type = "button";
+    poster.className = "stage-poster";
+    poster.setAttribute("aria-label", "Play " + (entry.name || entry.title || "video"));
 
     const art = document.createElement("img");
     art.src = thumb;
     art.alt = "";
     /* No still available — drop straight to the player rather than showing a
-       broken poster. */
+       broken poster. A blocked host can fail slowly, so only act if this
+       poster is still the one on screen; otherwise a late failure would drag
+       the stage back to an entry the visitor has already moved past. */
     art.addEventListener("error", function () {
+      if (stagePoster !== poster) return;
       playEntry(entry, false, true);
     });
 
@@ -160,14 +166,16 @@
     cap.className = "stage-cap";
     cap.textContent = entry.name || entry.title || "";
 
-    stagePoster.appendChild(art);
-    stagePoster.appendChild(play);
-    stagePoster.appendChild(cap);
-    stagePoster.addEventListener("click", function () {
+    poster.appendChild(art);
+    poster.appendChild(play);
+    poster.appendChild(cap);
+    poster.addEventListener("click", function () {
+      if (stagePoster !== poster) return;
       playEntry(entry, true);
     });
 
-    document.getElementById("stage").appendChild(stagePoster);
+    stagePoster = poster;
+    document.getElementById("stage").appendChild(poster);
     return true;
   }
 
@@ -286,7 +294,7 @@
       cards.push({
         section: "VAULT", icon: card.label === "WWF" ? "🤼" : "🏏",
         more: HOME + "#vault", title: card.title, blurb: card.note,
-        href: HOME + "#vault",
+        href: HOME + "#vault", art: card,
       });
     });
     cards.push({
@@ -367,7 +375,7 @@
 
       const icon = document.createElement("span");
       icon.className = "card-icon";
-      paintTile(icon, card.entry || card, tone, monogram(card.title));
+      paintTile(icon, card.art || card.entry, tone, monogram(card.title));
       body.appendChild(icon);
 
       const copy = document.createElement("span");
@@ -598,6 +606,13 @@
     img.className = "ad-img";
     img.src = slot.image;
     img.alt = slot.text || "";
+
+    /* Keep the placeholder so a banner that fails to load restores it,
+       rather than leaving an empty grey box. */
+    const fallback = host.innerHTML;
+    img.addEventListener("error", function () {
+      host.innerHTML = fallback;
+    });
 
     const holder = slot.href ? document.createElement("a") : document.createDocumentFragment();
     if (slot.href) holder.href = slot.href;
