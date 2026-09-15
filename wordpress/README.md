@@ -118,6 +118,44 @@ never leaves a blank square.
 Use only artwork you own or hold a licence for — the same rule as the video
 embeds.
 
+## Every item has its own page
+
+Channels, shows, tracks and vault cards are no longer only fragments of the
+front page — each one answers on its own URL:
+
+```
+/shows/shaktimaan/        /shows/          (all shows)
+/channels/dd-retro/       /channels/
+/hit-parade/made-in-india/  /hit-parade/
+/vault/desert-storm/      /vault/
+```
+
+That matters because a nostalgia site lives on long-tail search. Someone
+googling "Shaktimaan Doordarshan" needs a page about *Shaktimaan* to land on;
+the front page cannot rank for thirty different things at once. Roughly three
+dozen indexable pages instead of two.
+
+The body of each item is where your own writing goes. Embeds are the same
+everywhere; your memory of watching it is not, and it is also what an ad
+network looks for when judging whether a site is original.
+
+WordPress generates `/wp-sitemap.xml` automatically and now lists all of them.
+Submit that URL in Google Search Console.
+
+**Upgrading an existing install:** the theme flushes its own rewrite rules once
+after an update, so the new URLs work without visiting Settings → Permalinks.
+If an item page ever 404s, re-saving permalinks forces a flush.
+
+## Share cards
+
+A link pasted into WhatsApp used to show a bare URL. Every page now carries
+`og:` and Twitter card tags, a canonical URL, and JSON-LD — so a shared link
+shows a title, description and picture.
+
+An item's picture is its Featured image, falling back to the video's own
+YouTube still. For pages with neither, set a site-wide fallback under
+**Appearance → Customize → 90s REWIND artwork → Share picture** (1200×630).
+
 ## Two pages, one content set
 
 Both templates read the same content. Adding a channel updates the hub and the

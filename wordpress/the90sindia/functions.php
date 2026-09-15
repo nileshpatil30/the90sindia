@@ -14,6 +14,8 @@ require_once get_template_directory() . '/inc/meta.php';
 require_once get_template_directory() . '/inc/config.php';
 require_once get_template_directory() . '/inc/chrome.php';
 require_once get_template_directory() . '/inc/seed.php';
+require_once get_template_directory() . '/inc/item.php';
+require_once get_template_directory() . '/inc/seo.php';
 
 /**
  * Theme supports.
@@ -36,6 +38,12 @@ add_action( 'after_setup_theme', 'rewind_setup' );
  * what it uses.
  */
 function rewind_enqueue() {
+	/* Item and archive pages have their own, lighter bundle. */
+	if ( is_singular( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) )
+		|| is_post_type_archive( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) ) ) {
+		return;
+	}
+
 	$dir      = get_template_directory_uri();
 	$is_portal = is_page_template( 'template-portal.php' );
 
@@ -66,6 +74,29 @@ function rewind_enqueue() {
 add_action( 'wp_enqueue_scripts', 'rewind_enqueue' );
 
 /**
+ * The per-item and archive pages: the main palette plus their own layout.
+ */
+function rewind_enqueue_item() {
+	if ( ! is_singular( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) )
+		&& ! is_post_type_archive( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) ) ) {
+		return;
+	}
+
+	$dir = get_template_directory_uri();
+
+	wp_enqueue_style(
+		'rewind-fonts',
+		'https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700&display=swap',
+		array(),
+		null
+	);
+	wp_enqueue_style( 'rewind-main', $dir . '/assets/css/style.css', array( 'rewind-fonts' ), REWIND_VERSION );
+	wp_enqueue_style( 'rewind-item', $dir . '/assets/css/item.css', array( 'rewind-main' ), REWIND_VERSION );
+	wp_enqueue_script( 'rewind-item', $dir . '/assets/js/item.js', array(), REWIND_VERSION, true );
+}
+add_action( 'wp_enqueue_scripts', 'rewind_enqueue_item' );
+
+/**
  * Points the portal template's cross-page links at the real home URL.
  *
  * @param string $fragment Section id, without the hash.
@@ -84,6 +115,23 @@ function rewind_activate() {
 	flush_rewrite_rules();
 }
 add_action( 'after_switch_theme', 'rewind_activate' );
+
+/**
+ * Flushes rewrite rules once after the theme is updated.
+ *
+ * The content types gained public URLs in 1.0.0; without this, an install that
+ * updated in place would 404 on every item page until an admin happened to
+ * re-save their permalinks.
+ */
+function rewind_maybe_flush_rewrites() {
+	if ( get_option( 'rewind_rewrite_version' ) === REWIND_VERSION ) {
+		return;
+	}
+	rewind_register_post_types();
+	flush_rewrite_rules();
+	update_option( 'rewind_rewrite_version', REWIND_VERSION );
+}
+add_action( 'init', 'rewind_maybe_flush_rewrites', 20 );
 
 /**
  * Nudges a fresh install towards the import screen rather than an empty site.

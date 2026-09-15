@@ -1,0 +1,5 @@
+# the90sindia.com
+User-agent: *
+Allow: /
+
+Sitemap: https://the90sindia.com/sitemap.xml

@@ -27,7 +27,22 @@ function strip_shortcodes( $s ) { return $s; }
 function sanitize_text_field( $s ) { return trim( strip_tags( $s ) ); }
 function wp_unslash( $s ) { return $s; }
 
+/* Stubs for the per-item page helpers. $GLOBALS['rw_meta'] stands in for the
+   post-meta table so embed and still building can be exercised directly. */
+$GLOBALS['rw_meta'] = array();
+function get_post_meta( $id, $key, $single = true ) {
+	return isset( $GLOBALS['rw_meta'][ $key ] ) ? $GLOBALS['rw_meta'][ $key ] : '';
+}
+function get_post_type( $id = null ) { return isset( $GLOBALS['rw_type'] ) ? $GLOBALS['rw_type'] : 'rewind_show'; }
+function get_the_title( $id = null ) { return 'Test Item'; }
+function get_post( $id = null ) { return null; }
+function esc_html__( $s, $d = '' ) { return $s; }
+function esc_html( $s ) { return $s; }
+function esc_attr( $s ) { return $s; }
+function esc_url( $s ) { return $s; }
+
 require __DIR__ . '/../the90sindia/inc/chrome.php';
+require __DIR__ . '/../the90sindia/inc/item.php';
 require __DIR__ . '/../the90sindia/inc/config.php';
 require __DIR__ . '/../the90sindia/inc/meta.php';
 
@@ -69,6 +84,31 @@ foreach ( array( 'logo', 'promo_1', 'promo_2', 'badge_1', 'badge_2', 'badge_3', 
 	check( "slot $slot has image/text/href", array_keys( $chrome[ $slot ] ), array( 'image', 'text', 'href' ) );
 }
 check( 'slot count', count( $chrome ), 9 );
+
+echo "\nPer-item pages — embed URLs:\n";
+$GLOBALS['rw_meta'] = array( '_rw_video' => 'BvZ2KQuCTds' );
+$u = rewind_embed_url( 1, false );
+check( 'video embed host', strpos( $u, 'https://www.youtube.com/embed/BvZ2KQuCTds?' ) === 0, true );
+check( 'no autoplay by default', strpos( $u, 'autoplay' ), false );
+check( 'autoplay when asked', strpos( rewind_embed_url( 1, true ), 'autoplay=1' ) !== false, true );
+
+$GLOBALS['rw_meta'] = array( '_rw_playlist' => 'PL0CaUqi81mPnxS08v67qqzJawvLRakSud' );
+$p = rewind_embed_url( 1, false );
+check( 'playlist uses videoseries', strpos( $p, '/embed/videoseries?' ) !== false, true );
+check( 'playlist carries list id', strpos( $p, 'PL0CaUqi81mPnxS08v67qqzJawvLRakSud' ) !== false, true );
+
+$GLOBALS['rw_meta'] = array();
+check( 'no source -> empty', rewind_embed_url( 1, false ), '' );
+check( 'no source -> empty-state markup', strpos( rewind_player_markup( 1 ), 'item-player--empty' ) !== false, true );
+
+echo "\nPer-item pages — stills and labels:\n";
+$GLOBALS['rw_meta'] = array( '_rw_video' => 'BvZ2KQuCTds' );
+check( 'still derived from video', rewind_still_url( 1 ), 'https://img.youtube.com/vi/BvZ2KQuCTds/hqdefault.jpg' );
+$GLOBALS['rw_meta'] = array();
+check( 'no video -> no still', rewind_still_url( 1 ), '' );
+check( 'label: shows', rewind_type_label( 'rewind_show' ), 'Shows' );
+check( 'label: vault', rewind_type_label( 'rewind_vault' ), 'Vault' );
+check( 'label: unknown type', rewind_type_label( 'nope' ), 'Items' );
 
 echo "\n" . ( $fail ? "$fail check(s) FAILED\n" : "All checks passed.\n" );
 exit( $fail ? 1 : 0 );

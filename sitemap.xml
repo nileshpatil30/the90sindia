@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sitemap for the static build.
+
+  On WordPress this file is not used: once the content types became publicly
+  queryable, WordPress generates /wp-sitemap.xml itself and lists every
+  channel, show, track and vault card automatically. Point robots.txt at that
+  one instead if you move to the theme.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://the90sindia.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://the90sindia.com/portal.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

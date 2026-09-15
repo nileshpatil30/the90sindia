@@ -17,14 +17,12 @@ function rewind_register_post_types() {
 
 	$shared = array(
 		'public'             => true,
-		'publicly_queryable' => false,
+		'publicly_queryable' => true,
 		'show_ui'            => true,
 		'show_in_menu'       => true,
 		'show_in_rest'       => true,
-		'has_archive'        => false,
-		'rewrite'            => false,
 		'menu_position'      => 20,
-		'supports'           => array( 'title', 'editor', 'thumbnail', 'page-attributes' ),
+		'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt', 'page-attributes' ),
 	);
 
 	register_post_type(
@@ -35,6 +33,8 @@ function rewind_register_post_types() {
 				'labels'        => rewind_cpt_labels( 'Channel', 'Channels' ),
 				'menu_icon'     => 'dashicons-video-alt2',
 				'menu_position' => 20,
+				'has_archive'   => 'channels',
+				'rewrite'       => array( 'slug' => 'channels', 'with_front' => false ),
 			)
 		)
 	);
@@ -47,6 +47,8 @@ function rewind_register_post_types() {
 				'labels'        => rewind_cpt_labels( 'Show', 'Shows' ),
 				'menu_icon'     => 'dashicons-format-video',
 				'menu_position' => 21,
+				'has_archive'   => 'shows',
+				'rewrite'       => array( 'slug' => 'shows', 'with_front' => false ),
 			)
 		)
 	);
@@ -59,7 +61,9 @@ function rewind_register_post_types() {
 				'labels'        => rewind_cpt_labels( 'Track', 'Hit Parade' ),
 				'menu_icon'     => 'dashicons-format-audio',
 				'menu_position' => 22,
-				'supports'      => array( 'title', 'thumbnail', 'page-attributes' ),
+				'has_archive'   => 'hit-parade',
+				'rewrite'       => array( 'slug' => 'hit-parade', 'with_front' => false ),
+				'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt', 'page-attributes' ),
 			)
 		)
 	);
@@ -72,6 +76,8 @@ function rewind_register_post_types() {
 				'labels'        => rewind_cpt_labels( 'Vault Card', 'Vault' ),
 				'menu_icon'     => 'dashicons-awards',
 				'menu_position' => 23,
+				'has_archive'   => 'vault',
+				'rewrite'       => array( 'slug' => 'vault', 'with_front' => false ),
 			)
 		)
 	);

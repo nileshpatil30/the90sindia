@@ -21,6 +21,17 @@ img/               Tile artwork (optional) — see img/README.md
 README.md          This file
 ```
 
+## Search and sharing
+
+Both pages carry `og:`/Twitter card tags, a canonical URL and a favicon, so a
+link shared on WhatsApp shows a title, description and picture instead of a
+bare URL. `og-image.png` (1200×630) is the fallback share card; `favicon.svg`
+is the tab icon. `robots.txt` and `sitemap.xml` are in the repo root.
+
+The static build has only two URLs, which caps how much can rank. The
+WordPress theme gives every channel, show, track and vault card a page of its
+own — see `wordpress/README.md`.
+
 ## Running this on WordPress
 
 There is a WordPress theme in `wordpress/the90sindia/` that renders the same
