@@ -623,6 +623,11 @@
   }
 
   function init() {
+    /* The portal renderer only belongs on the portal template. */
+    if (!document.getElementById("stage-frame") || !document.getElementById("carousel-track")) {
+      return;
+    }
+
     buildLogo();
     buildAd("ad_top", document.querySelector(".ad-face"));
     buildAd("ad_side", document.querySelector(".rail-right-face"));

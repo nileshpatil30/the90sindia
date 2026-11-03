@@ -43,7 +43,14 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* The 760px frame is wider than a phone on purpose — this is a fixed-width
+     period layout, and its horizontal scrolling belongs to .portal-scroll.
+     Two nested horizontal scrolls is what makes a page feel broken on a
+     phone, so the page itself must never scroll sideways as well. */
+  overflow-x: hidden;
+}
 
 body {
   margin: 0;
@@ -70,6 +77,21 @@ input:focus-visible {
   outline: 3px solid var(--sky);
   outline-offset: 1px;
 }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 999;
+  padding: 8px 12px;
+  background: var(--grass);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus { left: 0; }
 
 .visually-hidden {
   position: absolute;
@@ -1080,8 +1102,12 @@ input:focus-visible {
 .terms a { font-weight: 700; }
 
 /* Trust badge below the frame, like the era's privacy seals */
+/* Sits outside .portal-scroll, so a fixed width here overflowed the page on a
+   phone even though the frame itself scrolls in its own container. */
 .seal {
-  width: 760px;
+  width: 100%;
+  max-width: 760px;
+  padding: 0 12px;
   margin: 12px auto 0;
   display: grid;
   place-items: center;
@@ -1089,6 +1115,9 @@ input:focus-visible {
 
 .seal-box {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
   align-items: center;
   gap: 6px;
   padding: 4px 9px;

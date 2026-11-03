@@ -42,6 +42,27 @@
     return img;
   }
 
+  /* Content comes from js/config.js on the static build and from wp-admin on
+     WordPress. Either way it is data, not markup: escape it before it reaches
+     innerHTML so a stray < in a title renders as a character, and markup an
+     editor pasted cannot execute. */
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  /* Colour names land inside a style attribute, where escaping is the wrong
+     tool — only a known palette name is ever allowed through. */
+  const TONES = ["lime", "pink", "purple", "orange", "cyan", "yellow"];
+
+  function tone(name) {
+    return TONES.indexOf(String(name)) > -1 ? String(name) : "lime";
+  }
+
   function hasVideo(entry) {
     return Boolean((entry && entry.video) || (entry && entry.playlistId));
   }
@@ -173,9 +194,14 @@
   }
 
   function switchToChannel(index, autoplay) {
+    const ch = CHANNELS[index];
+    /* No channels yet — a fresh install before the importer has run. */
+    if (!ch) {
+      updateHeroInfo("", "Nothing on air yet", "Add a channel to get started.");
+      return;
+    }
     currentChannelIndex = index;
     currentTrackIndex = null;
-    const ch = CHANNELS[index];
     flashAndLoad(ch, autoplay);
     updateHeroInfo(ch.num, ch.name, ch.desc);
     setActiveTab(index);
@@ -238,9 +264,9 @@
       const card = document.createElement("article");
       card.className = "channel-card";
       card.innerHTML =
-        '<span class="channel-card-num">' + ch.num + '</span>' +
-        '<h3>' + ch.name + '</h3>' +
-        '<p>' + ch.desc + '</p>' +
+        '<span class="channel-card-num">' + esc(ch.num) + '</span>' +
+        '<h3>' + esc(ch.name) + '</h3>' +
+        '<p>' + esc(ch.desc) + '</p>' +
         '<button type="button" class="btn-chunky btn-block">WATCH →</button>';
       const chThumb = makeThumb(ch, "card-thumb");
       if (chThumb) card.insertBefore(chThumb, card.firstChild);
@@ -264,10 +290,10 @@
       const row = document.createElement("div");
       row.className = "show-row";
       row.innerHTML =
-        '<span class="show-tag" style="--tag-color: var(--' + show.tagColor + ')">' + show.category + '</span>' +
+        '<span class="show-tag" style="--tag-color: var(--' + tone(show.tagColor) + ')">' + esc(show.category) + '</span>' +
         '<div class="show-body">' +
-          '<h3>' + show.title + '</h3>' +
-          '<p>' + show.desc + ' <span class="show-channel">— ' + show.channel + '</span></p>' +
+          '<h3>' + esc(show.title) + '</h3>' +
+          '<p>' + esc(show.desc) + ' <span class="show-channel">— ' + esc(show.channel) + '</span></p>' +
         '</div>' +
         '<button type="button" class="btn-chunky btn-go">GO! &gt;&gt;</button>';
       const showThumb = makeThumb(show, "row-thumb");
@@ -293,7 +319,7 @@
       row.className = "track-row";
       row.innerHTML =
         '<span class="track-index">' + String(i + 1).padStart(2, "0") + '</span>' +
-        '<span class="track-info"><strong>' + t.title + '</strong><small>' + t.artist + '</small></span>' +
+        '<span class="track-info"><strong>' + esc(t.title) + '</strong><small>' + esc(t.artist) + '</small></span>' +
         '<span class="track-play">▶</span>';
       const trackThumb = makeThumb(t, "track-thumb");
       if (trackThumb) row.insertBefore(trackThumb, row.querySelector(".track-info"));
@@ -316,11 +342,11 @@
     SPORTS_CARDS.forEach(function (card) {
       const el = document.createElement("article");
       el.className = "sports-card";
-      el.style.setProperty("--card-theme", "var(--" + card.theme + ")");
+      el.style.setProperty("--card-theme", "var(--" + tone(card.theme) + ")");
       el.innerHTML =
-        '<span class="sports-card-label">' + card.label + '</span>' +
-        '<h3>' + card.title + '</h3>' +
-        '<p>' + card.note + '</p>';
+        '<span class="sports-card-label">' + esc(card.label) + '</span>' +
+        '<h3>' + esc(card.title) + '</h3>' +
+        '<p>' + esc(card.note) + '</p>';
       wrap.appendChild(el);
     });
   }
@@ -380,18 +406,45 @@
     const votes = getPollVotes();
     const total = Object.values(votes).reduce(function (a, b) { return a + b; }, 0) || 1;
     const resultEl = document.getElementById("poll-result");
-    resultEl.innerHTML = POLL.options
-      .map(function (opt) {
-        const count = votes[opt] || 0;
-        const pct = Math.round((count / total) * 100);
-        return (
-          '<div class="poll-bar-row">' +
-            '<div class="poll-bar-label">' + opt + ' <strong>' + pct + '%</strong></div>' +
-            '<div class="poll-bar-track"><div class="poll-bar-fill" style="width:' + pct + '%"></div></div>' +
-          '</div>'
-        );
-      })
-      .join("");
+
+    resultEl.textContent = "";
+
+    POLL.options.forEach(function (opt) {
+      const count = votes[opt] || 0;
+      const pct = Math.round((count / total) * 100);
+
+      const row = document.createElement("div");
+      row.className = "poll-bar-row";
+
+      /* Built as nodes rather than innerHTML: an option is editable content,
+         and pasted markup should read as text, not run. */
+      const label = document.createElement("div");
+      label.className = "poll-bar-label";
+      label.appendChild(document.createTextNode(opt + " "));
+      const pctEl = document.createElement("strong");
+      pctEl.textContent = pct + "%";
+      label.appendChild(pctEl);
+
+      const track = document.createElement("div");
+      track.className = "poll-bar-track";
+      const fill = document.createElement("div");
+      fill.className = "poll-bar-fill";
+      fill.style.width = pct + "%";
+      track.appendChild(fill);
+
+      row.appendChild(label);
+      row.appendChild(track);
+      resultEl.appendChild(row);
+    });
+
+    /* Say plainly what these numbers are. There is no shared backend, so the
+       tally is this browser's own; presenting it as a site-wide result would
+       be a plain untruth to the visitor. */
+    const note = document.createElement("p");
+    note.className = "poll-note";
+    note.textContent = "Just for fun — votes are counted on your device only, not across the site.";
+    resultEl.appendChild(note);
+
     resultEl.classList.remove("hidden");
     document.getElementById("poll-form").classList.add("hidden");
   }
@@ -404,8 +457,8 @@
         const id = "poll-opt-" + i;
         return (
           '<label class="poll-option" for="' + id + '">' +
-            '<input type="radio" name="poll" id="' + id + '" value="' + opt + '">' +
-            '<span>' + opt + '</span>' +
+            '<input type="radio" name="poll" id="' + id + '" value="' + esc(opt) + '">' +
+            '<span>' + esc(opt) + '</span>' +
           '</label>'
         );
       })
@@ -435,8 +488,8 @@
   function renderTicker() {
     const track = document.getElementById("ticker-track");
     track.innerHTML =
-      '<span class="ticker-copy">' + TICKER_TEXT + '</span>' +
-      '<span class="ticker-copy" aria-hidden="true">' + TICKER_TEXT + '</span>';
+      '<span class="ticker-copy">' + esc(TICKER_TEXT) + '</span>' +
+      '<span class="ticker-copy" aria-hidden="true">' + esc(TICKER_TEXT) + '</span>';
   }
 
   /* ------------------------------------------------------------------ */
@@ -638,6 +691,13 @@
   /* ------------------------------------------------------------------ */
 
   function init() {
+    /* This renderer belongs to the hub. On WordPress it can also be reached on
+       a search, 404 or ordinary page, where none of this markup exists — bail
+       rather than throwing on the first missing element. */
+    if (!document.getElementById("hero-frame") || !document.getElementById("channel-tabs")) {
+      return;
+    }
+
     renderTicker();
     renderChannelTabs();
     renderChannelGuide();

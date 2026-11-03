@@ -383,9 +383,10 @@ const POLL = {
 
 
 /* ------------------------------------------------------------------------
-   PHOTO WALL — Pinterest board embed URL. Replace with your real board.
+   PHOTO WALL — Pinterest board embed URL. Empty until you have a real
+   board: a placeholder username would link visitors somewhere that isn't yours.
    Get it from: your Pinterest board → "..." menu → Copy link.
    See the HTML comment inside the #photo-wall section in index.html for
    the official Pinterest widget embed snippet to drop in once you have one.
    ------------------------------------------------------------------------ */
-const PINTEREST_BOARD_URL = "https://www.pinterest.com/your-username/90s-india/";
+const PINTEREST_BOARD_URL = "";

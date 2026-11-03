@@ -33,6 +33,23 @@
 
 html { scroll-behavior: smooth; }
 
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 999;
+  padding: 0.7rem 1.1rem;
+  background: var(--lime);
+  border: var(--border-chunky);
+  border-radius: 0 0 10px 0;
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.skip-link:focus { left: 0; }
+
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -702,4 +719,40 @@ main { max-width: 1200px; margin: 0 auto; padding: 0 1.2rem; }
 @media (max-width: 420px) {
   .logo { font-size: 2.1rem; }
   .arcade-readout { font-size: 0.8rem; }
+}
+
+.poll-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #bca7dc;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   --------------------------------------------------------------------------
+   The hub animates a scrolling ticker, a CRT static flash and hover lifts, and
+   had no reduced-motion handling at all while the portal stylesheet did.
+   Honour a visitor who asked the system for less movement: keep every state
+   reachable, just stop it moving.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* The ticker loops forever; park it rather than flashing through frames. */
+  .ticker-track { animation: none !important; transform: none !important; }
+
+  /* The channel-change flash is purely decorative. */
+  .static-flash { display: none !important; }
+
+  .channel-card:hover { transform: none !important; }
 }
