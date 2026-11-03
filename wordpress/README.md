@@ -156,6 +156,22 @@ An item's picture is its Featured image, falling back to the video's own
 YouTube still. For pages with neither, set a site-wide fallback under
 **Appearance → Customize → 90s REWIND artwork → Share picture** (1200×630).
 
+## Every page has a template
+
+404, search, standard Pages and the search form all have their own templates,
+so a dead link, a search or an About page gets a real layout rather than
+falling through to the listing template.
+
+## What this theme deliberately does not do
+
+- **The poll is a per-device tally.** Votes are counted in each visitor's own
+  browser, and the results now say so on the page. A real site-wide poll means
+  storing votes server-side.
+- **The Adda is not open.** The section says that plainly instead of showing
+  the instructions for wiring up a chat widget.
+- **The portal sign-in is decoration.** It is part of the 2000s look and tells
+  visitors not to type a real password.
+
 ## Two pages, one content set
 
 Both templates read the same content. Adding a channel updates the hub and the

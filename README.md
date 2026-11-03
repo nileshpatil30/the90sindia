@@ -21,6 +21,19 @@ img/               Tile artwork (optional) — see img/README.md
 README.md          This file
 ```
 
+## Accessibility
+
+Both pages carry a skip link, and both stylesheets honour
+`prefers-reduced-motion` — the hub's ticker, CRT flash and hover lifts stop for
+a visitor who has asked their system for less movement.
+
+## A note on content safety
+
+Values from `js/config.js` (and, on WordPress, from the dashboard) are escaped
+before they reach the page, and colour names are matched against the palette
+rather than trusted. Paste a `<` into a show title and it renders as a
+character instead of opening a tag.
+
 ## Search and sharing
 
 Both pages carry `og:`/Twitter card tags, a canonical URL and a favicon, so a
