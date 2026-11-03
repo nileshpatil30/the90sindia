@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 ?>
 
-<main class="section" style="max-width: 760px; margin: 0 auto; padding: 24px 16px;">
+<main id="main-content" class="section" style="max-width: 760px; margin: 0 auto; padding: 24px 16px;">
 	<?php
 	if ( have_posts() ) {
 		while ( have_posts() ) {

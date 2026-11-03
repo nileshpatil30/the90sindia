@@ -22,7 +22,7 @@ while ( have_posts() ) :
 	$archive = get_post_type_archive_link( $type );
 	?>
 
-<main class="item-page">
+<main id="main-content" class="item-page">
 
 	<nav class="item-crumbs" aria-label="Breadcrumb">
 		<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( '90s REWIND', 'the90sindia' ); ?></a>

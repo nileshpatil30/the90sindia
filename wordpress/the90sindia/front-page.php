@@ -61,7 +61,7 @@ get_header();
           <div class="video-placeholder" id="video-placeholder">
             <p>📼</p>
             <p>No video ID yet for this channel.</p>
-            <p class="small">Add one in <code>js/config.js</code> — see README.</p>
+            <p class="small">Add a video ID to this channel in the dashboard.</p>
           </div>
         </div>
 

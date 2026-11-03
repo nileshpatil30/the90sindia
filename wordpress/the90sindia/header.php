@@ -18,3 +18,4 @@ defined( 'ABSPATH' ) || exit;
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<a class="skip-link" href="#main-content"><?php esc_html_e( 'Skip to content', 'the90sindia' ); ?></a>

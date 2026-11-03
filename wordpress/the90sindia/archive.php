@@ -16,7 +16,7 @@ $type  = get_queried_object();
 $label = ( $type && isset( $type->name ) ) ? rewind_type_label( $type->name ) : __( 'Archive', 'the90sindia' );
 ?>
 
-<main class="item-page">
+<main id="main-content" class="item-page">
 
 	<nav class="item-crumbs" aria-label="Breadcrumb">
 		<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( '90s REWIND', 'the90sindia' ); ?></a>

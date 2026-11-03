@@ -38,9 +38,10 @@ add_action( 'after_setup_theme', 'rewind_setup' );
  * what it uses.
  */
 function rewind_enqueue() {
-	/* Item and archive pages have their own, lighter bundle. */
-	if ( is_singular( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) )
-		|| is_post_type_archive( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) ) ) {
+	/* Only the hub and the portal run the big renderers. Everything else —
+	   item pages, archives, search, 404, ordinary pages — uses the lighter
+	   item bundle, and must not load a renderer whose markup is absent. */
+	if ( ! is_front_page() && ! is_page_template( 'template-portal.php' ) ) {
 		return;
 	}
 
@@ -74,11 +75,31 @@ function rewind_enqueue() {
 add_action( 'wp_enqueue_scripts', 'rewind_enqueue' );
 
 /**
+ * Whether this request renders the .item-page layout.
+ *
+ * Covers the four content types plus every template that reuses their markup:
+ * 404.php, search.php, page.php and single.php for ordinary posts. Missing one
+ * of these leaves the page completely unstyled.
+ *
+ * @return bool
+ */
+function rewind_uses_item_layout() {
+	$types = array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' );
+
+	return is_singular( $types )
+		|| is_post_type_archive( $types )
+		|| is_404()
+		|| is_search()
+		|| is_page()
+		|| is_single()
+		|| is_archive();
+}
+
+/**
  * The per-item and archive pages: the main palette plus their own layout.
  */
 function rewind_enqueue_item() {
-	if ( ! is_singular( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) )
-		&& ! is_post_type_archive( array( 'rewind_channel', 'rewind_show', 'rewind_track', 'rewind_vault' ) ) ) {
+	if ( ! rewind_uses_item_layout() ) {
 		return;
 	}
 
