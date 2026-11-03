@@ -97,6 +97,9 @@ function rewind_render_meta_box( $post ) {
 				array(
 					'post_type'      => 'rewind_channel',
 					'posts_per_page' => -1,
+					/* Include drafts: a show pointing at an unpublished channel
+					   would otherwise lose that link the next time it is saved. */
+					'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
 					'orderby'        => 'menu_order',
 					'order'          => 'ASC',
 				)

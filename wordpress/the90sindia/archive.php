@@ -12,8 +12,9 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-$type  = get_queried_object();
-$label = ( $type && isset( $type->name ) ) ? rewind_type_label( $type->name ) : __( 'Archive', 'the90sindia' );
+/* This template also serves date, author and taxonomy archives, where the
+   queried object is not a post type at all. */
+$label = is_post_type_archive() ? rewind_type_label( get_query_var( 'post_type' ) ) : get_the_archive_title();
 ?>
 
 <main id="main-content" class="item-page">
@@ -27,7 +28,7 @@ $label = ( $type && isset( $type->name ) ) ? rewind_type_label( $type->name ) : 
 	<header class="item-head">
 		<h1><?php echo esc_html( $label ); ?></h1>
 		<?php
-		$desc = ( $type && ! empty( $type->description ) ) ? $type->description : '';
+		$desc = wp_strip_all_tags( get_the_archive_description() );
 		if ( $desc ) :
 			?>
 			<p class="item-sub"><?php echo esc_html( $desc ); ?></p>

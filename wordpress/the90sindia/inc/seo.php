@@ -47,6 +47,32 @@ function rewind_share_context() {
 		);
 	}
 
+	if ( is_search() ) {
+		return array(
+			'type'  => 'website',
+			/* translators: %s: the search term. */
+			'title' => sprintf( __( 'Search: %s', 'the90sindia' ), get_search_query() ) . ' — ' . $site,
+			'desc'  => get_bloginfo( 'description' ),
+			'image' => '',
+			'url'   => get_search_link(),
+			'video' => '',
+		);
+	}
+
+	if ( is_404() ) {
+		/* A missing page must not claim to be the home page, and should not
+		   invite indexing at all. */
+		return array(
+			'type'    => 'website',
+			'title'   => __( 'Not found', 'the90sindia' ) . ' — ' . $site,
+			'desc'    => '',
+			'image'   => '',
+			'url'     => '',
+			'video'   => '',
+			'noindex' => true,
+		);
+	}
+
 	return array(
 		'type'  => 'website',
 		'title' => $site,
@@ -66,7 +92,11 @@ function rewind_print_head_tags() {
 	$title = wp_strip_all_tags( $c['title'] );
 	$desc  = wp_strip_all_tags( $c['desc'] );
 	$image = $c['image'];
-	$url   = $c['url'] ? $c['url'] : home_url( '/' );
+	$url   = $c['url'];
+
+	if ( ! empty( $c['noindex'] ) ) {
+		echo "\n" . '<meta name="robots" content="noindex, follow">' . "\n";
+	}
 
 	/* A share card with no picture is a share card nobody clicks, so fall back
 	   to the site-wide image when the item has no still of its own. */
@@ -75,7 +105,13 @@ function rewind_print_head_tags() {
 	}
 
 	echo "\n";
-	printf( '<link rel="canonical" href="%s">' . "\n", esc_url( $url ) );
+
+	/* Only claim a canonical when this request really has one. Pointing a
+	   search or 404 page at the home page tells a crawler they are the same
+	   page, which is worse than saying nothing. */
+	if ( $url ) {
+		printf( '<link rel="canonical" href="%s">' . "\n", esc_url( $url ) );
+	}
 
 	if ( $desc ) {
 		printf( '<meta name="description" content="%s">' . "\n", esc_attr( $desc ) );
@@ -84,7 +120,9 @@ function rewind_print_head_tags() {
 	printf( '<meta property="og:site_name" content="%s">' . "\n", esc_attr( get_bloginfo( 'name' ) ) );
 	printf( '<meta property="og:type" content="%s">' . "\n", esc_attr( $c['type'] ) );
 	printf( '<meta property="og:title" content="%s">' . "\n", esc_attr( $title ) );
-	printf( '<meta property="og:url" content="%s">' . "\n", esc_url( $url ) );
+	if ( $url ) {
+		printf( '<meta property="og:url" content="%s">' . "\n", esc_url( $url ) );
+	}
 	printf( '<meta property="og:locale" content="%s">' . "\n", esc_attr( get_locale() ) );
 
 	if ( $desc ) {
@@ -111,6 +149,10 @@ function rewind_print_head_tags() {
 	echo "\n";
 }
 add_action( 'wp_head', 'rewind_print_head_tags', 5 );
+
+/* This theme prints its own canonical, so core's would be a second, competing
+   tag on every singular view. */
+remove_action( 'wp_head', 'rel_canonical' );
 
 /**
  * JSON-LD describing the current page.
