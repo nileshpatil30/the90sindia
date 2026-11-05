@@ -64,7 +64,7 @@ async function open(b, vp, hash, when) {
       };
     });
     console.log(vp.width, JSON.stringify({ ...info, btns: undefined }));
-    ok(info.nets === 10, vp.width + ': 10 network buttons (got ' + info.nets + ')');
+    ok(info.nets === 11, vp.width + ': 11 network buttons (got ' + info.nets + ')');
     ok(info.yrs === 24, vp.width + ': 24 year pills (got ' + info.yrs + ')');
     ok(!info.hscroll, vp.width + ': no sideways scroll (' + info.sw + ' > ' + info.iw + ')');
     ok(info.btns.every(x => x.l >= 0 && x.r <= vp.width), vp.width + ': every network button is inside the screen ' + JSON.stringify(info.btns.filter(x => x.l < 0 || x.r > vp.width)));
@@ -212,7 +212,7 @@ async function open(b, vp, hash, when) {
     await p.click('#shows-net .chip:has-text("All channels")');
     await p.click('#shows-kind .chip:has-text("Ads and idents")');
     const ads = await p.evaluate(() => document.querySelectorAll('.show-card').length);
-    ok(ads === 10, vp.width + ': one ad-break entry per channel (' + ads + ')');
+    ok(ads === 11, vp.width + ': one ad-break entry per channel (' + ads + ')');
     await p.click('#shows-kind .chip:has-text("Every kind")');
 
     // live TV is playing, then a show is opened on demand

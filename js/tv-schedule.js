@@ -108,6 +108,8 @@ const TV_NETS = [
     blurb: 'Sony Entertainment Television (SET India), on air since Oct 1995' },
   { id: 'sab',  name: 'SAB TV',          short: 'SAB',   color: '#7bf26a', closedown: false,
     blurb: 'SAB TV, the comedy channel' },
+  { id: 'mtv',  name: 'MTV India',       short: 'MTV',   color: '#ff3fa4', closedown: false,
+    blurb: 'MTV India: Indipop videos, VJs and MTV Bakra' },
   { id: 'cn',   name: 'Cartoon Network', short: 'CN',    color: '#ff5f45', closedown: false,
     blurb: 'Cartoon Network India, with Hindi-dubbed blocks from 4 Jan 1999' },
   { id: 'sstar', name: 'Star Sports',    short: 'SPORT', color: '#3b9bff', closedown: false,
@@ -339,6 +341,14 @@ const TV_RUNS = [
   /* ------------------------------------------------------------------ SAB TV */
   { net: 'sab', from: 2001, to: 2003, show: 'Office Office', day: 'Mon', time: '21:00', dur: 30, conf: 'approx',
     src: 'Premiered Mon 3 Sep 2001 on SAB TV (Wikipedia). Clock time is a placeholder.' },
+
+  /* ------------------------------------------------------------------ MTV INDIA */
+  { net: 'mtv', from: 1996, to: 1998, show: 'MTV Made in India', day: 'daily', time: '18:00', dur: 15, conf: 'approx',
+    src: 'MTV Made in India ran 1996-98 (Wikipedia, list of MTV India programmes, which gives no day or time). Clock time is a placeholder. Videos: Indipop hits of the era, picked by us, from the labels\' own channels.' },
+  { net: 'mtv', from: 1998, to: 1999, show: 'MTV Most Wanted', lib: 'MTV Made in India', day: 'daily', time: '19:00', dur: 15, conf: 'approx',
+    src: 'MTV Most Wanted ran 1998-99 (Wikipedia). A music-video countdown; day and clock time are placeholders. The videos are the same Indipop set as MTV Made in India: the real countdowns were not uploaded in full.' },
+  { net: 'mtv', from: 1999, to: 2005, show: 'MTV Bakra', day: 'Sat', time: '20:00', dur: 15, conf: 'approx',
+    src: 'MTV Bakra ran 1999-2005 (Wikipedia). Day and clock time are placeholders. Videos: two short fan-uploaded clips; no full episodes are embeddable.' },
 
   /* ------------------------------------------------------------------ CARTOON NETWORK */
   { net: 'cn', from: 1999, to: 2007, show: 'Hindi-dubbed cartoons', gen: 'cn', conf: 'verified',

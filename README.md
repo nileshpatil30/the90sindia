@@ -20,7 +20,7 @@ then open one of these in a browser:
 | URL | What it is |
 |---|---|
 | `http://localhost:8123/home.html` | **90s Rewind TV homepage** (the new portal, Phase 1) |
-| `http://localhost:8123/tv.html` | Live TV: 10 networks, 1984 to 2007, weekly timetables, ALL SHOWS |
+| `http://localhost:8123/tv.html` | Live TV: 11 networks, 1984 to 2007, weekly timetables, ALL SHOWS |
 | `http://localhost:8123/index.html` | The original single-page site (unchanged) |
 
 Needs internet only for YouTube (the TV player and card thumbnails). Fonts and
@@ -183,7 +183,7 @@ below for why).
 
 ## Live TV (`tv.html`)
 
-**10 networks, 1984 to 2007** (DD National, DD Metro, Zee TV, Home TV, Star Plus, Sony/SET,
+**11 networks, 1984 to 2007** (DD National, DD Metro, Zee TV, Home TV, Star Plus, Sony/SET, MTV India,
 SAB, Cartoon Network, Star Sports, ESPN). Every network and year is its own channel, such
 as "DD National 1992" or "Zee TV 1997", with a fixed weekly timetable in India time (IST),
 the same instant for every viewer. Pick a network and a year in the guide; what is on air

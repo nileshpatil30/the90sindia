@@ -159,7 +159,7 @@ ul { list-style: none; }
 
 /* ---- centre: the TV ---- */
 .tvpanel {
-  display: grid; grid-template-columns: minmax(0, 1fr) 228px; grid-template-rows: auto 1fr; gap: 4px 8px; padding: 6px 10px 12px 8px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 228px; grid-template-rows: auto 1fr auto; gap: 4px 8px; padding: 6px 10px 12px 8px;
   background: radial-gradient(120% 90% at 30% 25%, #f4ff74 0%, #d6f43c 55%, #bfe92b 100%);
 }
 .tvpanel::after { content: ""; position: absolute; z-index: 0; left: -6%; right: -6%; bottom: -66px; height: 112px; border-radius: 50%; background: radial-gradient(#8a3fe0, #5a1fa8 70%); border-top: 3px solid var(--ink); }
@@ -204,6 +204,21 @@ ul { list-style: none; }
 .upnext-b li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .up-all { display: inline-block; margin-top: 6px; font: 800 15px/1 var(--f-head); color: #1030d8; }
 .tv-mini { position: absolute; z-index: 2; right: 10px; bottom: 8px; width: 60px; height: auto; }
+
+/* ---- remote control strip under the TV: play/pause, channel, volume, channel picker ---- */
+.remote { grid-column: 1; grid-row: 3; display: flex; align-items: center; gap: 6px; margin-top: 4px; padding: 5px 8px;
+  background: linear-gradient(#fffcd0, #fff7a8); border: 3px solid var(--ink); border-radius: 18px; box-shadow: 2px 3px 0 var(--ink); max-width: 540px; }
+.rc { flex: none; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border: 2.5px solid var(--ink); border-radius: 50%; background: #ffe81a; cursor: pointer; box-shadow: 1px 2px 0 var(--ink); }
+.rc:hover { background: #fff45a; transform: translateY(-1px); }
+.rc:active { transform: translate(1px, 2px); box-shadow: none; }
+.rc img { width: 20px; height: 20px; display: block; }
+.rc-main { width: 38px; height: 38px; background: #b8f02c; }
+.rc[aria-pressed="true"]:not(.rc-main) { background: #ff9d7d; }
+.rc:disabled { opacity: .45; cursor: default; transform: none; }
+.rc-vol { flex: 0 1 92px; min-width: 56px; height: 22px; accent-color: #8a3fe0; cursor: pointer; }
+.rc-sel { flex: 1 1 0; min-width: 0; display: block; }
+.rc-sel select { width: 100%; height: 32px; padding: 0 6px; font: 800 15px/1 var(--f-head); color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; cursor: pointer; text-overflow: ellipsis; }
+.rc:focus-visible, .rc-vol:focus-visible, .rc-sel select:focus-visible { outline: 3px solid #1030d8; outline-offset: 2px; }
 
 .browse { background: linear-gradient(#fbf65e, #f3ea18); padding: 8px 10px 10px; }
 .browse-h { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 6px; }
@@ -421,12 +436,15 @@ ul { list-style: none; }
   .page { padding: 10px 8px 0; }
   .hero { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .col, .col-l, .col-c, .col-r { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
-  .tvpanel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; padding-bottom: 56px; }
+  .tvpanel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; padding-bottom: 56px; }
+  .remote { grid-row: 2; flex-wrap: wrap; justify-content: center; }
+  .rc-vol { flex: 1 1 70px; }
+  .rc-sel { flex: 1 1 100%; }
   .col, .col-l, .col-c, .col-r { min-width: 0; }
   .onair-t, .onair h3, .onair .oa-title { white-space: normal; }
   .crt { grid-column: 1; grid-row: 1; }
-  .onair { grid-column: 1; grid-row: 2; margin-top: 4px; }
-  .upnext { grid-column: 1; grid-row: 3; }
+  .onair { grid-column: 1; grid-row: 3; margin-top: 4px; }
+  .upnext { grid-column: 1; grid-row: 4; }
   .tiles { grid-template-columns: repeat(4, 1fr); }
   .tile { min-height: 78px; }
   .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }

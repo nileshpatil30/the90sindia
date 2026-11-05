@@ -118,6 +118,14 @@
             <a class="up-all" id="up-all" href="tv.html">Full schedule »</a>
           </div>
         </div>
+        <div class="remote" id="remote" role="group" aria-label="TV controls">
+          <button type="button" class="rc" id="rc-prev" aria-label="Previous channel" title="Previous channel"><img src="assets/ui/icons/r-prev.svg" alt="" width="22" height="22"></button>
+          <button type="button" class="rc rc-main" id="rc-play" aria-label="Pause" aria-pressed="false" title="Pause"><img id="rc-play-i" src="assets/ui/icons/r-pause.svg" alt="" width="24" height="24"></button>
+          <button type="button" class="rc" id="rc-next" aria-label="Next channel" title="Next channel"><img src="assets/ui/icons/r-next.svg" alt="" width="22" height="22"></button>
+          <button type="button" class="rc" id="rc-mute" aria-label="Sound" aria-pressed="false" title="Sound on / off"><img id="rc-mute-i" src="assets/ui/icons/r-mute.svg" alt="" width="22" height="22"></button>
+          <input class="rc-vol" id="rc-vol" type="range" min="0" max="100" step="5" value="70" aria-label="Volume">
+          <label class="rc-sel"><span class="sr">Channel</span><select id="rc-ch"></select></label>
+        </div>
         <img class="tv-mini" src="assets/ui/tv-mini.svg" alt="" width="62" height="65">
       </section>
 

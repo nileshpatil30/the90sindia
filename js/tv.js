@@ -732,7 +732,7 @@
   }
 
   function pickStart() {
-    var m = /ch=([\w-]+)/.exec(location.hash || '');
+    var m = /ch=([\w-]+)/.exec(location.hash || '') || /[?&]ch=([\w-]+)/.exec(location.search || '');
     var want = (m && m[1]) || tryLoad('tv.ch');
     if (want && LEGACY[want]) want = LEGACY[want];
     if (want != null && BY[want] != null) return BY[want];

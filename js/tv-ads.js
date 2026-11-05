@@ -67,6 +67,10 @@ var TV_AD_PACKS = {
     { title: 'ESPN Star Sports cricket intros', sponsor: 'Classic 90s cricket intros', duration: 191, video: 'wvbhbJgqesQ' },
     { title: 'Star Sports ad break', sponsor: 'Star Sports India, 1998 long ad break and continuity', duration: 300, video: 'nGmRorG95c4' }
   ],
+  mtv: [
+    { title: 'MTV India', sponsor: 'MTV India idents and promos, 1998-99 (archive recording)', duration: 240, video: '0rh0EV4PUqg' },
+    { title: 'Ad break', sponsor: '90s Doordarshan ads (archive recording)', duration: 300, video: 'r2FFTZ6ltwQ' }
+  ],
   espn: [
     { title: 'ESPN Star Sports cricket intros', sponsor: 'Classic 90s cricket intros', duration: 191, video: 'wvbhbJgqesQ' },
     { title: 'Star Sports ad break', sponsor: 'Star Sports India, 1998 long ad break and continuity', duration: 300, video: 'nGmRorG95c4' },
