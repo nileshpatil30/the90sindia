@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>90s REWIND TV — Live Timetable, 1984 to 2007</title>
-<meta name="description" content="Watch the 80s and 90s the way it aired: pick a channel and a year, get the fixed weekly timetable, one episode a week, with commercial breaks. DD National, DD Metro, Zee, Star Plus, Sony, SAB and Cartoon Network, 1984 to 2007.">
+<meta name="description" content="Watch the 80s and 90s the way it aired: pick a channel and a year, get the fixed weekly timetable, one episode a week, with commercial breaks. DD National, DD Metro, Zee, Home TV, Star Plus, Sony, SAB, Cartoon Network, Star Sports and ESPN, 1984 to 2007. Plus every show on demand.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
   </div>
   <div class="logo-strip">
     <h1 class="logo">90s <span>REWIND</span> TV</h1>
-    <p class="tagline">pick a channel and a year: the real weekly timetable, 1984 to 2007</p>
+    <p class="tagline">pick a channel and a year: the real weekly timetable, 1984 to 2007 &nbsp;·&nbsp; <a class="tagline-link" href="#all-shows">ALL SHOWS on demand &#9662;</a></p>
   </div>
 </header>
 
@@ -106,10 +106,43 @@
     <div class="guide-days" id="guide-days"></div>
   </section>
 
+  <section class="all-shows" id="all-shows" aria-label="All shows on demand">
+    <h2 class="guide-title">ALL SHOWS <span class="dial-sub" id="shows-count"></span></h2>
+    <p class="guide-note">Every show we have, to watch whenever you like on a separate player. Live TV above pauses while it is open and comes back when you close it.</p>
+
+    <div class="vod" id="vod" hidden>
+      <div class="vod-head">
+        <div class="vod-names">
+          <div class="vod-title" id="vod-title"></div>
+          <div class="vod-meta" id="vod-meta"></div>
+        </div>
+        <button type="button" class="vod-close" id="vod-close">BACK TO LIVE TV</button>
+      </div>
+      <div class="vod-screen"><div id="yt-vod"></div></div>
+      <div class="vod-bar">
+        <button type="button" id="vod-prev">&#9664; PREV</button>
+        <span class="vod-ep" id="vod-ep"></span>
+        <button type="button" id="vod-next">NEXT &#9654;</button>
+        <a class="vod-yt" id="vod-yt" href="#" target="_blank" rel="noopener">Open on YouTube</a>
+      </div>
+      <p class="vod-note" id="vod-note" hidden></p>
+      <div class="vod-eps" id="vod-eps" hidden></div>
+      <p class="vod-about" id="vod-about" hidden></p>
+      <div class="vod-live" id="vod-live" hidden></div>
+    </div>
+
+    <div class="shows-tools">
+      <input type="search" id="shows-q" placeholder="Search shows: Tara, Shaktimaan, WWF, cricket..." aria-label="Search shows" autocomplete="off">
+      <div class="chips" id="shows-net" role="group" aria-label="Filter by channel"></div>
+      <div class="chips" id="shows-kind" role="group" aria-label="Filter by kind"></div>
+    </div>
+    <div class="show-grid" id="show-grid"></div>
+  </section>
+
 </main>
 
 <footer class="tv-foot">
-  All times India (IST, UTC+5:30). Video plays from official channels via the YouTube player, ads and all.
+  All times India (IST, UTC+5:30). Video plays from official channels where they exist, and from community uploads (labelled) where they do not, via the YouTube player, ads and all.
   Commercial breaks use our own slots between shows, never over YouTube's.
   <a href="index.html">&larr; Back to 90s REWIND</a>
 </footer>
@@ -118,9 +151,11 @@
 
 <script src="js/tv-episodes.js"></script>
 <script src="js/tv-library.js"></script>
+<script src="js/tv-ads.js"></script>
 <script src="js/tv-schedule.js"></script>
 <script src="js/tv-config.js"></script>
 <script src="js/tv-engine.js"></script>
 <script src="js/tv.js"></script>
+<script src="js/tv-shows.js"></script>
 </body>
 </html>

@@ -65,12 +65,17 @@ var EPISODE_SETS = {
   MAHABHARAT: { episodes: EP_MAHABHARAT,      nums: EP_MAHABHARAT_NUMS.length ? EP_MAHABHARAT_NUMS : false, official: false }
 };
 
-// Shared commercial rotation. Your own clips go here.
+// Ad breaks, idents and continuity recordings per channel: js/tv-ads.js.
+var AD_PACKS = (typeof TV_AD_PACKS !== 'undefined') ? TV_AD_PACKS : {};
+
+// Fallback commercial rotation (plain cards) for a channel with no ad pack. Your own clips can go here.
 var TV_ADS = [
   { title: 'Commercial break', sponsor: 'Your 90s ad here', duration: 30, video: '' },
   { title: 'Commercial break', sponsor: 'Sponsor this break', duration: 30, video: '' },
   { title: 'Commercial break', sponsor: 'Your 90s ad here', duration: 20, video: '' }
 ];
+
+function adsFor(netId) { var a = AD_PACKS[netId]; return (a && a.length) ? a : TV_ADS; }
 
 // Doordarshan switched off at night: a test card shows in this window.
 var DD_CLOSEDOWN = { from: '23:30', to: '06:30', label: 'Transmission has ended for the day' };
@@ -151,7 +156,7 @@ function buildChannels(nets, runs) {
         num: net.id + '-' + y, net: net.id, year: y,
         name: net.name, short: net.short, era: String(y),
         tag: names.slice(0, 4).join(', ') + (names.length > 4 ? ' and ' + (names.length - 4) + ' more' : ''),
-        tz: 330, ads: TV_ADS, closedown: net.closedown ? DD_CLOSEDOWN : null,
+        tz: 330, ads: adsFor(net.id), closedown: net.closedown ? DD_CLOSEDOWN : null,
         slots: slotsFor(here)
       });
     }
@@ -160,6 +165,70 @@ function buildChannels(nets, runs) {
 }
 
 var TV_CHANNELS = (typeof TV_RUNS !== 'undefined' ? buildChannels(TV_NETS, TV_RUNS) : []);
+
+/* ---- THE ALL SHOWS CATALOGUE ------------------------------------------------
+   One entry per watchable show, built from the library, the hand-checked episode
+   sets and the ad packs, with the timetable slots it appears in. The ALL SHOWS
+   section of the page (js/tv-shows.js) lists these.
+     { id, title, kind, official, note, years, nets: [ids], runs: [ {net,from,to,day,time,conf,fixture} ],
+       episodes: [video ids], nums: [numbers]|false, labels: [text]|null, playlist: 'PL...'|null }            */
+var EPSET_META = {
+  RAMAYAN: { title: 'Ramayan', kind: 'religious' }, RANGOLI: { title: 'Rangoli', kind: 'music' }, CHITRAHAAR: { title: 'Chitrahaar', kind: 'music' },
+  HUM_PAANCH: { title: 'Hum Paanch', kind: 'comedy' }, SHAKTIMAAN: { title: 'Shaktimaan', kind: 'fantasy' }, KBC: { title: 'Kaun Banega Crorepati', kind: 'music' },
+  MAHABHARAT: { title: 'Mahabharat', kind: 'religious' }
+};
+
+function buildShows(nets, runs) {
+  var by = {}, list = [];
+  function get(title) {
+    if (!by[title]) { by[title] = { id: '', title: title, kind: 'other', official: false, note: '', years: '', nets: [], runs: [], episodes: [], nums: false, labels: null, playlist: null }; list.push(by[title]); }
+    return by[title];
+  }
+  (typeof TV_LIBRARY !== 'undefined' ? TV_LIBRARY : []).forEach(function (r) {
+    var s = get(r.title);
+    s.kind = r.kind || 'other'; s.official = !!r.official; s.note = r.note || ''; s.years = r.years || '';
+    if (r.net) s.nets = [r.net];
+    if (r.episodes) { s.episodes = words(r.episodes); s.nums = r.nums ? words(r.nums).map(Number) : false; }
+    else if (r.playlist) s.playlist = r.playlist;
+  });
+  runs.forEach(function (r) {
+    if (r.gen === 'cn') {
+      var c = get(r.show); c.kind = 'kids'; c.official = true; c.episodes = EP_CN.slice(); c.note = c.note || 'Cartoon Network India\'s own uploads.';
+      c.runs.push({ net: r.net, from: r.from, to: r.to, conf: r.conf, fixture: false });
+      return;
+    }
+    var s = get(r.show), set = r.eps && EPISODE_SETS[r.eps];
+    if (set && set.episodes.length && !s.episodes.length && !s.playlist) {
+      s.episodes = set.episodes.map(function (e) { return e.video; });
+      s.nums = (set.nums && set.nums.length) ? set.nums : false;
+      s.official = !!set.official;
+      s.kind = (EPSET_META[r.eps] || {}).kind || s.kind;
+    }
+    s.runs.push({ net: r.net, from: r.from, to: r.to, day: r.day, time: r.time, conf: r.conf, fixture: !!r.fixture });
+  });
+  // ad breaks, idents and continuity: one watchable entry per channel
+  var netName = {}; nets.forEach(function (n) { netName[n.id] = n.name; });
+  Object.keys(AD_PACKS).forEach(function (id) {
+    var seen = {}, vids = [], labels = [];
+    AD_PACKS[id].forEach(function (a) { if (a.video && !seen[a.video]) { seen[a.video] = 1; vids.push(a.video); labels.push(a.sponsor); } });
+    if (!vids.length) return;
+    var s = get((netName[id] || id) + ': ad breaks and idents');
+    s.kind = 'ads'; s.official = false; s.episodes = vids; s.labels = labels; s.nets = [id];
+    s.note = 'The recordings that play between shows on this channel: 90s ad breaks, idents and continuity, uploaded by TV-archive collectors.';
+  });
+  list = list.filter(function (s) { return s.episodes.length || s.playlist; });
+  list.forEach(function (s) {
+    s.runs.forEach(function (r) { if (s.nets.indexOf(r.net) < 0) s.nets.push(r.net); });
+    s.id = s.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  });
+  list.sort(function (a, b) {
+    var x = a.title.replace(/^(the|a)\s+/i, '').toLowerCase(), y = b.title.replace(/^(the|a)\s+/i, '').toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+  return list;
+}
+
+var TV_SHOWS = (typeof TV_RUNS !== 'undefined' ? buildShows(TV_NETS, TV_RUNS) : []);
 
 // Old links like tv.html#ch=02 still land somewhere sensible.
 var TV_LEGACY = { '01': 'ddn-1987', '02': 'ddn-1989', '03': 'ddn-1993', '04': 'zee-1997', '05': 'star-2000', '06': 'cn-2000', '07': 'sony-2007', '90': 'ddn-1990' };
@@ -181,5 +250,5 @@ var TV_DEMO = {
   })
 };
 
-if (typeof window !== 'undefined') { window.TV_CHANNELS = TV_CHANNELS; window.TV_DEMO = TV_DEMO; window.TV_LEGACY = TV_LEGACY; }
-if (typeof module !== 'undefined' && module.exports) { module.exports = { TV_CHANNELS: TV_CHANNELS, TV_DEMO: TV_DEMO, TV_LEGACY: TV_LEGACY }; }
+if (typeof window !== 'undefined') { window.TV_CHANNELS = TV_CHANNELS; window.TV_DEMO = TV_DEMO; window.TV_LEGACY = TV_LEGACY; window.TV_SHOWS = TV_SHOWS; }
+if (typeof module !== 'undefined' && module.exports) { module.exports = { TV_CHANNELS: TV_CHANNELS, TV_DEMO: TV_DEMO, TV_LEGACY: TV_LEGACY, TV_SHOWS: TV_SHOWS }; }

@@ -51,7 +51,7 @@
     idx: 0, net: '', year: 0, shelfAt: 0, started: false, muted: false,
     key: null, loc: null, ended: false, failed: false, playedKey: null,
     apiRequested: false, ready: false, readyCount: 0, main: null, ad: null,
-    tAt: 0, watchdogDone: false, osdTimer: null
+    tAt: 0, watchdogDone: false, osdTimer: null, vod: false
   };
 
   /* ---------- small helpers ---------- */
@@ -238,7 +238,9 @@
     if (S.apiRequested) return;
     S.apiRequested = true;
     if (window.YT && window.YT.Player) { initPlayers(); return; }
-    window.onYouTubeIframeAPIReady = initPlayers;
+    var prevReady = window.onYouTubeIframeAPIReady;      // the ALL SHOWS player may already be waiting on the API
+    window.onYouTubeIframeAPIReady = function () { if (typeof prevReady === 'function') { try { prevReady(); } catch (e) { /* ignore */ } } initPlayers(); };
+    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) return;
     var s = document.createElement('script');
     s.src = 'https://www.youtube.com/iframe_api';
     s.onerror = function () {
@@ -384,6 +386,11 @@
     var loc = E.locate(ch, now);
     S.loc = loc;
     var tz = tzOf(ch);
+    if (S.vod) {                                   // watching a show on demand: live TV waits
+      el.clock.textContent = 'IST ' + fmtHMS(now, tz);
+      renderNowNext(loc, now);
+      return;
+    }
 
     el.clock.textContent = 'IST ' + fmtHMS(now, tz) +
       (new Date().getTimezoneOffset() !== -tz ? '  ·  your time ' + new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
@@ -699,7 +706,28 @@
     else if (t.webkitRequestFullscreen) t.webkitRequestFullscreen();
   }
 
+  // The ALL SHOWS player opens: stop the live video and wait. It closes: rejoin the broadcast where it is now.
+  document.addEventListener('tv:vod', function (ev) {
+    S.vod = !!(ev.detail && ev.detail.open);
+    if (S.vod) {
+      if (S.ready) stopPlayers();
+      showSlate({ kicker: 'ON DEMAND', title: 'Live TV is paused', line: 'Close the show player below to rejoin ' + chLabel(cur()) + '.' });
+    } else {
+      S.key = null; S.ended = false; S.failed = false;
+      tick();
+    }
+  });
+
+  window.TVLive = {
+    tune: function (num) {
+      var i = BY[num];
+      if (i == null) return;
+      selectChannel(i);
+    }
+  };
+
   el.tune.addEventListener('click', function () {
+    if (window.TVShows && S.vod) window.TVShows.close();
     S.started = true;
     el.tune.classList.add('gone');
     ensureAPI();
