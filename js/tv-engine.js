@@ -97,12 +97,17 @@
   //   With startDate: week of startDate = item 0, the next week = item 1, ...
   //   (before the start date: item 0), then loops. Episodes play in LIST ORDER.
   //   Without startDate: rotates by calendar week.
+  //   One show in several slots a week (the Rewind Mix does this): give each slot
+  //   epOffset 0,1,2... and every slot epStep = how many slots the show has per week.
+  //   Week 1 then plays items 0..step-1, week 2 the next `step` items, and so on,
+  //   so no episode repeats until the whole list has been played.
   function episodeIdx(entry, weekIndex) {
     var eps = entry.ref.episodes || [];
     if (!eps.length) return -1;
-    var off = entry.ref.epOffset || 0;          // lets one show fill several slots with different episodes
-    if (entry.ref.startDate) return (Math.max(0, weekIndex - weekOfDate(entry.ref.startDate)) + off) % eps.length;
-    return mod(weekIndex + off, eps.length);
+    var off = entry.ref.epOffset || 0;
+    var step = entry.ref.epStep || 1;
+    if (entry.ref.startDate) return (Math.max(0, weekIndex - weekOfDate(entry.ref.startDate)) * step + off) % eps.length;
+    return mod(weekIndex * step + off, eps.length);
   }
   function episodeFor(entry, weekIndex) {
     var i = episodeIdx(entry, weekIndex);

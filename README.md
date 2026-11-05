@@ -17,7 +17,7 @@ js/app.js          Rendering logic + the arcade game. Reads from config.js.
 tv.html            The live TV page (weekly timetable player)
 css/tv.css         TV page styling
 js/tv-episodes.js  Official episode lists, in episode order (Ramayan, Hum Paanch)
-js/tv-library.js   Show library: one line per show (title, playlist, minutes) feeds CH 90
+js/tv-library.js   Show library: one row per show (title, playlist OR video IDs, minutes) feeds CH 90
 js/tv-config.js    THE TIMETABLE: channels (eras), weekly slots, episode IDs, ads
 js/tv-engine.js    Schedule maths (no DOM). Do not edit.
 js/tv.js           Player: YouTube embeds, commercial cards, guide
@@ -145,30 +145,61 @@ like:
 - Shaktimaan Ep 1-235 minus 23 gaps (Ultra TV Series, community upload), KBC season 1 (3 clips)
   and one Chitrahaar episode (community uploads). Community uploads can be removed by the
   uploader at any time: re-check now and then.
+- Shri Krishna (Ramanand Sagar) Ep 1-221 minus 129 and 217 (Tilak, official), CH 04 Sundays.
+  The day and time are a placeholder: it is known to have run on DD Metro from 18 Jul 1993.
+- The Jungle Book (Hindi dub), 23 of 52 episodes (Sync, community upload), CH 03 Sundays 10 am.
+- Comedy Circus Ep 1-19 minus 3 (SET India, official), CH 07: launched 16 Jun 2007, Saturdays 9:30 pm.
 - Not scheduled with video: Mahabharat (Hindi uploads all block embedding; only a Tamil dub is
   embeddable), Kyunki (no 2000-era episodes found). They show title cards.
 - Every episode slot starts at Episode 1 on 8 Nov 2026, one new episode a week.
 
 **Rewind Mix (CH 90)** runs 9 am to 11 pm every day: a fixed weekly grid built
-automatically from `js/tv-library.js` (31 shows now). To add a show, add one line
-there (`{ title, playlist: 'PLxxxx', min: 22, official: false }`), nothing else.
-Library playlists were auto-found and spot-checked (embeddable); their order was
-not checked episode by episode, so they show no "Episode N".
+automatically from `js/tv-library.js` (47 shows now). Every show is on air 3 or 4
+times a week and each airing plays the NEXT episode, so nothing repeats until the
+whole list has been shown. To add a show, add one row there, nothing else:
+
+```js
+// a YouTube playlist
+{ title: 'Nukkad', playlist: 'PLxxxx', min: 24, official: false },
+// or single videos, in episode order, with their real episode numbers
+{ title: 'Fauji', min: 24, official: false,
+  nums: '1 2 3 4 5', episodes: 'id1 id2 id3 id4 id5' },
+```
+
+Playlist rows were auto-found and spot-checked (embeddable); their order was not
+checked episode by episode, so they show no "Episode N". Single-video rows were
+checked one by one on 5 Nov 2026: embeddable, and the video title names the show
+and the episode number (wrong shows such as the Pakistani "Dastaan" and the 2021
+Wagle Ki Duniya remake were removed). Slots sit on a quarter-hour grid
+(episode length + 3 minutes of break). Single-video shows now in the library:
+Fauji (13), Buniyaad (42), Hum Log (52), Shrimaan Shrimati (62), Zee Horror Show (63),
+Swabhimaan (21), Tipu Sultan (40), Ek Tha Rusty (24), Surabhi (16), Office Office (61),
+Kabhi Yeh Kabhi Woh (27), Ulta Pulta (8), Idhar Udhar (20), Wagle Ki Duniya 1988 (11),
+Dekh Bhai Dekh (6), The Jungle Book (23), Shri Krishna (219), Comedy Circus (18),
+Kahani Comedy Circus Ki (29).
 
 **New timetable slots from nostalgia blogs** (Nov 2026): Malgudi Days Sat 10 am,
 Vikram Aur Betaal Sunday evening (6 pm is a placeholder), The Jungle Book Sundays
-10 am from 1 Nov 1992 (no embeddable upload found yet).
+10 am from 1 Nov 1992.
 
 **Commercials**: add your own clips to `TV_ADS` (`video` = official ID,
 `duration` in seconds, must match the clip). They play in their own slots
 between shows. Nothing is ever drawn over a YouTube video or its ads.
 
 **Still unconfirmed** (not scheduled until a listing is found): Hum Log,
-Buniyaad, Malgudi Days, Nukkad, Fauji, Circus, Surabhi, Dekh Bhai Dekh,
-Superhit Muqabla, Byomkesh Bakshi, Saturday Suspense, Antakshari, Banegi Apni
-Baat, Vikram Aur Betaal, Jungle Book, Alif Laila, WWF, cricket. Old newspaper
+Buniyaad, Malgudi Days, Nukkad, Fauji, Surabhi, Dekh Bhai Dekh, Superhit
+Muqabla, Byomkesh Bakshi, Saturday Suspense, Antakshari, Banegi Apni Baat,
+Vikram Aur Betaal, Alif Laila, WWF, cricket. They all play in the Rewind Mix
+(CH 90) when they have videos, just not at a fixed weekly time. Old newspaper
 TV listings are the best source. CH 00 is a working demo using open-licence
 Blender films; delete it when real content is in.
+
+**Videos that cannot be embedded** (the owner switched embedding off, YouTube
+answers 401 / "Video unavailable"): the whole "Dekh Bhai Dekh Official" channel
+(Ep 1-62), SRK's Circus on Prasar Bharati Archives, and the Hindi Mahabharat
+uploads. Only 6 full Dekh Bhai Dekh episodes (Ep 9-14, a community upload) can
+be embedded. Test any video: `https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=VIDEO_ID`
+must answer 200, not 401.
 
 ## Getting a YouTube video ID or playlist ID
 
@@ -193,11 +224,13 @@ https://www.youtube.com/playlist?list=PL0CaUqi81mPnxS08v67qqzJawvLRakSud
 Copy just that ID string (no `v=`, no `&` params) into `video` or
 `playlistId` in `js/config.js`.
 
-## Copyright rule — official sources only
+## Copyright rule — official sources first
 
-**Every embedded video must come from an official rights-holder YouTube
-channel. Never use fan reuploads, "clips" channels, or compilation
-channels** — even when the content looks identical to the original. Fan
+**Prefer videos from the official rights-holder YouTube channel. Use a fan
+reupload only when no official, embeddable copy exists** (agreed Nov 2026).
+The TV page's source notes and the Rewind Mix label every community upload.
+Never use "clips" channels or compilations — even when the content looks
+identical to the original. Fan
 reuploads get DMCA-claimed or taken down without warning, which silently
 breaks your embed, and mixing them in is also what gets nostalgia/clip
 sites rejected from AdSense.

@@ -90,6 +90,16 @@ var EP_CN = (typeof CARTOON_NETWORK_30 !== 'undefined') ? CARTOON_NETWORK_30 : [
 var EP_KBC = (typeof KBC_S1_COMMUNITY !== 'undefined') ? KBC_S1_COMMUNITY : [];
 var EP_CHITRAHAAR = (typeof CHITRAHAAR_COMMUNITY !== 'undefined') ? CHITRAHAAR_COMMUNITY : [];
 function eps(ids) { return ids.map(function (v) { return { video: v }; }); }
+// "id1 id2 id3" or "id1, id2" or an array -> array
+function words(x) { return Array.isArray(x) ? x : String(x || '').split(/[\s,]+/).filter(Boolean); }
+// Episodes / numbers of a show in js/tv-library.js, for putting it in a fixed timetable slot.
+function libRow(title) {
+  var lib = (typeof TV_LIBRARY !== 'undefined') ? TV_LIBRARY : [];
+  for (var i = 0; i < lib.length; i++) { if (lib[i].title === title) return lib[i]; }
+  return null;
+}
+function libEps(title) { var r = libRow(title); return r && r.episodes ? eps(words(r.episodes)) : []; }
+function libNums(title) { var r = libRow(title); return r && r.nums ? words(r.nums).map(Number) : false; }
 
 // Shared commercial rotation. Your own clips go here.
 const TV_ADS = [
@@ -108,27 +118,43 @@ const DD_CLOSEDOWN = { from: '23:30', to: '06:30', label: 'Transmission has ende
 function mixSlots() {
   var lib = (typeof TV_LIBRARY !== 'undefined') ? TV_LIBRARY : [];
   if (!lib.length) return [{ day: 'daily', time: '09:00', duration: 30, title: 'Rewind Mix', episodes: [] }];
-  var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], used = {}, out = [];
+  var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], used = {}, out = [], epsOf = {};
   function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function hm(t) { return ('0' + Math.floor(t / 60)).slice(-2) + ':' + ('0' + (t % 60)).slice(-2); }
-  days.forEach(function (d, di) {
-    var r = rng(1990 + di * 77), order = lib.slice(), i, j, x;
+  // A slot is the episode length + 3 minutes of break, on a quarter-hour grid.
+  function slotLen(min) { return Math.ceil((min + 3) / 15) * 15; }
+  // One long shuffled round of the whole library runs on from day to day, so every
+  // show gets about the same number of slots a week (the shuffle is seeded: same every week).
+  var order = [], pos = 0, round = 0;
+  function reshuffle() {
+    var r = rng(1990 + round++ * 77), i, j, x;
+    order = lib.slice();
     for (i = order.length - 1; i > 0; i--) { j = Math.floor(r() * (i + 1)); x = order[i]; order[i] = order[j]; order[j] = x; }
-    var t = 9 * 60, k = 0, guard = 0;
-    while (t < 23 * 60 && guard++ < 200) {
-      var sh = null, dur = 0, tries = 0;
-      while (tries++ < order.length) {
-        var c = order[k++ % order.length], dd = Math.ceil((c.min + 3) / 30) * 30;
-        if (t + dd <= 23 * 60) { sh = c; dur = dd; break; }
-      }
-      if (!sh) break;
+    pos = 0;
+  }
+  reshuffle();
+  days.forEach(function (d) {
+    var t = 9 * 60, guard = 0;
+    while (t < 23 * 60 && guard++ < 300) {
+      if (pos >= order.length) reshuffle();
+      var pick = -1, q;
+      for (q = pos; q < order.length; q++) { if (t + slotLen(order[q].min) <= 23 * 60) { pick = q; break; } }
+      if (pick < 0) break;                                  // nothing left fits before sign-off
+      var sh = order[pick], dur = slotLen(sh.min);
+      order[pick] = order[pos]; order[pos] = sh; pos++;     // shows that did not fit stay for later
       var n = used[sh.title] || 0; used[sh.title] = n + 1;
-      out.push({ day: d, time: hm(t), duration: dur, title: sh.title, episodes: [], playlist: sh.playlist,
-        epNums: false, startDate: '2026-11-08', epOffset: n,
+      var list = sh.episodes ? (epsOf[sh.title] = epsOf[sh.title] || eps(words(sh.episodes))) : [];
+      out.push({ day: d, time: hm(t), duration: dur, title: sh.title,
+        episodes: list, playlist: sh.episodes ? undefined : sh.playlist,
+        epNums: sh.nums ? words(sh.nums).map(Number) : false, startDate: '2026-11-08', epOffset: n,
         source: 'Rewind Mix: auto-scheduled from the show library' + (sh.official ? ' (official channel)' : ' (community upload)') });
       t += dur;
     }
   });
+  // A show on air several times a week plays that many NEW episodes each week.
+  var perWeek = {};
+  out.forEach(function (s) { perWeek[s.title] = (perWeek[s.title] || 0) + 1; });
+  out.forEach(function (s) { s.epStep = perWeek[s.title]; });
   return out;
 }
 
@@ -188,8 +214,8 @@ const TV_CHANNELS = [
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'daily', time: '20:30', duration: 15, title: 'Hindi News (Samachar)', episodes: [],
         confidence: 'approx', source: '8:30 pm bulletin remembered in a reader comment (Ravish Kumar blog)' },
-      { day: 'Sun', time: '10:00', duration: 25, title: 'The Jungle Book (Mowgli, from 1 Nov 1992)', episodes: [],
-        confidence: 'recalled', source: 'Sundays 10:00 am, 1 Nov 1992 to 24 Oct 1993, 52 episodes (animemirchi.com fan guide); no embeddable upload found yet' },
+      { day: 'Sun', time: '10:00', duration: 25, title: 'The Jungle Book (Mowgli, from 1 Nov 1992)', episodes: libEps('The Jungle Book (Mowgli)'), epNums: libNums('The Jungle Book (Mowgli)'), startDate: '2026-11-08',
+        confidence: 'recalled', source: 'Sundays 10:00 am, 1 Nov 1992 to 24 Oct 1993, 52 episodes (animemirchi.com fan guide). Videos: Hindi dub, Sync community upload, 23 of the 52 episodes (the rest have no embeddable upload), played in order.' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
         confidence: 'approx', source: 'Sunday-evening Hindi film verified; clock time is a placeholder' }
     ]
@@ -209,6 +235,8 @@ const TV_CHANNELS = [
         confidence: 'verified', source: 'Tuesdays 8 pm, ~30 min (Wikipedia). Zee TV official uploads, episodes in order from Ep 1 (6 are not public on YouTube so numbers skip them); slot padded to 35 min for the longest uploads.' },
       { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
+      { day: 'Sun', time: '09:00', duration: 55, title: 'Shri Krishna (Ramanand Sagar)', episodes: libEps('Shri Krishna'), epNums: libNums('Shri Krishna'), startDate: '2026-11-08',
+        confidence: 'approx', source: 'Ran on DD Metro from 18 Jul 1993, then DD National from 1997 (Wikipedia). Day and clock time not confirmed: Sunday 9:00 is a placeholder. Videos: Tilak official channel, 219 of the 221 episodes, in order.' },
       { day: 'Sun', time: '12:00', duration: 47, title: 'Shaktimaan (from 27 Sep 1997)', episodes: eps(EP_SHAKTI), epNums: EP_SHAKTI_NUMS, startDate: '2026-11-08',
         confidence: 'recalled', source: 'Sundays on DD National verified (Wikipedia); noon start recalled' }
     ]
@@ -252,6 +280,19 @@ const TV_CHANNELS = [
       });
       return out;
     })()
+  },
+  {
+    num: '07',
+    name: 'SET India',
+    era: '2007',
+    tag: 'Comedy Circus Saturdays',
+    tz: 330,
+    ads: TV_ADS,
+    closedown: null,
+    slots: [
+      { day: 'Sat', time: '21:30', duration: 60, title: 'Comedy Circus', episodes: libEps('Comedy Circus'), epNums: libNums('Comedy Circus'), startDate: '2026-11-08',
+        confidence: 'verified', source: 'Launched 16 Jun 2007, every Saturday 9:30 pm (exchange4media). Videos: SET India official channel, episodes 1 to 19 in order (episode 3 has no embeddable upload).' }
+    ]
   },
   {
     num: '90',
