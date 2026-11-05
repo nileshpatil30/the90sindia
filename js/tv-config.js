@@ -19,6 +19,11 @@
                listing episodes, e.g. playlist: "PLxxxxxxxxxxxx". The page reads
                the video IDs from YouTube itself (cached a day) and plays one per
                week, in playlist order. episodes, if given, wins over playlist.
+     startDate  "YYYY-MM-DD": the week containing this date plays episodes[0],
+               the next week episodes[1], and so on IN LIST ORDER (Episode 1,
+               2, 3...). Without it, episodes rotate by calendar week.
+     epNums    optional list of the real episode numbers, parallel to episodes
+               (use when the list skips numbers). Default: position + 1.
      duration  whole MINUTES the slot is on air
      episodes  OFFICIAL YouTube video IDs only. Week 1 plays episodes[0],
                week 2 plays episodes[1], and so on, looping. Leave empty
@@ -70,6 +75,12 @@
      listings (even a phone photo), send them and these slots get filled in.
    ========================================================================== */
 
+// Official episode lists live in js/tv-episodes.js (loaded first).
+var EP_RAMAYAN = (typeof RAMAYAN_TILAK !== 'undefined') ? RAMAYAN_TILAK : [];
+var EP_HUMPAANCH = (typeof HUM_PAANCH_ZEE !== 'undefined') ? HUM_PAANCH_ZEE : [];
+var EP_HUMPAANCH_NUMS = (typeof HUM_PAANCH_NUMS !== 'undefined') ? HUM_PAANCH_NUMS : [];
+function eps(ids) { return ids.map(function (v) { return { video: v }; }); }
+
 // Shared commercial rotation. Your own clips go here.
 const TV_ADS = [
   { title: 'Commercial break', sponsor: 'Your 90s ad here', duration: 30, video: '' },
@@ -90,8 +101,8 @@ const TV_CHANNELS = [
     ads: TV_ADS,
     closedown: DD_CLOSEDOWN,
     slots: [
-      { day: 'Sun', time: '09:30', duration: 35, title: 'Ramayan', episodes: [],
-        confidence: 'recalled', source: 'Sunday morning + 35-min episodes verified; 9:30 start recalled (one reader remembers 9:00)' },
+      { day: 'Sun', time: '09:30', duration: 40, title: 'Ramayan', episodes: eps(EP_RAMAYAN), startDate: '2026-11-08',
+        confidence: 'recalled', source: 'Sunday morning + 35-min episodes verified; 9:30 start recalled (one reader remembers 9:00). Slot is 40 min because the Tilak uploads run 32-40 min. Episodes 1-78 in order, one a week from 8 Nov 2026.' },
       { day: 'Fri', time: '20:00', duration: 25, title: 'Chitrahaar', episodes: [],
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
@@ -147,8 +158,8 @@ const TV_CHANNELS = [
     slots: [
       { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: [],
         confidence: 'verified', source: 'Sunday mornings from 7:30 am (Deccan Herald)' },
-      { day: 'Tue', time: '20:00', duration: 30, title: 'Hum Paanch (Zee TV)', episodes: [],
-        confidence: 'verified', source: 'Tuesdays 8 pm, ~30 min (Wikipedia)' },
+      { day: 'Tue', time: '20:00', duration: 35, title: 'Hum Paanch (Zee TV)', episodes: eps(EP_HUMPAANCH), epNums: EP_HUMPAANCH_NUMS, startDate: '2026-11-08',
+        confidence: 'verified', source: 'Tuesdays 8 pm, ~30 min (Wikipedia). Zee TV official uploads, episodes in order from Ep 1 (6 are not public on YouTube so numbers skip them); slot padded to 35 min for the longest uploads.' },
       { day: 'Fri', time: '20:00', duration: 25, title: 'Chitrahaar', episodes: [],
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'Sun', time: '12:00', duration: 30, title: 'Shaktimaan (from 27 Sep 1997)', episodes: [],

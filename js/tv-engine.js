@@ -51,6 +51,7 @@
       if (!(s.duration > 0) || Math.floor(s.duration) !== s.duration) {
         throw new Error(channel.name + ': "' + s.title + '" duration must be whole minutes > 0');
       }
+      if (s.startDate) weekOfDate(s.startDate);
       var tod = parseHM(s.time);
       expandDays(s.day).forEach(function (d) {
         var start = d * DAY + tod;
@@ -85,9 +86,26 @@
     return c.from <= c.to ? (sod >= c.from && sod < c.to) : (sod >= c.from || sod < c.to);
   }
 
-  function episodeFor(entry, weekIndex) {
+  // Week number (same counter as clock().weekIndex) of a YYYY-MM-DD date.
+  function weekOfDate(str) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str || '');
+    if (!m) throw new Error('Bad startDate "' + str + '" (use YYYY-MM-DD)');
+    return Math.floor((Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 + 4) / 7);
+  }
+
+  // Which list position plays in this week?
+  //   With startDate: week of startDate = item 0, the next week = item 1, ...
+  //   (before the start date: item 0), then loops. Episodes play in LIST ORDER.
+  //   Without startDate: rotates by calendar week.
+  function episodeIdx(entry, weekIndex) {
     var eps = entry.ref.episodes || [];
-    return eps.length ? eps[mod(weekIndex, eps.length)] : null;
+    if (!eps.length) return -1;
+    if (entry.ref.startDate) return Math.max(0, weekIndex - weekOfDate(entry.ref.startDate)) % eps.length;
+    return mod(weekIndex, eps.length);
+  }
+  function episodeFor(entry, weekIndex) {
+    var i = episodeIdx(entry, weekIndex);
+    return i < 0 ? null : entry.ref.episodes[i];
   }
 
   // Where is "now" in the channel's local week?
@@ -126,7 +144,7 @@
 
     if (c.weekSec < eEnd) {
       return {
-        state: 'show', entry: e, episode: episodeFor(e, wk), weekIndex: wk,
+        state: 'show', entry: e, episode: episodeFor(e, wk), episodeIndex: episodeIdx(e, wk), weekIndex: wk,
         key: 'show:' + e.start + ':' + wk,
         offset: c.weekSec - eStart, remaining: eEnd - c.weekSec,
         startMs: ms(eStart), endMs: ms(eEnd), next: next
@@ -175,7 +193,7 @@
         var startMs = c.weekStartMs + (e.start + w * WEEK) * 1000;
         if (startMs > nowMs) {
           out.push({ entry: e, startMs: startMs, endMs: startMs + e.ref.duration * 60000,
-                     episode: episodeFor(e, c.weekIndex + w) });
+                     episode: episodeFor(e, c.weekIndex + w), episodeIndex: episodeIdx(e, c.weekIndex + w) });
         }
       }
     }

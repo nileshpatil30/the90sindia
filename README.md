@@ -16,6 +16,7 @@ js/config.js       ALL CONTENT LIVES HERE — the only file you should need to e
 js/app.js          Rendering logic + the arcade game. Reads from config.js.
 tv.html            The live TV page (weekly timetable player)
 css/tv.css         TV page styling
+js/tv-episodes.js  Official episode lists, in episode order (Ramayan, Hum Paanch)
 js/tv-config.js    THE TIMETABLE: channels (eras), weekly slots, episode IDs, ads
 js/tv-engine.js    Schedule maths (no DOM). Do not edit.
 js/tv.js           Player: YouTube embeds, commercial cards, guide
@@ -125,6 +126,9 @@ like:
 - `day`: `Sun`..`Sat`, an array, or `daily` / `weekdays` / `weekend`.
 - `playlist`: easiest. Paste ONE official playlist ID (`playlist: 'PLxxxx'`)
   and the page fills the episodes itself, one per week, in playlist order.
+- `startDate: 'YYYY-MM-DD'`: the week of this date plays `episodes[0]`, the next
+  week `episodes[1]`, and so on, **in list order (Episode 1, 2, 3...)**, then loops.
+- `epNums`: optional real episode numbers when the list skips some.
 - `episodes`: official YouTube IDs only. Week 1 plays the first, week 2 the
   second, and so on (one episode a week, like the real thing). Empty = title card.
 - If an episode ends before its slot, the rest fills with commercial cards.
@@ -132,6 +136,13 @@ like:
   closedown test card at night.
 - `confidence` shows a badge: `verified` (time found in a source), `recalled`
   (widely remembered, confirm it), `approx` (placeholder time).
+
+**Already filled in (checked 5 Nov 2026, all embeddable):** Ramayan, episodes
+1-78 from the Tilak channel (Sunday, CH 01); Hum Paanch from Zee TV, episodes
+1-183 minus 9, 19, 21, 22, 52, 57 which are not public (Tuesday, CH 04).
+Both start with Episode 1 on 8 Nov 2026. Pen Bhakti's Mahabharat blocks
+embedding on YouTube, so it is not scheduled; shows without an official
+embeddable upload stay as title cards.
 
 **Commercials**: add your own clips to `TV_ADS` (`video` = official ID,
 `duration` in seconds, must match the clip). They play in their own slots

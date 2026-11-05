@@ -125,6 +125,12 @@
     }
   }
 
+  function epLabel(entry, idx) {
+    if (idx == null || idx < 0 || !(entry.ref.episodes && entry.ref.episodes.length)) return '';
+    var nums = entry.ref.epNums;
+    return 'Episode ' + (nums && nums[idx] != null ? nums[idx] : idx + 1);
+  }
+
   /* ---------- slate (title card / commercial card / test card) ---------- */
   function showSlate(d) {
     el.slate.className = 'layer layer-slate' + (d.cls ? ' ' + d.cls : '');
@@ -178,7 +184,7 @@
     if (!loc.episode || !loc.episode.video) {
       return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'Tonight’s episode is coming soon.', badge: ref.confidence, next: next };
     }
-    return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: 'Tuning in…', badge: ref.confidence, next: next };
+    return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: (epLabel(loc.entry, loc.episodeIndex) || 'Tuning in') + '  ·  tuning in…', badge: ref.confidence, next: next };
   }
 
   /* ---------- OSD + flash ---------- */
@@ -365,7 +371,7 @@
     var done = Math.min(1, Math.max(0, (now - loc.startMs) / total));
     if (loc.state === 'show') {
       el.nowTitle.textContent = loc.entry.ref.title;
-      el.nowMeta.textContent = fmtHM(loc.startMs, tz) + ' – ' + fmtHM(loc.endMs, tz) + ' IST';
+      el.nowMeta.textContent = (epLabel(loc.entry, loc.episodeIndex) ? epLabel(loc.entry, loc.episodeIndex) + '  ·  ' : '') + fmtHM(loc.startMs, tz) + ' – ' + fmtHM(loc.endMs, tz) + ' IST';
     } else if (loc.state === 'closedown') {
       el.nowTitle.textContent = 'Off air';
       el.nowMeta.textContent = loc.label || 'Transmission has ended';
@@ -382,7 +388,7 @@
       var w = document.createElement('span'); w.className = 'u-when';
       w.textContent = fmtDayHM(u.startMs, tz);
       var t = document.createElement('span'); t.className = 'u-title';
-      t.textContent = u.entry.ref.title + '  (' + rel(u.startMs, now) + ')';
+      t.textContent = u.entry.ref.title + (epLabel(u.entry, u.episodeIndex) ? ' \u2013 ' + epLabel(u.entry, u.episodeIndex) : '') + '  (' + rel(u.startMs, now) + ')';
       li.appendChild(w); li.appendChild(t); el.upList.appendChild(li);
     });
   }
