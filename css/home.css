@@ -385,12 +385,15 @@ ul { list-style: none; }
   .row3 { grid-template-columns: 1fr 1fr; }
   .row3 .sec-paper:last-child { grid-column: 1 / -1; }
   .hd-vhs, .hd-cola, .hd-cube { display: none; }
-  .hd-banner { left: 440px; width: calc(100% - 700px); min-width: 200px; font-size: 17px; }
+  .hd-banner { left: 462px; width: calc(100% - 720px); min-width: 200px; font-size: 17px; }
   .tabs { overflow-x: auto; scrollbar-width: none; }
   .tab { flex: 0 0 96px; }
   .good-strip { grid-template-columns: repeat(4, 1fr); row-gap: 10px; }
   .ft { grid-template-columns: 1fr; justify-items: center; }
   .ft-art { display: none; }
+}
+@media (max-width: 1060px) {
+  .hd-banner { display: none; }
 }
 @media (max-width: 760px) {
   body { font-size: 16px; }
