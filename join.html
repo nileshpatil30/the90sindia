@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login / Join — 90s Rewind TV</title>
+<meta name="description" content="Member login and join page for 90s Rewind TV. Accounts are not switched on yet; this page shows how they will work.">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/arcade.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="join">
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
+
+<main id="main" class="page arc jn">
+
+  <section class="arc-hero is-plain" aria-labelledby="h-join">
+    <img class="arc-hero-ico" src="assets/ui/icons/member.svg" alt="" width="84" height="84">
+    <div class="arc-hero-t">
+      <h1 id="h-join">Login <em>/</em> Join</h1>
+      <p class="arc-sub">Member accounts are <b>not switched on yet</b>. This page shows how sign-up and login will look. Nothing you type here is sent, stored or checked, and you never need an account to watch, play, vote or browse.</p>
+    </div>
+  </section>
+
+  <div class="jn-grid">
+
+    <section class="panel jn-box" id="login" aria-labelledby="h-login">
+      <header class="panel-h"><img src="assets/ui/icons/member.svg" alt="" width="34" height="34"><h2 id="h-login">Member Login</h2></header>
+      <form class="panel-b jn-form" id="lg-form" novalidate onsubmit="return false" autocomplete="on">
+        <label class="arc-f"><span>Email or username</span><input id="lg-id" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="80"></label>
+        <label class="arc-f"><span>Password</span><span class="jn-pw"><input id="lg-pw" type="password" autocomplete="current-password" maxlength="128"><button class="jn-eye" type="button" data-for="lg-pw" aria-label="Show password" aria-pressed="false">Show</button></span></label>
+        <p class="sub-err" id="lg-err" role="alert" hidden></p>
+        <div class="jn-act"><button class="btn" type="submit">Login</button><a class="jn-link" href="#join-note" data-soon-link>Forgot password?</a></div>
+      </form>
+    </section>
+
+    <section class="panel jn-box" id="join" aria-labelledby="h-jn">
+      <header class="panel-h"><img src="assets/ui/icons/community.svg" alt="" width="34" height="34"><h2 id="h-jn">Join Now!</h2></header>
+      <form class="panel-b jn-form" id="jn-form" novalidate onsubmit="return false" autocomplete="on">
+        <label class="arc-f"><span>Email</span><input id="jn-email" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" aria-describedby="jn-h-email"></label>
+        <p class="jn-help" id="jn-h-email">Used only to confirm it is you. It will not be shown to anyone.</p>
+        <label class="arc-f"><span>Nickname</span><input id="jn-nick" type="text" autocomplete="nickname" autocapitalize="off" spellcheck="false" maxlength="30" aria-describedby="jn-h-nick"></label>
+        <p class="jn-help" id="jn-h-nick">3 to 30 letters, numbers or underscores. This is the name other members see, so please do not use your real name.</p>
+        <label class="arc-f"><span>Password</span><span class="jn-pw"><input id="jn-pw" type="password" autocomplete="new-password" maxlength="128" aria-describedby="jn-h-pw"><button class="jn-eye" type="button" data-for="jn-pw" aria-label="Show password" aria-pressed="false">Show</button></span></label>
+        <p class="jn-help" id="jn-h-pw">At least 10 characters. A few random words is stronger than a short mix of symbols.</p>
+        <label class="arc-f"><span>Confirm password</span><input id="jn-pw2" type="password" autocomplete="new-password" maxlength="128"></label>
+        <label class="jn-check"><input id="jn-ok" type="checkbox"> <span>I am 13 or older and I agree to the <a href="about.html#guidelines">Community Guidelines</a>.</span></label>
+        <p class="sub-err" id="jn-err" role="alert" hidden></p>
+        <div class="jn-act"><button class="btn" type="submit">Create My Account</button></div>
+      </form>
+    </section>
+  </div>
+
+  <p class="cm-msg jn-msg" id="jn-note" role="status" aria-live="polite" tabindex="-1" hidden></p>
+
+  <section class="sec arc-sec" id="needs" aria-labelledby="h-needs">
+    <header class="sec-h"><img src="assets/ui/icons/sec-people.svg" alt="" width="34" height="34"><h2 id="h-needs">What it takes to turn accounts on safely</h2></header>
+    <div class="sec-b prose">
+      <p>This site is a set of plain web pages with no server of its own, so it cannot keep a password safely. Real accounts need these pieces first:</p>
+      <ul>
+        <li><b>A sign-in service.</b> A hosted service (for example Supabase, Firebase or Auth0) keeps the accounts and stores each password as a salted hash, never as the password itself. We should not write our own.</li>
+        <li><b>Email confirmation and password reset,</b> handled by that service, so nobody can sign up with someone else’s address.</li>
+        <li><b>HTTPS everywhere and rate limiting,</b> so passwords travel encrypted and guessing is blocked.</li>
+        <li><b>A privacy policy and an age rule,</b> because members’ email addresses become personal data. The form above already asks for 13 or older.</li>
+        <li><b>A database for member posts</b> if the forum and shared memories are to be visible to everyone, with a way to report and remove posts.</li>
+      </ul>
+      <p class="prose-n">Passwords are never saved in your browser by this page, and the fields above are cleared as soon as you press a button. The full comparison of options and costs is in <code>docs/backend-options.md</code> in the project.</p>
+    </div>
+  </section>
+</main>
+
+<div id="site-bottom"></div>
+
+<script src="js/tv-episodes.js"></script>
+<script src="js/tv-library.js"></script>
+<script src="js/tv-mahabharat.js"></script>
+<script src="js/tv-ads.js"></script>
+<script src="js/tv-schedule.js"></script>
+<script src="js/tv-config.js"></script>
+<script src="js/tv-engine.js"></script>
+<script src="js/tv-thumbs.js"></script>
+<script src="js/arcade-data.js"></script>
+<script src="js/catalogue.js"></script>
+<script src="js/join.js"></script>
+</body>
+</html>

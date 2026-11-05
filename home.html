@@ -30,27 +30,28 @@
           <form id="poll" class="poll-form">
             <div class="poll-opts" id="poll-opts"></div>
             <button class="btn" type="submit" id="poll-go">Vote!</button>
+            <small class="poll-note" id="poll-note"></small>
           </form>
           <img class="mascot" src="assets/ui/mascot.svg" alt="" width="120" height="155">
         </div>
       </section>
 
       <section class="panel pl-trivia" aria-labelledby="h-trivia">
-        <header class="panel-h"><img src="assets/ui/icons/trivia.svg" alt="" width="38" height="38"><h2 id="h-trivia">90s Trivia</h2></header>
+        <header class="panel-h"><img src="assets/ui/icons/trivia.svg" alt="" width="38" height="38"><h2 id="h-trivia">90s Trivia</h2><img class="scooter" src="assets/ui/scooter.svg" alt="" width="92" height="68"></header>
         <div class="panel-b">
           <p class="trivia-q" id="trivia-q"></p>
-          <p class="trivia-a" id="trivia-a" hidden></p>
-          <button class="btn" type="button" id="trivia-go">Check Answer »</button>
-          <img class="scooter" src="assets/ui/scooter.svg" alt="" width="92" height="68">
+          <div class="trivia-opts" id="trivia-opts" role="group" aria-labelledby="trivia-q"></div>
+          <p class="trivia-a" id="trivia-a" role="status" aria-live="polite" hidden></p>
+          <div class="trivia-foot"><span class="trivia-score" id="trivia-score"></span><button class="btn" type="button" id="trivia-go" hidden>Next Question »</button></div>
         </div>
       </section>
 
       <section class="panel pl-login" id="login" aria-labelledby="h-login">
         <header class="panel-h"><img src="assets/ui/icons/member.svg" alt="" width="36" height="36"><h2 id="h-login">Member Login</h2></header>
-        <form class="panel-b login-form" id="login-form">
-          <label for="lg-u">Username</label><input id="lg-u" name="u" type="text" autocomplete="username">
-          <label for="lg-p">Password</label><input id="lg-p" name="p" type="password" autocomplete="current-password">
-          <div class="login-row"><button class="btn" type="submit">Login</button><span>New here? <a href="#login" id="join">Join Now!</a></span></div>
+        <form class="panel-b login-form" id="login-form" onsubmit="return false" novalidate>
+          <label for="lg-u">Username</label><input id="lg-u" type="text" autocomplete="username">
+          <label for="lg-p">Password</label><input id="lg-p" type="password" autocomplete="current-password">
+          <div class="login-row"><button class="btn" type="submit">Login</button><span>New here? <a href="join.html#join" id="join">Join Now!</a></span></div>
           <p class="login-note" id="login-note" role="status" hidden></p>
         </form>
       </section>
@@ -207,7 +208,10 @@
 <script src="js/arcade-data.js"></script>
 <script src="js/catalogue.js"></script>
 <!-- page content + behaviour -->
+<script src="js/poll-data.js"></script>
+<script src="js/trivia-data.js"></script>
 <script src="js/home-data.js"></script>
+<script src="js/engage.js"></script>
 <script src="js/home.js"></script>
 <script src="js/home-live.js"></script>
 </body>

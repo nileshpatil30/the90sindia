@@ -55,9 +55,21 @@ js/arcade.js         Arcade page: sections, search, filters, address state
 js/game.js           Game page: the three play modes, embedded player, "What we checked"
 assets/arcade/       Neutral placeholder art for the game cards (our own, one per genre)
 docs/arcade-research.md  The audit and the research behind each status
-js/home-data.js      Homepage-only panels: poll, trivia, photo strip, discussions, tiles, goodies
+js/home-data.js      Homepage-only panels: photo strip, discussions, tiles, wallpapers, goodies
+browse.html          Every list on the site: categories, View All, search results, featured, Memory Lane (js/browse.js)
+about.html           About, Submit a Playlist, Community Guidelines, Contact (js/about.js)
+gallery.html         Photos & Wallpapers: grid, category filter, big view with Previous / Next (js/gallery.js)
+community.html       Forum preview, Share Your Memories, Polls archive, Trivia Challenge (js/community.js)
+join.html            Login / Join: the interface only, nothing sent or stored (js/join.js)
+css/pages.css        Styling for the five pages above (after css/home.css and css/arcade.css)
+js/poll-data.js      THE POLLS: question, options and sample starting numbers (see "Polls and trivia")
+js/trivia-data.js    THE TRIVIA QUESTIONS (see "Polls and trivia")
+js/gallery-data.js   THE PHOTO GALLERY: one line per picture
+js/community-data.js Sample forum topics and sample memories (look-only content, labelled as samples)
+js/engage.js         Polls and trivia engine shared by the homepage and the community page
+docs/backend-options.md  What needs a backend, the options, and a ranked recommendation
 tools/add-content.js Adds a video or playlist to content.js after checking it can be embedded
-js/home.js           Homepage rows, poll, trivia, discussions tabs, login note
+js/home.js           Homepage rows, discussions tabs, login note (poll and trivia come from js/engage.js)
 js/home-live.js      The homepage TV: real on-air show for the current moment, knobs, UP NEXT
 assets/fonts/        Self-hosted fonts (woff2 + licences)
 assets/ui/           Logo, CRT frame (crt.svg), tab and section icons (ui/icons), decor, mascot
@@ -74,7 +86,7 @@ js/tv-config.js      Builds every channel (network x year) from the files above.
 js/tv-engine.js      Schedule maths (no DOM, IST). Do not edit.
 js/tv.js             Live TV player and guide
 js/tv-shows.js       ALL SHOWS: on-demand player, filters, deep links
-tests/               schedule-test.js, tv-smoke.js
+tests/               schedule-test.js, tv-smoke.js, content-test.js, site-smoke.js, arcade-test.js, arcade-smoke.js, pages-test.js
 
 index.html           The original page (css/style.css, js/config.js, js/app.js)
 README.md            This file
@@ -88,8 +100,9 @@ HTML, CSS and vanilla JS. Content is kept apart from presentation.
 
 - **Edit content in `js/content.js`** (see "The content system" below): the video rows
   on the homepage, the tabs along the top and the What's New ticker all come from it.
-  `js/home-data.js` now only holds what belongs to the homepage panels (poll, trivia,
-  photo strip, sample discussions, Browse tiles, wallpapers, goodies strip).
+  `js/home-data.js` now only holds what belongs to the homepage panels (photo strip,
+  sample discussions, Browse tiles, wallpapers, goodies strip). The poll is in
+  `js/poll-data.js` and the trivia in `js/trivia-data.js`.
 - **The CRT** is a separate frame image (`assets/ui/crt.svg`) laid over a transparent
   screen opening, with the real YouTube player behind it. The top knob changes channel,
   the lower knob turns sound on (video starts muted because browsers block autoplay with
@@ -102,7 +115,8 @@ HTML, CSS and vanilla JS. Content is kept apart from presentation.
   `tv.html#kind=ads`, `tv.html#q=cricket`, `tv.html#guide`, `tv.html#all-shows`.
 - **Look-only parts, labelled on the page:** login, Top Discussions and the chat preview are
   samples (no accounts, database or admin yet; that is a later phase). The poll and trivia
-  work in the visitor's own browser.
+  work in the visitor's own browser. The layout is fixed in height: voting or answering
+  trivia never makes the top section taller (checked by `tests/pages-test.js`).
 - Movies play official clips (trailers, songs) from rights-holder channels; community
   uploads are labelled as such. Only Rewind Runner is playable from the Games row; the other
   game cards are marked "soon".
@@ -458,13 +472,37 @@ The Photo Wall currently renders color-block placeholders (see
    comment there with the exact snippet shape and where to put it.
 3. Update `PINTEREST_BOARD_URL` in `js/config.js` to your real board URL.
 
-## The Daily Poll
+## Polls and trivia (`js/poll-data.js`, `js/trivia-data.js`, `js/engage.js`)
 
-The sidebar poll is a **front-end-only demo** — votes are tallied in each
-visitor's own browser via `localStorage`, so counts aren't shared between
-visitors. To make it a real, shared poll, swap `renderPoll()`/`renderPollResults()`
-in `js/app.js` for calls to a small backend or a service like Formspree /
-a Google Form embed / a simple serverless function that stores counts.
+**Daily Poll.** The homepage shows one poll a day (the polls take turns by Indian date); the Community page lists all of them.
+One vote per poll per browser. After voting, each option shows its percentage and vote count. The numbers are the **sample
+starting numbers** in `js/poll-data.js` plus the visitor's own vote, and the page says so. Votes are kept in the visitor's
+`localStorage` (key `home.poll.<id>`), so they are not shared between visitors.
+
+- **Add a poll:** add an object to `POLLS` in `js/poll-data.js`: `id`, `q` (30 characters or fewer, so it stays on one line
+  on the homepage), `options` (2 to 6, each 16 characters or fewer) and `seed` (one sample count per option).
+- **Make it a real shared poll later:** the browser-only storage is the `backend` object at the top of `js/engage.js`
+  (`mine`, `vote`, `counts`). They already return promises. Replace those three with calls to a server (see
+  `docs/backend-options.md`) and no page code changes.
+
+**Trivia.** `js/trivia-data.js` holds the question collection (`TRIVIA`): `id`, `cat`, `q` (65 characters or fewer),
+`options` (exactly 4, each 22 characters or fewer), `answer` (0 to 3), `why` (80 characters or fewer). The homepage panel
+asks one at a time with a score and Next Question; the Trivia Challenge on the Community page is a round of 10 with a
+final score, a best score (kept on the device) and a topic choice. Answers are shuffled every time, so the right one is not
+always in the same place. `tests/pages-test.js` checks these limits, because longer text would change the homepage layout.
+
+## Pages added in Phase 2 (`browse.html`, `about.html`, `gallery.html`, `community.html`, `join.html`)
+
+- **Browse** is driven by the address: `browse.html?cat=movies`, `?q=bajaj`, `?featured=1`, `?memory=1`, plus `sort`,
+  `decade` and `official=1`. Everything comes from `js/catalogue.js`, so a new line in `js/content.js` appears here by itself.
+- **Gallery:** add a line to `GALLERY` in `js/gallery-data.js` (and the picture file). Categories are `GALLERY_CATS` in the same file.
+- **Community:** the forum is a look-only preview of sample topics (`js/community-data.js`), clearly labelled. **Share Your
+  Memories** saves to the visitor's own browser only (escaped, 500 characters, at most 30, deletable) and says so. Polls and
+  the Trivia Challenge are real and work in the browser.
+- **Login / Join** is the interface only. It checks the form so people see how it will behave, then says accounts are not
+  switched on, and clears the password fields. It sends nothing and stores nothing, and its inputs have no `name`, so a
+  password can never end up in the address bar. The page lists what is needed for secure accounts; the options are in
+  `docs/backend-options.md`. **Never store passwords in this site.**
 
 ## Adda (chat)
 

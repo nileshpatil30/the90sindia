@@ -64,7 +64,7 @@
       '<p class="hd-banner">TV Shows • Movies • Ads • Games • Songs • Cricket • WWF<br>&amp; Everything 90s!</p>' +
       '<img class="hd-cola" src="assets/ui/cola.svg" alt="" width="44" height="112">' +
       '<img class="hd-cube" src="assets/ui/rubik.svg" alt="" width="76" height="76">' +
-      '<a class="btn hd-login" href="' + (PAGE === 'home' ? '#login' : 'home.html#login') + '"><img src="assets/ui/icons/user.svg" alt="" width="26" height="26"><span>Login / Join</span></a>' +
+      '<a class="btn hd-login" href="' + (PAGE === 'home' ? '#login' : 'join.html') + '"><img src="assets/ui/icons/user.svg" alt="" width="26" height="26"><span>Login / Join</span></a>' +
       '<nav class="tabs" id="tabs" aria-label="Main sections"></nav></div></header>' +
       '<div class="bar"><div class="bar-in">' +
       '<span class="new-pill"><b aria-hidden="true">»</b> What\'s New?</span>' +

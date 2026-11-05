@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Browse — 90s Rewind TV</title>
+<meta name="description" content="Browse every 90s TV show, movie, classic ad, song, cricket classic, WWF match and cartoon on 90s Rewind TV, or search them all.">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/arcade.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="browse">
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
+
+<main id="main" class="page arc brw">
+
+  <section class="arc-hero brw-hero" aria-labelledby="h-browse">
+    <img class="arc-hero-ico" id="b-ico" src="assets/ui/icons/sec-star.svg" alt="" width="84" height="84">
+    <div class="arc-hero-t">
+      <h1 id="h-browse">Browse</h1>
+      <p class="arc-sub" id="b-blurb">Everything on 90s Rewind TV, in one place.</p>
+    </div>
+  </section>
+
+  <form class="arc-filters" id="b-form" role="search" aria-label="Filter the list" autocomplete="off">
+    <div class="arc-row brw-row">
+      <label class="arc-f arc-f-q"><span id="b-qlabel">Find in the list</span><input id="b-q" type="search" placeholder="Type a title, actor, channel or year" autocapitalize="off" spellcheck="false"></label>
+      <label class="arc-f"><span>Sort by</span><select id="b-sort"></select></label>
+      <label class="arc-f"><span>Year</span><select id="b-decade"></select></label>
+    </div>
+    <div class="arc-row arc-row-2 brw-row-2">
+      <div class="fchips" id="b-cats" role="group" aria-label="Category"></div>
+      <label class="brw-off"><input type="checkbox" id="b-official"> <span>Official uploads only</span></label>
+      <button class="btn fclear" id="b-clear" type="button" hidden>Clear filters</button>
+      <p class="fcount" id="b-count" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+  <div id="b-out"><p class="load-err">Loading the list…</p></div>
+  <p class="brw-more" id="b-more-wrap" hidden><button class="btn" id="b-more" type="button">Show more</button></p>
+  <noscript><p class="load-err">This page needs JavaScript to list the videos.</p></noscript>
+</main>
+
+<div id="site-bottom"></div>
+
+<script src="js/tv-episodes.js"></script>
+<script src="js/tv-library.js"></script>
+<script src="js/tv-mahabharat.js"></script>
+<script src="js/tv-ads.js"></script>
+<script src="js/tv-schedule.js"></script>
+<script src="js/tv-config.js"></script>
+<script src="js/tv-engine.js"></script>
+<script src="js/tv-thumbs.js"></script>
+<script src="js/arcade-data.js"></script>
+<script src="js/catalogue.js"></script>
+<script src="js/browse.js"></script>
+</body>
+</html>

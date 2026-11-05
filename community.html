@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Community — 90s Rewind TV</title>
+<meta name="description" content="The 90s Rewind TV community: discussion forum, share your 90s memories, polls and the 90s trivia challenge.">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/arcade.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="community">
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
+
+<main id="main" class="page arc cmty">
+
+  <section class="arc-hero is-plain" aria-labelledby="h-cmty">
+    <img class="arc-hero-ico" src="assets/ui/icons/community.svg" alt="" width="84" height="84">
+    <div class="arc-hero-t">
+      <h1 id="h-cmty">Community</h1>
+      <p class="arc-sub">Talk about the 90s, share your own memories, vote in polls and test yourself with trivia. Polls, memories and your trivia score work in this browser today. Shared posts and the forum need a small online service, which comes later.</p>
+    </div>
+  </section>
+
+  <nav class="arc-jump" aria-label="On this page">
+    <a href="#forum">Discussion Forum</a><a href="#memories">Share Your Memories</a><a href="#polls">Polls &amp; Quizzes</a><a href="#trivia">Trivia Challenge</a>
+  </nav>
+
+  <!-- ===== Discussion Forum ===== -->
+  <section class="sec arc-sec" id="forum" aria-labelledby="h-forum">
+    <header class="sec-h"><img src="assets/ui/icons/c-forum.svg" alt="" width="34" height="34"><h2 id="h-forum">Discussion Forum</h2></header>
+    <div class="sec-b">
+      <p class="cm-note"><b>Preview.</b> These are sample topics to show how the forum will look. Nobody can post yet: a forum needs member accounts and a place to keep the posts, and we have not switched that on. Nothing here was written by visitors.</p>
+      <div class="fchips" id="f-cats" role="group" aria-label="Forum topics"></div>
+      <ul class="cm-topics" id="f-list" aria-label="Sample topics"></ul>
+      <p class="cm-act"><button class="btn" id="f-new" type="button">Start a Topic</button></p>
+      <p class="cm-msg" id="f-msg" role="status" aria-live="polite" hidden></p>
+    </div>
+  </section>
+
+  <!-- ===== Share Your 90s Memories ===== -->
+  <section class="sec arc-sec" id="memories" aria-labelledby="h-mem">
+    <header class="sec-h"><img src="assets/ui/icons/c-share.svg" alt="" width="34" height="34"><h2 id="h-mem">Share Your 90s Memories</h2></header>
+    <div class="sec-b">
+      <p class="cm-note"><b>Saved only on this device.</b> What you write here is kept in this browser and nobody else can see it. It is not sent to us or posted. Clearing your browser data removes it. Please do not write phone numbers, addresses or other private details.</p>
+      <div class="cm-grid">
+        <form class="subform cm-form" id="m-form" novalidate>
+          <label class="arc-f arc-f-wide"><span>Your memory</span><textarea id="m-text" rows="4" maxlength="500" placeholder="Tell us about a show, a toy, a snack, a Sunday…" required aria-describedby="m-hint"></textarea></label>
+          <p class="cm-hint arc-f-wide" id="m-hint"><span id="m-left">500</span> characters left · <span id="m-prompt"></span></p>
+          <label class="arc-f"><span>Name or nickname (optional)</span><input id="m-name" type="text" maxlength="30" autocomplete="off" placeholder="retro_fan"></label>
+          <label class="arc-f"><span>Year (optional)</span><input id="m-year" type="text" inputmode="numeric" maxlength="4" placeholder="1995" autocomplete="off"></label>
+          <p class="sub-err" id="m-err" role="alert" hidden></p>
+          <div class="sub-act"><button class="btn" type="submit">Save My Memory</button></div>
+        </form>
+        <div class="cm-wall">
+          <h3 class="cm-h">Your memories <small id="m-count"></small></h3>
+          <ul class="cm-mems" id="m-mine" aria-live="polite"></ul>
+          <p class="cm-act cm-clear" id="m-clear-wrap" hidden><button class="btn btn-ghost" id="m-clear" type="button">Remove all of mine</button></p>
+          <h3 class="cm-h">Sample memories <small>written by us, as examples</small></h3>
+          <ul class="cm-mems" id="m-sample"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Polls & Quizzes ===== -->
+  <section class="sec arc-sec" id="polls" aria-labelledby="h-polls">
+    <header class="sec-h"><img src="assets/ui/icons/c-polls.svg" alt="" width="34" height="34"><h2 id="h-polls">Polls &amp; Quizzes</h2></header>
+    <div class="sec-b">
+      <p class="cm-note"><b>One vote per poll, in this browser.</b> The percentages start from sample numbers (so a poll does not look empty) plus your own vote. Shared totals from every visitor need an online service, which comes later. <a href="#trivia">Want a quiz? Jump to the Trivia Challenge.</a></p>
+      <div class="cm-polls" id="p-list"><p class="load-err">Loading the polls…</p></div>
+    </div>
+  </section>
+
+  <!-- ===== Trivia Challenge ===== -->
+  <section class="sec arc-sec" id="trivia" aria-labelledby="h-trivia">
+    <header class="sec-h"><img src="assets/ui/icons/c-trophy.svg" alt="" width="34" height="34"><h2 id="h-trivia">90s Trivia Challenge</h2></header>
+    <div class="sec-b">
+      <div class="tg" id="tg"><p class="load-err">Loading the questions…</p></div>
+      <p class="cm-note" id="tg-note"></p>
+    </div>
+  </section>
+</main>
+
+<div id="site-bottom"></div>
+
+<script src="js/tv-episodes.js"></script>
+<script src="js/tv-library.js"></script>
+<script src="js/tv-mahabharat.js"></script>
+<script src="js/tv-ads.js"></script>
+<script src="js/tv-schedule.js"></script>
+<script src="js/tv-config.js"></script>
+<script src="js/tv-engine.js"></script>
+<script src="js/tv-thumbs.js"></script>
+<script src="js/arcade-data.js"></script>
+<script src="js/catalogue.js"></script>
+<script src="js/poll-data.js"></script>
+<script src="js/trivia-data.js"></script>
+<script src="js/community-data.js"></script>
+<script src="js/engage.js"></script>
+<script src="js/community.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 /* ==========================================================================
    90s REWIND TV — HOMEPAGE BEHAVIOUR (home.html)
    Fills the card rows from the catalogue (js/catalogue.js, built from js/content.js),
-   and wires the poll, trivia, discussions and the login note.
+   and wires the poll and trivia (js/engage.js), the discussions and the login note.
    The shared parts (header, tabs, ticker, search, pop-up player, toast, footer) are
    in js/site.js. The CRT television is in js/home-live.js.
    ========================================================================== */
@@ -30,38 +30,19 @@
   fill('tiles', H.tiles, (t) =>
     '<a class="tile" href="' + esc(t.href) + '" style="--c1:' + t.c1 + ';--c2:' + t.c2 + '"><img src="' + icon(t.icon) + '" alt="" width="38" height="38"><span>' + esc(t.label) + '</span></a>');
 
-  /* ---------- daily poll ---------- */
-  (function poll() {
-    const P = H.poll, key = 'home.poll.' + P.id, box = $('poll-opts'), btn = $('poll-go');
-    $('poll-q').textContent = P.q;
-    function results(mine) {
-      const counts = P.seed.slice(); if (mine >= 0) counts[mine] += 1;
-      const total = counts.reduce((a, b) => a + b, 0), max = Math.max.apply(null, counts);
-      box.innerHTML = P.options.map((o, i) => '<span class="res"><i style="width:' + Math.round(counts[i] / max * 100) + '%"></i>' + esc(o) + ' ' + Math.round(counts[i] / total * 100) + '%' + (i === mine ? ' ✓' : '') + '</span>').join('');
-      btn.textContent = 'Thanks!'; btn.disabled = true;
+  /* ---------- daily poll and trivia (js/engage.js; the questions are in js/poll-data.js and js/trivia-data.js) ---------- */
+  const E = window.Engage;
+  if (E) {
+    const P = E.dailyPoll();
+    if (P) {
+      $('poll-q').textContent = P.q;
+      E.poll.bind({ form: $('poll'), box: $('poll-opts'), btn: $('poll-go'), note: $('poll-note') }, P, { compact: true });
     }
-    const voted = store.get(key);
-    if (voted != null && P.options[+voted]) { results(+voted); return; }
-    box.innerHTML = P.options.map((o, i) => '<label><input type="radio" name="poll" value="' + i + '"><span>' + esc(o) + '</span></label>').join('');
-    $('poll').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const c = box.querySelector('input:checked');
-      if (!c) { toast('Pick a show first, then Vote!'); return; }
-      store.set(key, c.value); results(+c.value);
-    });
-  })();
-
-  /* ---------- 90s trivia ---------- */
-  (function trivia() {
-    let i = Math.floor(Date.now() / 86400000) % H.trivia.length, shown = false;
-    const q = $('trivia-q'), a = $('trivia-a'), b = $('trivia-go');
-    function draw() { q.textContent = H.trivia[i].q; a.hidden = true; b.textContent = 'Check Answer »'; shown = false; }
-    b.addEventListener('click', () => {
-      if (!shown) { a.textContent = H.trivia[i].a; a.hidden = false; b.textContent = 'Next Question »'; shown = true; }
-      else { i = (i + 1) % H.trivia.length; draw(); }
-    });
-    draw();
-  })();
+    E.trivia.compact({ q: $('trivia-q'), opts: $('trivia-opts'), fb: $('trivia-a'), score: $('trivia-score'), go: $('trivia-go') });
+  } else {
+    $('poll-opts').innerHTML = '<p class="load-err">The poll could not be loaded.</p>';
+    $('trivia-q').textContent = 'The trivia could not be loaded. Please reload the page.';
+  }
 
   /* ---------- member login (look only: accounts come in a later phase) ---------- */
   function loginNote(e) {
@@ -69,9 +50,9 @@
     const n = $('login-note');
     n.textContent = 'Member accounts open in a later phase. Nothing you type here is sent or saved.';
     n.hidden = false;
+    $('lg-p').value = '';                       // never keep a typed password
   }
   $('login-form').addEventListener('submit', loginNote);
-  $('join').addEventListener('click', loginNote);
 
   /* ---------- photo strip + wallpapers (a click opens the picture large, with Previous / Next) ---------- */
   const zoomLink = (group) => (g) => '<a href="' + esc(g.src) + '" data-zoom data-group="' + group + '" data-src="' + esc(g.src) + '" data-alt="' + esc(g.alt) + '" aria-label="' + esc(g.alt) + '"><img src="' + esc(g.src) + '" alt="' + esc(g.alt) + '" loading="lazy"></a>';
