@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90s REWIND TV — Live Timetable, 1987 to 2000</title>
+<meta name="description" content="Watch the 80s and 90s the way it aired: a fixed weekly TV timetable, one episode a week, with commercial breaks. Doordarshan, Zee, Star Plus and Cartoon Network, 1987 to 2000.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/tv.css">
+</head>
+<body class="tv-page">
+
+<header id="site-header">
+  <div class="wave-nav">
+    <a href="index.html#hero" class="wave-seg" style="--seg-color: var(--lime);">HOME</a>
+    <a href="tv.html" class="wave-seg is-active" style="--seg-color: var(--cyan);">TV</a>
+    <a href="index.html#shows" class="wave-seg" style="--seg-color: var(--purple);">SHOWS</a>
+    <a href="index.html#arcade" class="wave-seg" style="--seg-color: var(--orange);">ARCADE</a>
+    <a href="index.html#hit-parade" class="wave-seg" style="--seg-color: var(--pink);">HIT PARADE</a>
+    <a href="index.html#photo-wall" class="wave-seg" style="--seg-color: var(--yellow);">PHOTOS</a>
+    <a href="index.html#vault" class="wave-seg" style="--seg-color: var(--pink);">VAULT</a>
+    <a href="index.html#adda" class="wave-seg" style="--seg-color: var(--lime);">ADDA</a>
+  </div>
+  <div class="logo-strip">
+    <h1 class="logo">90s <span>REWIND</span> TV</h1>
+    <p class="tagline">the real weekly timetable, 1987 to 2000</p>
+  </div>
+</header>
+
+<main class="tv-main">
+
+  <nav class="era-tabs" id="era-tabs" aria-label="Choose a channel and era"></nav>
+
+  <section class="tv-set" aria-label="TV player">
+    <div class="tv-screen" id="tv-screen">
+      <div class="layer layer-yt" id="layer-main"><div id="yt-main"></div></div>
+      <div class="layer layer-yt" id="layer-ad"><div id="yt-ad"></div></div>
+
+      <div class="layer layer-slate" id="slate" aria-live="polite">
+        <div class="slate-kicker" id="slate-kicker"></div>
+        <div class="slate-title" id="slate-title"></div>
+        <div class="slate-line" id="slate-line"></div>
+        <div class="slate-badge" id="slate-badge"></div>
+        <div class="slate-next" id="slate-next"></div>
+      </div>
+
+      <div class="layer layer-flash" id="flash" aria-hidden="true"></div>
+      <div class="osd" id="osd" aria-hidden="true"></div>
+
+      <button class="tune-in" id="tune-in" type="button">
+        <span class="tune-play">&#9654;</span>
+        <span class="tune-text">TUNE IN</span>
+        <span class="tune-sub" id="tune-sub"></span>
+      </button>
+    </div>
+
+    <div class="tv-controls">
+      <button type="button" id="ch-down" aria-label="Channel down">CH &#9660;</button>
+      <button type="button" id="ch-up" aria-label="Channel up">CH &#9650;</button>
+      <button type="button" id="mute" aria-pressed="false">SOUND ON</button>
+      <button type="button" id="fs">FULL SCREEN</button>
+      <div class="tv-clock" id="tv-clock" aria-label="Current time in India"></div>
+    </div>
+  </section>
+
+  <section class="now-next">
+    <div class="nn-card nn-now">
+      <h2>ON NOW</h2>
+      <div class="nn-title" id="now-title"></div>
+      <div class="nn-meta" id="now-meta"></div>
+      <div class="nn-bar"><div class="nn-fill" id="now-fill"></div></div>
+    </div>
+    <div class="nn-card">
+      <h2>UP NEXT</h2>
+      <ol class="up-list" id="up-list"></ol>
+    </div>
+  </section>
+
+  <section class="week-guide">
+    <h2 class="guide-title">THE WEEK ON <span id="guide-ch"></span></h2>
+    <p class="guide-note" id="guide-note"></p>
+    <div class="guide-legend">
+      <span class="badge b-verified">VERIFIED</span> start time found in a source
+      <span class="badge b-recalled">RECALLED</span> widely remembered, please confirm
+      <span class="badge b-approx">APPROX</span> placeholder time
+    </div>
+    <div class="guide-days" id="guide-days"></div>
+  </section>
+
+</main>
+
+<footer class="tv-foot">
+  All times India (IST, UTC+5:30). Video plays from official channels via the YouTube player, ads and all.
+  Commercial breaks use our own slots between shows, never over YouTube's.
+  <a href="index.html">&larr; Back to 90s REWIND</a>
+</footer>
+
+<script src="js/tv-config.js"></script>
+<script src="js/tv-engine.js"></script>
+<script src="js/tv.js"></script>
+</body>
+</html>

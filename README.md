@@ -14,6 +14,11 @@ index.html        Page structure / markup for every section
 css/style.css      All styling (colors, fonts, layout, responsive rules)
 js/config.js       ALL CONTENT LIVES HERE — the only file you should need to edit
 js/app.js          Rendering logic + the arcade game. Reads from config.js.
+tv.html            The live TV page (weekly timetable player)
+css/tv.css         TV page styling
+js/tv-config.js    THE TIMETABLE: channels (eras), weekly slots, episode IDs, ads
+js/tv-engine.js    Schedule maths (no DOM). Do not edit.
+js/tv.js           Player: YouTube embeds, commercial cards, guide
 README.md          This file
 ```
 
@@ -104,6 +109,38 @@ The console shows a friendly "add a video ID" placeholder instead of a
 broken embed. That's intentional — better than shipping a dead or wrong
 video. Several entries ship this way on purpose (see the copyright section
 below for why).
+
+## Live TV (`tv.html`) — edit only `js/tv-config.js`
+
+Each channel is one **era** (e.g. DD National 1987-88) with a fixed **weekly
+timetable**, India time (IST), the same instant for every viewer. A slot looks
+like:
+
+```js
+{ day: 'Sun', time: '09:00', duration: 60, title: 'Mahabharat',
+  episodes: [ { video: 'OFFICIAL_YT_ID' }, { video: 'ANOTHER_ID' } ],
+  confidence: 'verified', source: 'where the time came from' }
+```
+
+- `day`: `Sun`..`Sat`, an array, or `daily` / `weekdays` / `weekend`.
+- `episodes`: official YouTube IDs only. Week 1 plays the first, week 2 the
+  second, and so on (one episode a week, like the real thing). Empty = title card.
+- If an episode ends before its slot, the rest fills with commercial cards.
+- Between slots: commercial breaks (`TV_ADS`) or, on DD channels, a
+  closedown test card at night.
+- `confidence` shows a badge: `verified` (time found in a source), `recalled`
+  (widely remembered, confirm it), `approx` (placeholder time).
+
+**Commercials**: add your own clips to `TV_ADS` (`video` = official ID,
+`duration` in seconds, must match the clip). They play in their own slots
+between shows. Nothing is ever drawn over a YouTube video or its ads.
+
+**Still unconfirmed** (not scheduled until a listing is found): Hum Log,
+Buniyaad, Malgudi Days, Nukkad, Fauji, Circus, Surabhi, Dekh Bhai Dekh,
+Superhit Muqabla, Byomkesh Bakshi, Saturday Suspense, Antakshari, Banegi Apni
+Baat, Vikram Aur Betaal, Jungle Book, Alif Laila, WWF, cricket. Old newspaper
+TV listings are the best source. CH 00 is a working demo using open-licence
+Blender films; delete it when real content is in.
 
 ## Getting a YouTube video ID or playlist ID
 
