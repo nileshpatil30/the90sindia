@@ -30,7 +30,7 @@
   var el = {
     nets: $('net-grid'), years: $('year-pills'), chanSub: $('chan-sub'), yearSub: $('year-sub'),
     onairH: $('onair-h'), onair: $('onair-chips'), yrUp: $('yr-up'), yrDown: $('yr-down'),
-    screen: $('tv-screen'), main: $('layer-main'), ad: $('layer-ad'),
+    screen: $('tv-screen'), main: $('layer-main'), ad: $('layer-ad'), dm: $('layer-dm'),
     slate: $('slate'), kicker: $('slate-kicker'), title: $('slate-title'), line: $('slate-line'),
     badge: $('slate-badge'), next: $('slate-next'), flash: $('flash'), osd: $('osd'),
     tune: $('tune-in'), tuneSub: $('tune-sub'), mute: $('mute'), fs: $('fs'),
@@ -83,6 +83,7 @@
   function tilde(ref) { return ref && ref.confidence === 'approx' ? '~' : ''; }
   function tryStore(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
   function tryLoad(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function playable(ep) { return !!(ep && (ep.video || ep.dm)); }
   function hasEpisodes(ch) {
     return (ch.slots || []).some(function (s) { return (s.episodes && s.episodes.length) || s.playlist; });
   }
@@ -211,10 +212,10 @@
     if (ref.fixture) {
       return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'Listed in the timetable. There is no video for this one.', badge: ref.confidence, next: next };
     }
-    if ((!loc.episode || !loc.episode.video) && ref.playlist) {
+    if (!playable(loc.episode) && ref.playlist) {
       return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: 'Finding the episode…', badge: ref.confidence, next: next };
     }
-    if (!loc.episode || !loc.episode.video) {
+    if (!playable(loc.episode)) {
       return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'No playable copy of this show yet. It is listed so the timetable is right.', badge: ref.confidence, next: next };
     }
     return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: (epLabel(loc.entry, loc.episodeIndex) || 'Tuning in') + '  ·  tuning in…', badge: ref.confidence, next: next };
@@ -320,12 +321,51 @@
     });
   }
 
+  /* ---------- Dailymotion (Mahabharat has no embeddable YouTube copy) ----------
+     A plain Dailymotion player in an iframe, started at the right second. It sends no
+     events we can use, so the end of an episode is worked out from its known length. */
+  var DM = { ep: null, t0: 0, muted: null };
+  function dmUrl(id, offset, muted) {
+    return 'https://geo.dailymotion.com/player.html?video=' + encodeURIComponent(id) + '&startTime=' + Math.max(0, Math.floor(offset)) +
+      '&autoplay=true&mute=' + (muted ? 'true' : 'false') + '&queue-enable=false&sharing-enable=false&ui-logo=false';
+  }
+  function showDM(offset) {
+    while (el.dm.firstChild) el.dm.removeChild(el.dm.firstChild);
+    var f = document.createElement('iframe');
+    f.allow = 'autoplay; fullscreen; picture-in-picture'; f.setAttribute('allowfullscreen', ''); f.title = 'Mahabharat';
+    f.src = dmUrl(DM.ep.dm, offset, S.muted);
+    el.dm.appendChild(f);
+    DM.muted = S.muted;
+    el.dm.classList.add('is-on');
+  }
+  function stopDM() {
+    DM.ep = null;
+    while (el.dm.firstChild) el.dm.removeChild(el.dm.firstChild);
+    el.dm.classList.remove('is-on');
+  }
+  function playDM(ep, offset, now) {
+    el.main.classList.remove('is-on'); el.ad.classList.remove('is-on');
+    [S.main, S.ad].forEach(function (p) { try { p && p.stopVideo && p.stopVideo(); } catch (e) { /* ignore */ } });
+    DM.ep = ep; DM.t0 = now - offset * 1000;
+    if (ep.dur && offset >= ep.dur - 3) { stopDM(); S.ended = true; showSlate(describe(S.loc, now, 'filler')); return; }
+    hideSlate();
+    showDM(offset);
+  }
+  function maintainDM(loc, now) {
+    var ep = loc.episode, secs = (now - DM.t0) / 1000;
+    if (!DM.ep || DM.ep !== ep) { playDM(ep, loc.offset, now); return; }
+    if (ep.dur && secs >= ep.dur - 1) { stopDM(); S.ended = true; showSlate(describe(loc, now, 'filler')); return; }
+    if (DM.muted !== S.muted) showDM(Math.max(0, Math.min(secs, loc.offset)));   // sound toggled: reload at the right second
+  }
+
   function stopPlayers() {
     [S.main, S.ad].forEach(function (p) { try { p && p.stopVideo && p.stopVideo(); } catch (e) { /* ignore */ } });
     el.main.classList.remove('is-on'); el.ad.classList.remove('is-on');
+    stopDM();
   }
 
   function playOn(which, videoId, offset) {
+    stopDM();
     var p = S[which], other = which === 'main' ? S.ad : S.main;
     try { other && other.stopVideo && other.stopVideo(); } catch (e) { /* ignore */ }
     el[which === 'main' ? 'ad' : 'main'].classList.remove('is-on');
@@ -343,7 +383,9 @@
     if (!S.started) { showSlate(describe(loc, now)); return; }
     if (!S.ready) { showSlate(describe(loc, now)); return; }
 
-    if (loc.state === 'show' && loc.episode && loc.episode.video) {
+    if (loc.state === 'show' && loc.episode && loc.episode.dm) {
+      playDM(loc.episode, loc.offset, now);
+    } else if (loc.state === 'show' && loc.episode && loc.episode.video) {
       playOn('main', loc.episode.video, loc.offset);
     } else if (loc.state === 'break' && loc.ad && loc.ad.video) {
       playOn('ad', loc.ad.video, loc.offset);
@@ -356,7 +398,7 @@
   function maintain(loc, now) {
     if (!S.started || !S.ready) { showSlate(describe(loc, now)); return; }
 
-    var videoSlot = (loc.state === 'show' && loc.episode && loc.episode.video) ||
+    var videoSlot = (loc.state === 'show' && playable(loc.episode)) ||
                     (loc.state === 'break' && loc.ad && loc.ad.video);
 
     if (!videoSlot || S.ended || S.failed) {
@@ -366,6 +408,7 @@
       return;
     }
 
+    if (loc.state === 'show' && loc.episode.dm) { maintainDM(loc, now); return; }
     var p = loc.state === 'show' ? S.main : S.ad;
     var st; try { st = p.getPlayerState(); } catch (e) { return; }
 

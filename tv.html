@@ -36,6 +36,7 @@
     <div class="tv-screen" id="tv-screen">
       <div class="layer layer-yt" id="layer-main"><div id="yt-main"></div></div>
       <div class="layer layer-yt" id="layer-ad"><div id="yt-ad"></div></div>
+      <div class="layer layer-yt" id="layer-dm"></div>
 
       <div class="layer layer-slate" id="slate" aria-live="polite">
         <div class="slate-kicker" id="slate-kicker"></div>
@@ -118,7 +119,7 @@
         </div>
         <button type="button" class="vod-close" id="vod-close">BACK TO LIVE TV</button>
       </div>
-      <div class="vod-screen"><div id="yt-vod"></div></div>
+      <div class="vod-screen"><div id="yt-vod"></div><div id="vod-dm" hidden></div></div>
       <div class="vod-bar">
         <button type="button" id="vod-prev">&#9664; PREV</button>
         <span class="vod-ep" id="vod-ep"></span>
@@ -151,6 +152,7 @@
 
 <script src="js/tv-episodes.js"></script>
 <script src="js/tv-library.js"></script>
+<script src="js/tv-mahabharat.js"></script>
 <script src="js/tv-ads.js"></script>
 <script src="js/tv-schedule.js"></script>
 <script src="js/tv-config.js"></script>

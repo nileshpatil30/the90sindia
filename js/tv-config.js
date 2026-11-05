@@ -181,7 +181,7 @@ var EPSET_META = {
 function buildShows(nets, runs) {
   var by = {}, list = [];
   function get(title) {
-    if (!by[title]) { by[title] = { id: '', title: title, kind: 'other', official: false, note: '', years: '', nets: [], runs: [], episodes: [], nums: false, labels: null, playlist: null }; list.push(by[title]); }
+    if (!by[title]) { by[title] = { id: '', host: 'yt', title: title, kind: 'other', official: false, note: '', years: '', nets: [], runs: [], episodes: [], nums: false, labels: null, playlist: null }; list.push(by[title]); }
     return by[title];
   }
   (typeof TV_LIBRARY !== 'undefined' ? TV_LIBRARY : []).forEach(function (r) {
@@ -199,7 +199,8 @@ function buildShows(nets, runs) {
     }
     var s = get(r.show), set = r.eps && EPISODE_SETS[r.eps];
     if (set && set.episodes.length && !s.episodes.length && !s.playlist) {
-      s.episodes = set.episodes.map(function (e) { return e.video; });
+      s.episodes = set.episodes.map(function (e) { return e.video || e.dm; });
+      if (set.episodes[0] && set.episodes[0].dm) s.host = 'dm';           // Dailymotion, not YouTube
       s.nums = (set.nums && set.nums.length) ? set.nums : false;
       s.official = !!set.official;
       s.kind = (EPSET_META[r.eps] || {}).kind || s.kind;

@@ -1,6 +1,7 @@
 // Browser smoke test for the TV page (needs Playwright). Stubs the YouTube API and fixes the clock.
 // Run:  python3 -m http.server 8123  (in the repo root, in another terminal),  then  node tests/tv-smoke.js
 // Screenshots go to $SP (or the temp folder).
+const { chromium } = require('playwright');
 const SP = process.env.SP || require('os').tmpdir();
 const STUB = `
 (function(){
@@ -176,6 +177,23 @@ async function open(b, vp, hash, when) {
     await ctx.close();
   }
 
+  // 4a. Mahabharat plays from Dailymotion, at the right second of the right episode
+  {
+    const { p, ctx, errs } = await open(b, { width: 390, height: 844 }, '#ch=ddn-1989', IST('2026-11-15T09:20'));
+    await p.click('#tune-in'); await p.waitForTimeout(400);
+    const d = await p.evaluate(() => { const f = document.querySelector('#layer-dm iframe'); return { src: f && f.src, on: document.getElementById('layer-dm').classList.contains('is-on'), yt: window.__yt.calls.filter(c => c.fn === 'load').length, meta: document.getElementById('now-meta').textContent }; });
+    ok(d.on && d.src && /video=x3w9eui/.test(d.src), 'Mahabharat week 2 plays Episode 2 from Dailymotion (' + d.src + ')');
+    ok(/startTime=1[12]\d\d/.test(d.src), 'it starts about 20 minutes in, as if tuned in at 9:20 (' + d.src + ')');
+    ok(d.yt === 0 && /Episode 2\b/.test(d.meta), 'no YouTube video loaded for it (' + d.yt + ', ' + d.meta + ')');
+    ok(errs.length === 0, 'Mahabharat errors ' + errs.join('|'));
+    await ctx.close();
+    const t = await open(b, { width: 390, height: 844 }, '#ch=ddn-1989', IST('2026-11-15T09:50'));   // episode (46 min) is long over by 9:50: slot is 60 min, so ad break not yet; check the filler
+    await t.p.click('#tune-in'); await t.p.waitForTimeout(400);
+    const e2 = await t.p.evaluate(() => ({ iframe: !!document.querySelector('#layer-dm iframe'), slate: document.getElementById('slate').classList.contains('is-off'), title: document.getElementById('slate-title').textContent }));
+    ok(!e2.iframe && !e2.slate, 'after the episode ends (46 min in) the Dailymotion player is removed and a card shows (' + JSON.stringify(e2) + ')');
+    await t.ctx.close();
+  }
+
   // 4c. ALL SHOWS: browse, search, filter, watch on the separate player, live TV pauses and resumes
   for (const vp of [{ width: 390, height: 844 }, { width: 1100, height: 900 }]) {
     const { p, ctx, errs } = await open(b, vp, '#ch=ddn-1992', IST('2026-11-15T10:05'));
@@ -218,6 +236,14 @@ async function open(b, vp, hash, when) {
     await p.waitForTimeout(300);
     const pl = await p.evaluate(() => window.__yt.calls.filter(c => c.p === 'yt-vod' && c.fn === 'loadPlaylist').length);
     ok(pl === 1, vp.width + ': a playlist show loads as a playlist');
+    // Mahabharat (Dailymotion) opens its own iframe and NEXT moves on by hand
+    await p.fill('#shows-q', 'mahabharat');
+    await p.click('.show-card:has(.sc-title:text-is("Mahabharat"))');
+    await p.waitForTimeout(200);
+    const md = await p.evaluate(() => ({ src: (document.querySelector('#vod-dm iframe') || {}).src, ep: document.getElementById('vod-ep').textContent, link: document.getElementById('vod-yt').textContent }));
+    ok(/video=x50nb80/.test(md.src || '') && /Episode 1\b/.test(md.ep) && /Dailymotion/.test(md.link), vp.width + ': Mahabharat opens on the Dailymotion player (' + JSON.stringify(md) + ')');
+    await p.click('#vod-next');
+    ok(/video=x3w9eui/.test(await p.evaluate(() => document.querySelector('#vod-dm iframe').src)), vp.width + ': NEXT loads the next Mahabharat episode');
     // WATCH LIVE button jumps to the timetable
     await p.fill('#shows-q', 'v3');
     await p.click('.show-card:has(.sc-title:text-is("V3"))');

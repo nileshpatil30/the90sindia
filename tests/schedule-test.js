@@ -5,7 +5,7 @@
 const fs = require('fs'), path = require('path'), vm = require('vm');
 const root = path.join(__dirname, '..');
 const ctx = vm.createContext({ console: console });
-['tv-episodes', 'tv-library', 'tv-ads', 'tv-schedule', 'tv-config', 'tv-engine'].forEach(function (f) {
+['tv-episodes', 'tv-library', 'tv-mahabharat', 'tv-ads', 'tv-schedule', 'tv-config', 'tv-engine'].forEach(function (f) {
   vm.runInContext(fs.readFileSync(path.join(root, 'js', f + '.js'), 'utf8'), ctx, { filename: f + '.js' });
 });
 const get = (name) => vm.runInContext(name, ctx);

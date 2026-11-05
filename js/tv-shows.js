@@ -17,7 +17,7 @@
   var el = {
     section: $('all-shows'), count: $('shows-count'), q: $('shows-q'), nets: $('shows-net'), kinds: $('shows-kind'), grid: $('show-grid'),
     vod: $('vod'), title: $('vod-title'), meta: $('vod-meta'), note: $('vod-note'), live: $('vod-live'), eps: $('vod-eps'),
-    close: $('vod-close'), prev: $('vod-prev'), next: $('vod-next'), ep: $('vod-ep'), yt: $('vod-yt')
+    dm: $('vod-dm'), close: $('vod-close'), prev: $('vod-prev'), next: $('vod-next'), ep: $('vod-ep'), yt: $('vod-yt')
   };
 
   var NET_NAME = {}; NETS.forEach(function (n) { NET_NAME[n.id] = n.name; });
@@ -143,6 +143,23 @@
 
   function say(text) { el.note.textContent = text || ''; el.note.hidden = !text; }
 
+  /* Dailymotion shows (Mahabharat): a plain Dailymotion player, no events, so NEXT is pressed by hand. */
+  function isDM() { return !!(V.show && V.show.host === 'dm'); }
+  function showDMFrame(id) {
+    var yt = $('yt-vod'); if (yt) yt.style.display = 'none';
+    el.dm.hidden = false;
+    while (el.dm.firstChild) el.dm.removeChild(el.dm.firstChild);
+    var f = document.createElement('iframe');
+    f.allow = 'autoplay; fullscreen; picture-in-picture'; f.setAttribute('allowfullscreen', ''); f.title = V.show.title;
+    f.src = 'https://geo.dailymotion.com/player.html?video=' + encodeURIComponent(id) + '&autoplay=true&queue-enable=false&sharing-enable=false&ui-logo=false';
+    el.dm.appendChild(f);
+  }
+  function hideDMFrame() {
+    while (el.dm.firstChild) el.dm.removeChild(el.dm.firstChild);
+    el.dm.hidden = true;
+    var yt = $('yt-vod'); if (yt) yt.style.display = '';
+  }
+
   function curId() { var s = V.show; return s && s.episodes.length ? s.episodes[V.idx] : null; }
 
   function ytLink() {
@@ -150,6 +167,7 @@
     if (!s) return '#';
     if (s.playlist) return 'https://www.youtube.com/playlist?list=' + s.playlist;
     var id = curId();
+    if (isDM()) return id ? 'https://www.dailymotion.com/video/' + id : '#';
     return id ? 'https://www.youtube.com/watch?v=' + id : '#';
   }
 
@@ -163,6 +181,11 @@
   function play() {
     var s = V.show;
     if (!s) return;
+    if (isDM()) {
+      try { V.player && V.player.stopVideo && V.player.stopVideo(); } catch (e) { /* ignore */ }
+      showDMFrame(s.episodes[V.idx]); paintEpisode(); return;
+    }
+    hideDMFrame();
     ensurePlayer(function () {
       if (!V.show) return;
       say('');
@@ -176,7 +199,7 @@
 
   function paintEpisode() {
     var s = V.show; if (!s) return;
-    el.yt.href = ytLink();
+    el.yt.href = ytLink(); el.yt.textContent = isDM() ? 'Open on Dailymotion' : 'Open on YouTube';
     if (s.playlist) {
       el.ep.textContent = V.plIds ? 'Video ' + (V.idx + 1) + ' of ' + V.plIds.length : 'Playlist';
       el.prev.disabled = el.next.disabled = false;
@@ -215,6 +238,7 @@
     }
     if (i < 0 || i >= s.episodes.length) return;
     V.idx = i; V.fails = 0; say('');
+    if (isDM()) { showDMFrame(s.episodes[i]); paintEpisode(); return; }
     ensurePlayer(function () { try { V.player.loadVideoById({ videoId: s.episodes[i] }); } catch (e) { /* ignore */ } });
     paintEpisode();
   }
@@ -295,6 +319,7 @@
   function closeShow() {
     if (!V.show) return;
     try { V.player && V.player.stopVideo && V.player.stopVideo(); } catch (e) { /* ignore */ }
+    hideDMFrame();
     V.show = null;
     el.vod.hidden = true;
     document.dispatchEvent(new CustomEvent('tv:vod', { detail: { open: false } }));

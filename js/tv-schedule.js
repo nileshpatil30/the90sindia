@@ -159,7 +159,7 @@ const TV_RUNS = [
     src: 'Sunday late morning, 1988-89, recalled from earlier research. Videos: official Doordarshan uploads.' },
 
   { net: 'ddn', from: 1989, to: 1990, show: 'Mahabharat', day: 'Sun', time: '09:00', dur: 60, conf: 'verified', eps: 'MAHABHARAT',
-    src: 'Every Sunday for an hour from 2 Oct 1988 to 24 Jun 1990 (ThePrint); 9 am (reader memory). It ran into the last months of 1988 too, but Ramayan holds the 1988 dial.' },
+    src: 'Every Sunday for an hour from 2 Oct 1988 to 24 Jun 1990 (ThePrint); 9 am (reader memory). It ran into the last months of 1988 too, but Ramayan holds the 1988 dial. Videos: community uploads on Dailymotion, 56 of the 94 episodes, in order (the numbers that are missing stay missing).' },
   { net: 'ddn', from: 1989, to: 1990, show: 'Flop Show', day: 'Sun', time: '20:30', dur: 30, conf: 'approx',
     src: 'Jaspal Bhatti\'s satire, DD National 1989-90. Day and clock time are placeholders.' },
 
