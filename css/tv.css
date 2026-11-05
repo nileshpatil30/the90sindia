@@ -6,20 +6,52 @@
 
 .wave-seg.is-active { filter: brightness(1.15); text-decoration: underline; text-underline-offset: 4px; }
 
-/* ---- Era / channel tabs ---- */
-.era-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 12px; scrollbar-width: thin; }
-.era-tab {
-  flex: 0 0 auto; text-align: left; cursor: pointer;
-  background: var(--panel); color: var(--white);
-  border: var(--border-chunky); border-radius: 10px; box-shadow: var(--shadow-hard);
-  padding: 8px 12px; font-family: var(--font-heading); min-width: 122px;
+/* ---- Channel + year dial (always visible, tappable) ---- */
+.dial { margin-top: 16px; display: grid; gap: 14px; }
+.dial-block { background: var(--panel); border: var(--border-chunky); border-radius: var(--radius); box-shadow: var(--shadow-hard); padding: 12px; }
+.dial-h { font-size: 0.8rem; letter-spacing: 2px; color: var(--lime); margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.dial-sub { font-family: var(--font-body, inherit); font-weight: 600; letter-spacing: 0; font-size: 0.74rem; color: var(--white); opacity: 0.75; text-transform: none; }
+
+.net-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.net-btn {
+  --c: var(--cyan);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; cursor: pointer;
+  min-height: 62px; padding: 7px 9px 7px; color: var(--white); background: #1c0d30;
+  border: var(--border-chunky); border-top: 6px solid var(--c); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--font-heading);
 }
-.era-tab:hover { transform: translateY(-2px); }
-.era-tab .e-num { font-size: 0.7rem; color: var(--lime); letter-spacing: 1px; }
-.era-tab .e-era { display: block; font-size: 1.05rem; font-weight: 800; line-height: 1.1; }
-.era-tab .e-name { display: block; font-size: 0.72rem; font-weight: 700; opacity: 0.8; }
-.era-tab.is-on { background: var(--pink); }
-.era-tab.is-on .e-num { color: var(--white); }
+.net-btn:hover { transform: translateY(-2px); }
+.net-btn .n-short { font-size: 0.64rem; letter-spacing: 1.5px; color: var(--c); font-weight: 800; }
+.net-btn .n-name { font-size: 0.92rem; font-weight: 800; line-height: 1.05; }
+.net-btn .n-now { font-size: 0.68rem; font-weight: 700; opacity: 0.8; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.net-btn.is-on { background: var(--c); color: var(--ink); }
+.net-btn.is-on .n-short { color: var(--ink); }
+.net-btn.is-on .n-now { opacity: 0.95; }
+.net-btn.is-away { opacity: 0.62; }
+.net-btn.is-away.is-on { opacity: 1; }
+
+.year-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.yr-dec { flex: 0 0 auto; font-family: var(--font-heading); font-weight: 800; font-size: 0.7rem; letter-spacing: 1px; color: var(--cyan); margin: 0 2px 0 6px; }
+.yr-dec:first-child { margin-left: 0; }
+.yr {
+  cursor: pointer; font-family: var(--font-heading); font-weight: 800; font-size: 0.8rem; color: var(--white);
+  background: #1c0d30; border: 2px solid var(--ink); border-radius: 8px; padding: 5px 8px; min-width: 46px; box-shadow: 2px 2px 0 var(--ink);
+}
+.yr:hover:not(:disabled) { transform: translateY(-2px); }
+.yr.is-on { background: var(--pink); }
+.yr:disabled { opacity: 0.28; cursor: default; box-shadow: none; }
+
+/* ---- On air right now, anywhere in time ---- */
+.onair { margin-top: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  --c: var(--cyan);
+  cursor: pointer; text-align: left; font-family: var(--font-heading); font-weight: 800; font-size: 0.76rem; color: var(--white);
+  background: #1c0d30; border: 2px solid var(--ink); border-left: 6px solid var(--c); border-radius: 8px; padding: 6px 10px; box-shadow: 2px 2px 0 var(--ink);
+}
+.chip:hover { transform: translateY(-2px); }
+.chip.is-on { background: var(--purple); }
+.chip-more { font-size: 0.8rem; opacity: 0.75; align-self: center; }
 
 /* ---- TV set ---- */
 .tv-set {
@@ -42,7 +74,7 @@
   background: radial-gradient(circle at 50% 30%, #4a1a7a, #160a2a 80%);
 }
 .layer-slate.is-off { display: none; }
-.era-tab:focus-visible, .tv-controls button:focus-visible, .tune-in:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.net-btn:focus-visible, .yr:focus-visible, .chip:focus-visible, .g-row:focus-visible, .tv-controls button:focus-visible, .tune-in:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
 .slate-kicker { font-family: var(--font-heading); font-weight: 800; letter-spacing: 3px; color: var(--lime); font-size: clamp(0.7rem, 2vw, 1rem); }
 .slate-title { font-family: var(--font-display); font-size: clamp(1.4rem, 5.4vw, 3.2rem); line-height: 1.05; text-shadow: 3px 3px 0 var(--pink); }
 .slate-line { font-weight: 700; font-size: clamp(0.75rem, 2vw, 1.05rem); opacity: 0.92; }
@@ -69,7 +101,7 @@
 .osd {
   position: absolute; top: 4%; right: 4%; z-index: 4; opacity: 0; pointer-events: none; transition: opacity 0.3s;
   font-family: var(--font-heading); font-weight: 800; color: var(--lime); text-shadow: 2px 2px 0 #000;
-  font-size: clamp(0.9rem, 3vw, 1.8rem); text-align: right;
+  font-size: clamp(0.9rem, 3vw, 1.8rem); text-align: right; white-space: pre-line;
 }
 .osd.show { opacity: 1; }
 
@@ -122,6 +154,10 @@
 .g-row .g-title { font-weight: 700; }
 .g-row .g-sub { display: block; font-weight: 400; font-size: 0.74rem; opacity: 0.75; margin-top: 2px; }
 .g-empty { padding: 10px 12px; font-size: 0.8rem; opacity: 0.6; }
+.g-row { cursor: pointer; }
+.g-row .g-src { display: none; font-weight: 400; font-size: 0.72rem; opacity: 0.85; margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(255,255,255,.25); line-height: 1.35; }
+.g-row.open .g-src { display: block; }
+.g-row.g-fixture .g-title { font-weight: 600; font-style: italic; opacity: 0.85; }
 
 .badge { display: inline-block; font-family: var(--font-heading); font-weight: 800; font-size: 0.64rem; letter-spacing: 1px; padding: 1px 7px; border-radius: 6px; border: 2px solid var(--ink); }
 .b-verified { background: var(--lime); color: var(--ink); }
@@ -132,6 +168,10 @@
 .tv-foot a { color: var(--lime); margin-left: 8px; }
 
 @media (max-width: 640px) {
+  .net-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .net-btn { min-height: 58px; padding: 6px 7px; }
+  .net-btn .n-name { font-size: 0.82rem; }
+  .yr { min-width: 40px; padding: 4px 5px; font-size: 0.74rem; }
   .now-next { grid-template-columns: 1fr; }
   .tv-clock { margin-left: 0; width: 100%; }
   .tv-set { padding: 10px; border-radius: 14px; }

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>90s REWIND TV — Live Timetable, 1987 to 2007</title>
-<meta name="description" content="Watch the 80s and 90s the way it aired: a fixed weekly TV timetable, one episode a week, with commercial breaks. Doordarshan, Zee, Star Plus, Cartoon Network and SET, 1987 to 2007.">
+<title>90s REWIND TV — Live Timetable, 1984 to 2007</title>
+<meta name="description" content="Watch the 80s and 90s the way it aired: pick a channel and a year, get the fixed weekly timetable, one episode a week, with commercial breaks. DD National, DD Metro, Zee, Star Plus, Sony, SAB and Cartoon Network, 1984 to 2007.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -26,13 +26,11 @@
   </div>
   <div class="logo-strip">
     <h1 class="logo">90s <span>REWIND</span> TV</h1>
-    <p class="tagline">the real weekly timetable, 1987 to 2007</p>
+    <p class="tagline">pick a channel and a year: the real weekly timetable, 1984 to 2007</p>
   </div>
 </header>
 
 <main class="tv-main">
-
-  <nav class="era-tabs" id="era-tabs" aria-label="Choose a channel and era"></nav>
 
   <section class="tv-set" aria-label="TV player">
     <div class="tv-screen" id="tv-screen">
@@ -58,12 +56,30 @@
     </div>
 
     <div class="tv-controls">
-      <button type="button" id="ch-down" aria-label="Channel down">CH &#9660;</button>
-      <button type="button" id="ch-up" aria-label="Channel up">CH &#9650;</button>
+      <button type="button" id="ch-down" aria-label="Previous channel">CH &#9660;</button>
+      <button type="button" id="ch-up" aria-label="Next channel">CH &#9650;</button>
+      <button type="button" id="yr-down" aria-label="Previous year">&#9664; YEAR</button>
+      <button type="button" id="yr-up" aria-label="Next year">YEAR &#9654;</button>
       <button type="button" id="mute" aria-pressed="false">SOUND ON</button>
       <button type="button" id="fs">FULL SCREEN</button>
       <div class="tv-clock" id="tv-clock" aria-label="Current time in India"></div>
     </div>
+  </section>
+
+  <section class="dial" aria-label="Choose a channel and a year">
+    <div class="dial-block">
+      <h2 class="dial-h">CHANNEL <span class="dial-sub" id="chan-sub"></span></h2>
+      <div class="net-grid" id="net-grid" role="group" aria-label="Channels"></div>
+    </div>
+    <div class="dial-block">
+      <h2 class="dial-h">YEAR <span class="dial-sub" id="year-sub"></span></h2>
+      <div class="year-pills" id="year-pills" role="group" aria-label="Years"></div>
+    </div>
+  </section>
+
+  <section class="onair" aria-label="On air right now, anywhere in time">
+    <h2 class="dial-h" id="onair-h">ON AIR RIGHT NOW</h2>
+    <div class="chips" id="onair-chips"></div>
   </section>
 
   <section class="now-next">
@@ -83,9 +99,9 @@
     <h2 class="guide-title">THE WEEK ON <span id="guide-ch"></span></h2>
     <p class="guide-note" id="guide-note"></p>
     <div class="guide-legend">
-      <span class="badge b-verified">VERIFIED</span> start time found in a source
+      <span class="badge b-verified">VERIFIED</span> day and time found in a source
       <span class="badge b-recalled">RECALLED</span> widely remembered, please confirm
-      <span class="badge b-approx">APPROX</span> placeholder time
+      <span class="badge b-approx">APPROX</span> right network and years, time is a placeholder (shown with ~)
     </div>
     <div class="guide-days" id="guide-days"></div>
   </section>
@@ -102,6 +118,7 @@
 
 <script src="js/tv-episodes.js"></script>
 <script src="js/tv-library.js"></script>
+<script src="js/tv-schedule.js"></script>
 <script src="js/tv-config.js"></script>
 <script src="js/tv-engine.js"></script>
 <script src="js/tv.js"></script>

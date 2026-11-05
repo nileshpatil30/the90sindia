@@ -11,7 +11,10 @@
 (function () {
   'use strict';
 
-  var CH = window.TV_CHANNELS || [];
+  var NETS = window.TV_NETS || [];
+  var YEARS = window.TV_YEARS || { from: 1984, to: 2007 };
+  var CH = (window.TV_CHANNELS || []).concat(window.TV_DEMO ? [window.TV_DEMO] : []);
+  var LEGACY = window.TV_LEGACY || {};
   var E = window.TVEngine;
   var $ = function (id) { return document.getElementById(id); };
   var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -19,13 +22,15 @@
 
   if (!E || !CH.length) {
     $('slate-title').textContent = 'TV is off';
-    $('slate-line').textContent = 'No channels are configured. Edit js/tv-config.js.';
+    $('slate-line').textContent = 'No channels are configured. Edit js/tv-schedule.js.';
     $('tune-in').classList.add('gone');
     return;
   }
 
   var el = {
-    tabs: $('era-tabs'), screen: $('tv-screen'), main: $('layer-main'), ad: $('layer-ad'),
+    nets: $('net-grid'), years: $('year-pills'), chanSub: $('chan-sub'), yearSub: $('year-sub'),
+    onairH: $('onair-h'), onair: $('onair-chips'), yrUp: $('yr-up'), yrDown: $('yr-down'),
+    screen: $('tv-screen'), main: $('layer-main'), ad: $('layer-ad'),
     slate: $('slate'), kicker: $('slate-kicker'), title: $('slate-title'), line: $('slate-line'),
     badge: $('slate-badge'), next: $('slate-next'), flash: $('flash'), osd: $('osd'),
     tune: $('tune-in'), tuneSub: $('tune-sub'), mute: $('mute'), fs: $('fs'),
@@ -34,8 +39,16 @@
     guideCh: $('guide-ch'), guideNote: $('guide-note'), guideDays: $('guide-days')
   };
 
+  // channel number -> index, and the years each network has a timetable for
+  var BY = {}, AVAIL = {};
+  CH.forEach(function (c, i) {
+    BY[c.num] = i;
+    if (c.net !== 'demo') { (AVAIL[c.net] = AVAIL[c.net] || []).push(c.year); }
+  });
+  Object.keys(AVAIL).forEach(function (k) { AVAIL[k].sort(function (a, b) { return a - b; }); });
+
   var S = {
-    idx: 0, started: false, muted: false,
+    idx: 0, net: '', year: 0, shelfAt: 0, started: false, muted: false,
     key: null, loc: null, ended: false, failed: false, playedKey: null,
     apiRequested: false, ready: false, readyCount: 0, main: null, ad: null,
     tAt: 0, watchdogDone: false, osdTimer: null
@@ -65,6 +78,9 @@
     return 'in ' + Math.floor(h / 24) + 'd ' + (h % 24) + 'h';
   }
   function cur() { return CH[S.idx]; }
+  function chLabel(ch) { return ch.net === 'demo' ? 'DEMO' : ch.name + ' ' + ch.year; }
+  // an APPROX slot has a placeholder clock time: show it with a ~
+  function tilde(ref) { return ref && ref.confidence === 'approx' ? '~' : ''; }
   function tryStore(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
   function tryLoad(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function hasEpisodes(ch) {
@@ -162,13 +178,13 @@
   function nextLine(loc, now) {
     if (!loc.next) return '';
     var tz = tzOf(cur());
-    return 'NEXT: ' + loc.next.entry.ref.title + '  ·  ' + fmtDayHM(loc.next.startMs, tz) + ' IST  (' + rel(loc.next.startMs, now) + ')';
+    return 'NEXT: ' + loc.next.entry.ref.title + '  ·  ' + tilde(loc.next.entry.ref) + fmtDayHM(loc.next.startMs, tz) + ' IST  (' + rel(loc.next.startMs, now) + ')';
   }
 
   // What the slate should say for the current moment.
   function describe(loc, now, mode) {
     var ch = cur();
-    var kicker = 'CH ' + ch.num + '  ·  ' + ch.name + ' ' + ch.era;
+    var kicker = chLabel(ch);
     var next = nextLine(loc, now);
 
     if (loc.state === 'closedown') {
@@ -192,11 +208,14 @@
     if (mode === 'failed') {
       return { kicker: kicker, title: ref.title, line: 'This episode cannot play here right now. We will be right back.', badge: ref.confidence, next: next };
     }
+    if (ref.fixture) {
+      return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'Listed in the timetable. There is no video for this one.', badge: ref.confidence, next: next };
+    }
     if ((!loc.episode || !loc.episode.video) && ref.playlist) {
       return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: 'Finding the episode…', badge: ref.confidence, next: next };
     }
     if (!loc.episode || !loc.episode.video) {
-      return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'Tonight’s episode is coming soon.', badge: ref.confidence, next: next };
+      return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'No playable copy of this show yet. It is listed so the timetable is right.', badge: ref.confidence, next: next };
     }
     return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: (epLabel(loc.entry, loc.episodeIndex) || 'Tuning in') + '  ·  tuning in…', badge: ref.confidence, next: next };
   }
@@ -373,9 +392,10 @@
     renderNowNext(loc, now);
 
     if (!S.started) {
-      el.tuneSub.textContent = 'CH ' + ch.num + '  ·  ' + ch.name + ' ' + ch.era +
+      el.tuneSub.textContent = chLabel(ch) +
         (loc.state === 'show' ? '  ·  ' + loc.entry.ref.title + ' is on' : '');
     }
+    if (now - S.shelfAt > 15000) { S.shelfAt = now; markDial(now); renderOnAir(now); }
   }
 
   /* ---------- on-now / up-next ---------- */
@@ -385,7 +405,7 @@
     var done = Math.min(1, Math.max(0, (now - loc.startMs) / total));
     if (loc.state === 'show') {
       el.nowTitle.textContent = loc.entry.ref.title;
-      el.nowMeta.textContent = (epLabel(loc.entry, loc.episodeIndex) ? epLabel(loc.entry, loc.episodeIndex) + '  ·  ' : '') + fmtHM(loc.startMs, tz) + ' – ' + fmtHM(loc.endMs, tz) + ' IST';
+      el.nowMeta.textContent = (epLabel(loc.entry, loc.episodeIndex) ? epLabel(loc.entry, loc.episodeIndex) + '  ·  ' : '') + tilde(loc.entry.ref) + fmtHM(loc.startMs, tz) + ' – ' + fmtHM(loc.endMs, tz) + ' IST';
     } else if (loc.state === 'closedown') {
       el.nowTitle.textContent = 'Off air';
       el.nowMeta.textContent = loc.label || 'Transmission has ended';
@@ -400,7 +420,7 @@
     ups.forEach(function (u) {
       var li = document.createElement('li');
       var w = document.createElement('span'); w.className = 'u-when';
-      w.textContent = fmtDayHM(u.startMs, tz);
+      w.textContent = tilde(u.entry.ref) + fmtDayHM(u.startMs, tz);
       var t = document.createElement('span'); t.className = 'u-title';
       t.textContent = u.entry.ref.title + (epLabel(u.entry, u.episodeIndex) ? ' \u2013 ' + epLabel(u.entry, u.episodeIndex) : '') + '  (' + rel(u.startMs, now) + ')';
       li.appendChild(w); li.appendChild(t); el.upList.appendChild(li);
@@ -411,8 +431,8 @@
   function renderGuide() {
     var ch = cur();
     var model = E.normalize(ch);
-    el.guideCh.textContent = ch.name + ' ' + ch.era;
-    el.guideNote.textContent = (ch.tag ? ch.tag + '. ' : '') + 'Fixed weekly timetable, India time (IST). One new episode every week.';
+    el.guideCh.textContent = chLabel(ch);
+    el.guideNote.textContent = (ch.tag ? 'On this channel: ' + ch.tag + '. ' : '') + 'Fixed weekly timetable, India time (IST), one new episode a week. Tap a show to see where its slot comes from.';
     el.guideDays.textContent = '';
     var CAP = 8;
     for (var d = 0; d < 7; d++) {
@@ -424,17 +444,23 @@
         box.appendChild(em);
       }
       rows.slice(0, CAP).forEach(function (x) {
-        var r = document.createElement('div'); r.className = 'g-row'; r.dataset.start = x.start;
-        var tm = document.createElement('span'); tm.className = 'g-time'; tm.textContent = x.ref.time;
+        var r = document.createElement('div'); r.className = 'g-row' + (x.ref.fixture ? ' g-fixture' : ''); r.dataset.start = x.start;
+        r.tabIndex = 0; r.setAttribute('role', 'button');
+        var tm = document.createElement('span'); tm.className = 'g-time'; tm.textContent = tilde(x.ref) + x.ref.time;
         var ti = document.createElement('span'); ti.className = 'g-title'; ti.textContent = x.ref.title;
         var sub = document.createElement('span'); sub.className = 'g-sub';
-        sub.appendChild(document.createTextNode(x.ref.duration + ' min  '));
+        sub.appendChild(document.createTextNode(x.ref.duration + ' min' + (x.ref.fixture ? ' · listing only' : '') + '  '));
         if (x.ref.confidence) {
           var b = document.createElement('span'); b.className = 'badge b-' + x.ref.confidence;
           b.textContent = x.ref.confidence.toUpperCase(); sub.appendChild(b);
         }
-        if (x.ref.source) r.title = x.ref.source;
         ti.appendChild(sub);
+        if (x.ref.source) {
+          var src = document.createElement('span'); src.className = 'g-src'; src.textContent = x.ref.source; ti.appendChild(src);
+          var flip = function () { r.classList.toggle('open'); };
+          r.addEventListener('click', flip);
+          r.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); flip(); } });
+        }
         r.appendChild(tm); r.appendChild(ti); box.appendChild(r);
       });
       if (rows.length > CAP) {
@@ -457,44 +483,206 @@
     });
   }
 
-  /* ---------- channels ---------- */
-  function renderTabs() {
-    el.tabs.textContent = '';
-    CH.forEach(function (ch, i) {
+  /* ---------- channels: a network grid + a year row ---------- */
+  function nearestYear(ys, y) {
+    var best = ys[0];
+    ys.forEach(function (v) { if (Math.abs(v - y) < Math.abs(best - y)) best = v; });
+    return best;
+  }
+  function netById(id) { for (var i = 0; i < NETS.length; i++) { if (NETS[i].id === id) return NETS[i]; } return null; }
+
+  function renderNets() {
+    el.nets.textContent = '';
+    NETS.forEach(function (n) {
       var b = document.createElement('button');
-      b.type = 'button'; b.className = 'era-tab' + (i === S.idx ? ' is-on' : ''); b.dataset.idx = i;
-      var n = document.createElement('span'); n.className = 'e-num'; n.textContent = 'CH ' + ch.num;
-      var e = document.createElement('span'); e.className = 'e-era'; e.textContent = ch.era;
-      var m = document.createElement('span'); m.className = 'e-name'; m.textContent = ch.name;
-      b.appendChild(n); b.appendChild(e); b.appendChild(m);
-      b.addEventListener('click', function () { selectChannel(i); });
-      el.tabs.appendChild(b);
+      b.type = 'button'; b.className = 'net-btn'; b.dataset.net = n.id;
+      b.style.setProperty('--c', n.color);
+      var s = document.createElement('span'); s.className = 'n-short'; s.textContent = n.short;
+      var nm = document.createElement('span'); nm.className = 'n-name'; nm.textContent = n.name;
+      var now = document.createElement('span'); now.className = 'n-now';
+      b.appendChild(s); b.appendChild(nm); b.appendChild(now);
+      b.addEventListener('click', function () { selectNet(n.id); });
+      el.nets.appendChild(b);
     });
   }
 
-  function selectChannel(i) {
+  function renderYears() {
+    el.years.textContent = '';
+    var decade = -1;
+    for (var y = YEARS.from; y <= YEARS.to; y++) {
+      var d = Math.floor(y / 10) * 10;
+      if (d !== decade) {
+        decade = d;
+        var lab = document.createElement('span'); lab.className = 'yr-dec';
+        lab.textContent = d >= 2000 ? '2000s' : String(d) + 's';
+        el.years.appendChild(lab);
+      }
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'yr'; b.dataset.year = y; b.textContent = y;
+      b.addEventListener('click', (function (yy) { return function () { selectYear(yy); }; })(y));
+      el.years.appendChild(b);
+    }
+  }
+
+  // What is a network doing in the selected year? One short line for its grid button.
+  function nowText(netId, now) {
+    var i = BY[netId + '-' + S.year];
+    if (i == null) {
+      var ys = AVAIL[netId] || [];
+      if (!ys.length) return '';
+      if (S.year < ys[0]) return 'starts ' + ys[0];
+      if (S.year > ys[ys.length - 1]) return 'last: ' + ys[ys.length - 1];
+      return 'nothing listed';
+    }
+    var loc = E.locate(CH[i], now);
+    if (loc.state === 'show') return '▶ ' + loc.entry.ref.title;
+    if (loc.state === 'closedown') return 'off air';
+    return 'next: ' + loc.next.entry.ref.title;
+  }
+
+  function markDial(now) {
+    now = now || Date.now();
+    Array.prototype.forEach.call(el.nets.children, function (b) {
+      var id = b.dataset.net, has = BY[id + '-' + S.year] != null;
+      b.classList.toggle('is-on', id === S.net);
+      b.classList.toggle('is-away', !has);
+      b.setAttribute('aria-pressed', id === S.net ? 'true' : 'false');
+      b.querySelector('.n-now').textContent = nowText(id, now);
+    });
+    var ys = AVAIL[S.net] || [];
+    Array.prototype.forEach.call(el.years.querySelectorAll('.yr'), function (b) {
+      var y = +b.dataset.year, ok = ys.indexOf(y) >= 0;
+      b.disabled = !ok;
+      b.classList.toggle('is-on', y === S.year);
+      b.setAttribute('aria-pressed', y === S.year ? 'true' : 'false');
+    });
+    var n = netById(S.net);
+    el.chanSub.textContent = n ? n.blurb : 'test channel';
+    el.yearSub.textContent = ys.length ? (n.name + ' listings: ' + ys[0] + (ys.length > 1 ? ' to ' + ys[ys.length - 1] : '')) : '';
+  }
+
+  // Every channel and year that has a show on air this minute (and the ones about to start).
+  function renderOnAir(now) {
+    var live = [], soon = [];
+    CH.forEach(function (ch, i) {
+      if (ch.net === 'demo') return;
+      var loc; try { loc = E.locate(ch, now); } catch (e) { return; }
+      if (loc.state === 'show' && !loc.entry.ref.fixture) {
+        var r = loc.entry.ref;
+        if ((r.episodes && r.episodes.length) || r.playlist) live.push({ i: i, title: r.title, ch: ch });
+      } else if (loc.next && !loc.next.entry.ref.fixture) {
+        var mins = (loc.next.startMs - now) / 60000;
+        var nr = loc.next.entry.ref;
+        if (mins <= 120 && ((nr.episodes && nr.episodes.length) || nr.playlist)) soon.push({ i: i, title: nr.title, ch: ch, t: loc.next.startMs });
+      }
+    });
+    el.onair.textContent = '';
+    function chip(o, tail) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip' + (o.i === S.idx ? ' is-on' : '');
+      var net = netById(o.ch.net);
+      if (net) b.style.setProperty('--c', net.color);
+      b.textContent = (tail ? '' : '▶ ') + o.title + '  ·  ' + chLabel(o.ch) + (tail ? '  ·  ' + tail : '');
+      b.addEventListener('click', function () { selectChannel(o.i); });
+      el.onair.appendChild(b);
+    }
+    live.sort(function (a, b) { return a.ch.year - b.ch.year; });
+    if (live.length) {
+      el.onairH.textContent = 'ON AIR RIGHT NOW, ANYWHERE IN TIME  (' + live.length + ')';
+      live.slice(0, 14).forEach(function (o) { chip(o); });
+      if (live.length > 14) {
+        var more = document.createElement('span'); more.className = 'chip-more'; more.textContent = '+ ' + (live.length - 14) + ' more';
+        el.onair.appendChild(more);
+      }
+    } else {
+      el.onairH.textContent = 'NOTHING IS ON AIR THIS MINUTE. STARTING SOON:';
+      soon.sort(function (a, b) { return a.t - b.t; });
+      soon.slice(0, 10).forEach(function (o) { chip(o, rel(o.t, now)); });
+      if (!soon.length) {
+        var none = document.createElement('span'); none.className = 'chip-more';
+        none.textContent = 'Nothing starts in the next two hours. Open the week guide below to see what is on later.';
+        el.onair.appendChild(none);
+      }
+    }
+  }
+
+  function selectChannel(i, note) {
     i = ((i % CH.length) + CH.length) % CH.length;
     var changed = i !== S.idx || S.key === null;
     S.idx = i; S.key = null; S.ended = false; S.failed = false;
     if (S.ready) stopPlayers();
-    Array.prototype.forEach.call(el.tabs.children, function (b, k) { b.classList.toggle('is-on', k === i); });
     var ch = cur();
+    S.net = ch.net; if (ch.net !== 'demo') S.year = ch.year;
     tryStore('tv.ch', ch.num);
     try { history.replaceState(null, '', '#ch=' + ch.num); } catch (e) { /* file:// etc. */ }
     renderGuide();
+    markDial();
+    renderOnAir(Date.now());
     wantPlaylists(ch);
-    showSlate({ kicker: 'TUNING…', title: 'CH ' + ch.num, line: ch.name + ' ' + ch.era });
-    if (changed) { flash(); osd('CH ' + ch.num + '  ' + ch.name); }
+    showSlate({ kicker: 'TUNING…', title: ch.name, line: ch.net === 'demo' ? ch.tag : String(ch.year) });
+    if (changed) { flash(); osd(chLabel(ch) + (note ? '\n' + note : '')); }
     tick();
   }
 
-  function pickStart() {
-    var m = /ch=(\w+)/.exec(location.hash || '');
-    var want = (m && m[1]) || tryLoad('tv.ch');
-    var byNum = CH.findIndex(function (c) { return c.num === want; });
-    if (byNum >= 0) return byNum;
-    var withEps = CH.findIndex(hasEpisodes);
+  function selectNet(id) {
+    var ys = AVAIL[id]; if (!ys || !ys.length) return;
+    var y = S.year || ys[0], note = '';
+    if (ys.indexOf(y) < 0) {
+      var ny = nearestYear(ys, y);
+      note = netById(id).name + ' has no listing for ' + y + ' (' + ys[0] + ' to ' + ys[ys.length - 1] + ')';
+      y = ny;
+    }
+    selectChannel(BY[id + '-' + y], note);
+  }
+
+  function selectYear(y) {
+    var i = BY[S.net + '-' + y];
+    if (i != null) selectChannel(i);
+  }
+
+  // CH up / down: next network that has a timetable in the same year (like flipping channels in that year).
+  function stepNet(dir) {
+    var at = -1;
+    for (var k = 0; k < NETS.length; k++) { if (NETS[k].id === S.net) at = k; }
+    for (var n = 1; n <= NETS.length; n++) {
+      var cand = NETS[((at + dir * n) % NETS.length + NETS.length) % NETS.length];
+      var i = BY[cand.id + '-' + S.year];
+      if (i != null) { selectChannel(i); return; }
+    }
+  }
+  // YEAR back / forward on the same network, skipping years it has no timetable for.
+  function stepYear(dir) {
+    var ys = AVAIL[S.net]; if (!ys || ys.length < 2) return;
+    var at = ys.indexOf(S.year);
+    var next = at < 0 ? ys[0] : ys[((at + dir) % ys.length + ys.length) % ys.length];
+    selectYear(next);
+  }
+
+  // First visit: land on a channel that has something playable on air right now.
+  function bestNow() {
+    var now = Date.now(), live = [], soon = [], withEps = -1;
+    CH.forEach(function (ch, i) {
+      if (ch.net === 'demo') return;
+      if (withEps < 0 && hasEpisodes(ch)) withEps = i;
+      var loc; try { loc = E.locate(ch, now); } catch (e) { return; }
+      var r = loc.state === 'show' ? loc.entry.ref : null;
+      if (r && !r.fixture && ((r.episodes && r.episodes.length) || r.playlist)) live.push(i);
+      else if (loc.next) {
+        var nr = loc.next.entry.ref;
+        if (!nr.fixture && ((nr.episodes && nr.episodes.length) || nr.playlist)) soon.push({ i: i, t: loc.next.startMs });
+      }
+    });
+    if (live.length) return live[Math.floor(Math.random() * live.length)];
+    if (soon.length) { soon.sort(function (a, b) { return a.t - b.t; }); return soon[0].i; }
     return withEps >= 0 ? withEps : 0;
+  }
+
+  function pickStart() {
+    var m = /ch=([\w-]+)/.exec(location.hash || '');
+    var want = (m && m[1]) || tryLoad('tv.ch');
+    if (want && LEGACY[want]) want = LEGACY[want];
+    if (want != null && BY[want] != null) return BY[want];
+    return bestNow();
   }
 
   /* ---------- controls ---------- */
@@ -518,16 +706,20 @@
     S.key = null;
     tick();
   });
-  el.up.addEventListener('click', function () { selectChannel(S.idx + 1); });
-  el.down.addEventListener('click', function () { selectChannel(S.idx - 1); });
+  el.up.addEventListener('click', function () { stepNet(1); });
+  el.down.addEventListener('click', function () { stepNet(-1); });
+  el.yrUp.addEventListener('click', function () { stepYear(1); });
+  el.yrDown.addEventListener('click', function () { stepYear(-1); });
   el.mute.addEventListener('click', function () { S.muted = !S.muted; applyMute(); updateMuteBtn(); });
   el.fs.addEventListener('click', toggleFullscreen);
 
   document.addEventListener('keydown', function (ev) {
     var tag = (ev.target && ev.target.tagName) || '';
     if (/INPUT|TEXTAREA|SELECT/.test(tag) || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    if (ev.key === 'ArrowUp') { ev.preventDefault(); selectChannel(S.idx + 1); }
-    else if (ev.key === 'ArrowDown') { ev.preventDefault(); selectChannel(S.idx - 1); }
+    if (ev.key === 'ArrowUp') { ev.preventDefault(); stepNet(1); }
+    else if (ev.key === 'ArrowDown') { ev.preventDefault(); stepNet(-1); }
+    else if (ev.key === 'ArrowRight') { ev.preventDefault(); stepYear(1); }
+    else if (ev.key === 'ArrowLeft') { ev.preventDefault(); stepYear(-1); }
     else if (ev.key === 'm' || ev.key === 'M') { S.muted = !S.muted; applyMute(); updateMuteBtn(); }
     else if (ev.key === 'f' || ev.key === 'F') { toggleFullscreen(); }
   });
@@ -536,7 +728,8 @@
 
   /* ---------- go ---------- */
   S.idx = pickStart();
-  renderTabs();
+  renderNets();
+  renderYears();
   updateMuteBtn();
   selectChannel(S.idx);
   setInterval(tick, 1000);
