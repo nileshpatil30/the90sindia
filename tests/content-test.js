@@ -8,7 +8,7 @@
 const fs = require('fs'), path = require('path'), assert = require('assert');
 const root = path.join(__dirname, '..');
 global.window = global;
-['tv-episodes', 'tv-library', 'tv-mahabharat', 'tv-ads', 'tv-schedule', 'tv-config', 'tv-thumbs', 'content', 'games-data', 'catalogue']
+['tv-episodes', 'tv-library', 'tv-mahabharat', 'tv-ads', 'tv-schedule', 'tv-config', 'tv-thumbs', 'content', 'arcade-data', 'catalogue']
   .forEach((f) => require(path.join(root, 'js', f + '.js')));
 
 let pass = 0, fail = 0;

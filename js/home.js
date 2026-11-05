@@ -18,7 +18,7 @@
     fill('g-tv', feat('tv'), (it) => S.card(it));
     fill('g-movies', feat('movies'), (it) => S.card(it));
     fill('g-ads', feat('ads'), (it) => S.card(it));
-    fill('g-games', feat('games'), (it) => S.card(it));
+    fill('g-games', feat('games').slice(0, 5), (it) => S.card(it));
     fill('g-songs', feat('songs'), S.wide);
     fill('g-cricket', feat('cricket'), S.wide);
     fill('g-wwf', feat('wwf'), (it) => S.card(it, { dark: true, sub: true }));

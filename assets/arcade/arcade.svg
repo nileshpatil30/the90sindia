@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240" role="img" aria-label="arcade placeholder artwork">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a878f0"/><stop offset="1" stop-color="#4f1493"/></linearGradient></defs>
+<rect width="320" height="240" fill="url(#g)"/>
+<g opacity=".18" fill="#fff"><rect x="0" y="30" width="320" height="2"/><rect x="0" y="90" width="320" height="2"/><rect x="0" y="150" width="320" height="2"/><rect x="0" y="210" width="320" height="2"/></g>
+
+<g stroke="#1a0f2e" stroke-width="5" stroke-linejoin="round">
+<rect x="50" y="130" width="220" height="80" rx="14" fill="#2d260f"/>
+<rect x="66" y="40" width="188" height="96" rx="10" fill="#15101f"/><rect x="80" y="52" width="160" height="72" rx="6" fill="#2f8a8a"/>
+<circle cx="110" cy="170" r="10" fill="#fff6c8"/><rect x="106" y="148" width="8" height="22" fill="#fff6c8"/><circle cx="110" cy="146" r="14" fill="#e8222f"/>
+<circle cx="180" cy="170" r="13" fill="#ffe81a"/><circle cx="220" cy="170" r="13" fill="#8ee33a"/>
+</g>
+<g fill="#fff6c8"><rect x="98" y="66" width="10" height="10"/><rect x="118" y="66" width="10" height="10"/><rect x="138" y="66" width="10" height="10"/><rect x="108" y="86" width="10" height="10"/><rect x="128" y="86" width="10" height="10"/></g>
+<rect x="176" y="92" width="26" height="12" fill="#ffe81a"/>
+</svg>

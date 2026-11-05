@@ -10,7 +10,7 @@
    A page opts in with:   <body data-page="home">   (or "browse", "games", ...)
                           <div id="site-top"></div>      the header + ticker bar go here
                           <div id="site-bottom"></div>   the footer goes here
-   Needs, in this order:  js/content.js  js/games-data.js  (js/tv-*.js for the shows)  js/catalogue.js
+   Needs, in this order:  js/content.js  js/arcade-data.js  (js/tv-*.js for the shows)  js/catalogue.js
 
    Opening things: any element with one of these attributes opens in the pop-up:
      data-yt="VIDEO_ID"          one video
@@ -73,7 +73,7 @@
       '<div class="ticker-items" id="ticker"></div>' +
       '<button class="ticker-next" id="ticker-next" type="button" aria-label="Next headline">»</button></div>' +
       '<div class="search-box">' +
-      '<form class="search" id="search" role="search" action="browse.html" method="get" autocomplete="off">' +
+      '<form class="search" id="search" role="search" action="' + (PAGE === 'games' ? 'arcade.html' : 'browse.html') + '" method="get" autocomplete="off">' +
       '<img src="assets/ui/icons/search.svg" alt="" width="22" height="22">' +
       '<input id="q" name="q" type="search" placeholder="Search shows, movies, ads, games.." aria-label="Search shows, movies, ads, songs, cricket, WWF and games" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugg" autocapitalize="off" spellcheck="false">' +
       '<button class="btn" type="submit">Go</button></form>' +
@@ -126,6 +126,7 @@
   function subOf(it) { return [it.sub, it.credit].filter(Boolean).join(' · '); }
   function chipOf(it) { var s = (it.sub || '').split(' · ')[0]; return /^(song|trailer|part)/i.test(s) ? s.toUpperCase().replace(/ OF \d+/, '') : ''; }
   function showHref(t) { return 'tv.html#show=' + encodeURIComponent(t); }
+  function statClass(b) { return /soon/i.test(b) ? 'soon' : /official/i.test(b) ? 'ext' : 'web'; }
   function playable(it) { return it.open.type === 'yt' || it.open.type === 'pl'; }
 
   // The outer element of a card: a link for pages and shows, a button for things that open the pop-up.
@@ -143,7 +144,7 @@
     var inner = '<span class="card-img" style="--c:' + (it.c || '#3a2a66') + '">' + (src ? pic(src, it.title) : '<b class="fb">' + esc(it.title) + '</b>') +
       (chip ? '<span class="chip">' + esc(chip) + '</span>' : '') +
       (o.label ? '<span class="cat-lbl">' + esc(it.catLabel) + '</span>' : '') +
-      (playable(it) ? '<i class="ytag"></i>' : '') + (it.open.type === 'soon' ? '<span class="soon">SOON</span>' : '') + '</span>' +
+      (playable(it) ? '<i class="ytag"></i>' : '') + (it.open.type === 'soon' ? '<span class="soon">SOON</span>' : '') + (it.badge ? '<span class="stat stat-' + esc(statClass(it.badge)) + '">' + esc(it.badge) + '</span>' : '') + '</span>' +
       '<span class="card-t"><span>' + esc(it.short || it.title) + (o.sub && it.sub ? '<small>' + esc(it.sub) + '</small>' : '') + '</span></span>';
     return shell(it, 'card' + (it.dark || o.dark ? ' is-dark' : ''), inner);
   }
@@ -265,7 +266,7 @@
       [].forEach.call(box.querySelectorAll('[role=option]'), function (el, k) { el.setAttribute('aria-selected', k === i ? 'true' : 'false'); if (k === i) { input.setAttribute('aria-activedescendant', el.id); el.scrollIntoView({ block: 'nearest' }); } });
       if (i < 0) input.removeAttribute('aria-activedescendant');
     }
-    function all() { return 'browse.html?q=' + encodeURIComponent(input.value.trim()); }
+    function all() { return (PAGE === 'games' ? 'arcade.html' : 'browse.html') + '?q=' + encodeURIComponent(input.value.trim()); }
     function draw() {
       var q = input.value.trim(), C = CAT();
       if (q.length < 2 || !C) { hide(); return; }

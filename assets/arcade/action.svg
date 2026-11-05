@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240" role="img" aria-label="action placeholder artwork">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff74cf"/><stop offset="1" stop-color="#7a2bd0"/></linearGradient></defs>
+<rect width="320" height="240" fill="url(#g)"/>
+<g opacity=".18" fill="#fff"><rect x="0" y="30" width="320" height="2"/><rect x="0" y="90" width="320" height="2"/><rect x="0" y="150" width="320" height="2"/><rect x="0" y="210" width="320" height="2"/></g>
+
+<polygon points="160,24 182,76 238,56 206,106 268,120 208,142 240,196 182,172 160,222 138,172 80,196 112,142 52,120 114,106 82,56 138,76" fill="#ffe81a" stroke="#1a0f2e" stroke-width="5" stroke-linejoin="round"/>
+<polygon points="160,62 172,92 202,84 184,110 212,122 182,132 196,160 168,148 160,176 152,148 124,160 138,132 108,122 136,110 118,84 148,92" fill="#e8222f" stroke="#1a0f2e" stroke-width="4" stroke-linejoin="round"/>
+<g fill="#fff6c8" opacity=".9"><rect x="18" y="104" width="30" height="6"/><rect x="8" y="120" width="40" height="6"/><rect x="272" y="104" width="30" height="6"/><rect x="272" y="120" width="40" height="6"/></g>
+</svg>

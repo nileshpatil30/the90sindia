@@ -33,6 +33,8 @@ node tests/schedule-test.js                      # 1270 checks on the timetable 
 node tests/content-test.js                       # the content file, catalogue, search and add-content tool, no browser
 node tests/tv-smoke.js                           # Live TV in a headless browser, YouTube stubbed
 node tests/site-smoke.js                         # homepage shell: tabs, pop-up, picture zoom, search drop-down
+node tests/arcade-test.js                        # the Arcade catalogue rules (all 40 games, honest statuses, no suspicious links), no browser
+node tests/arcade-smoke.js                       # the Arcade in a headless browser: sections, search, every filter, game pages, embedded player
 ```
 
 ## File structure
@@ -44,14 +46,22 @@ js/content.js        THE CONTENT FILE: categories, tabs, ticker and every video 
 js/catalogue.js      Merges content.js + the TV shows + games into one searchable catalogue
 js/site.js           Shared shell: header, tabs, ticker, search drop-down, pop-up player, footer
 js/tv-thumbs.js      Picture (first video id) for each playlist show
-js/games-data.js     The games list (placeholder until the Arcade)
+arcade.html          The 90s Rewind Arcade (sections, search, filters)
+game.html            One reusable game page (play on our site / official site / coming soon)
+css/arcade.css       Arcade and game page styling (after css/home.css)
+js/arcade-data.js    THE ARCADE CATALOGUE: every game and what was checked (see "The Arcade" below)
+js/arcade-ui.js      Game card, Recently Played (browser only), shared by both Arcade pages
+js/arcade.js         Arcade page: sections, search, filters, address state
+js/game.js           Game page: the three play modes, embedded player, "What we checked"
+assets/arcade/       Neutral placeholder art for the game cards (our own, one per genre)
+docs/arcade-research.md  The audit and the research behind each status
 js/home-data.js      Homepage-only panels: poll, trivia, photo strip, discussions, tiles, goodies
 tools/add-content.js Adds a video or playlist to content.js after checking it can be embedded
 js/home.js           Homepage rows, poll, trivia, discussions tabs, login note
 js/home-live.js      The homepage TV: real on-air show for the current moment, knobs, UP NEXT
 assets/fonts/        Self-hosted fonts (woff2 + licences)
 assets/ui/           Logo, CRT frame (crt.svg), tab and section icons (ui/icons), decor, mascot
-assets/photos|wallpapers|games/   Original artwork for the gallery, wallpapers and game cards
+assets/photos|wallpapers|games/   Original artwork for the gallery, wallpapers and the old prototype
 
 tv.html              Live TV page
 css/tv.css           TV page styling
@@ -399,9 +409,39 @@ ICC) turned out, on the first search pass, to mostly return reupload or
 unrelated channels. Their real RSS feeds are what turned up the entries that
 actually ship in this repo.
 
-## The Arcade game
+## The Arcade (`arcade.html`, `game.html`)
 
-The Arcade section is an **original HTML5 `<canvas>` dodge-the-obstacle
+The 90s Rewind Arcade lists 40 classic games and says honestly where each can be played.
+It hosts no game files: no ROMs, BIOS files, clones or remakes, and no links to ROM sites.
+
+**Three play modes** (the `status` of a game in `js/arcade-data.js`):
+
+| status | what the visitor sees | needs |
+|---|---|---|
+| `website` | the game inside our game page (lazy-loaded, sandboxed iframe, Fullscreen, Restart) | an https `embedUrl` AND the owner's explicit embedding permission, with evidence in `embedding` |
+| `official` | a Play Now button that opens the owner's own page in a new tab, with the source named | an https `sourceUrl` on a verified host |
+| `soon` | "Coming soon". No Play button, no link | nothing |
+
+Today 4 games are `official` (Tetris, Pac-Man via Google's Doodle, Space Invaders via Taito, Street Fighter II via Capcom Town),
+none is `website`, and 36 are `soon`. The research is in `docs/arcade-research.md`.
+
+**Add a game:** add one object to `ARCADE_RAW` in `js/arcade-data.js` (copy a neighbour). Only the fields that differ from the
+"Coming soon" defaults are needed. Nothing else changes: the cards, search, filters, game page and homepage row all read that file.
+
+**Move a game to a better status:** verify it first (open the page, read its Terms, read its `X-Frame-Options` and
+`frame-ancestors` headers), then fill `sourceUrl`/`embedUrl`, the four permission fields, `notes` and `verified`.
+`tests/arcade-test.js` refuses an `official` or `website` game whose host is not in its `VERIFIED_HOSTS` list: add the host
+there as part of the same change, so the check is a deliberate step. It also refuses a Coming Soon game that has any link.
+
+The four permissions are kept apart on every game page: **A** software licence, **B** game content rights,
+**C** embedding permission, **D** commercial use. One does not imply another. "Unknown" means "could not confirm", not "allowed".
+
+Thumbnails are our own neutral art (`assets/arcade/`, one per genre), not publisher artwork, because we hold no artwork rights.
+Recently Played is kept in this browser's `localStorage` only. "Popular Games" is an editorial list (`popular` rank), not visit counts.
+
+## The old prototype's game (`index.html`)
+
+The old prototype page has an **original HTML5 `<canvas>` dodge-the-obstacle
 runner**, written from scratch in `js/app.js` (see `initArcade()`). It uses
 no game assets, ROMs, or emulator — just canvas shapes — so it carries zero
 third-party IP risk. Deliberately, this project does **not** build or embed

@@ -3,7 +3,7 @@
    One list of everything watchable or playable, built from the data files:
      js/content.js     movies, ads, songs, cricket, WWF and other videos (+ which shows are featured)
      js/tv-library.js  every TV show and cartoon (through TV_SHOWS, built by js/tv-config.js)
-     js/games-data.js  the games
+     js/arcade-data.js the Arcade games (ARCADE_GAMES)
    Category pages, search and the homepage rows all read this, so a new line in a data
    file appears everywhere. Nothing here draws anything.
 
@@ -21,7 +21,7 @@
 (function () {
   'use strict';
   var CATS = (window.CATEGORIES || []).slice();
-  var GAMES_CAT = { id: 'games', label: 'Games', icon: 'games', sec: 'sec-games', long: 'Play 90s Games Online', blurb: 'Original browser games in the old arcade spirit.' };
+  var GAMES_CAT = { id: 'games', label: 'Games', icon: 'games', sec: 'sec-games', long: '90s Rewind Arcade', blurb: 'Your childhood games are back. Play them again!' };
   var cats = CATS.concat([GAMES_CAT]);
   var catBy = {}; cats.forEach(function (c) { catBy[c.id] = c; });
   var NETNAME = {}; (window.TV_NETS || []).forEach(function (n) { NETNAME[n.id] = n.name; });
@@ -78,12 +78,14 @@
     });
   });
 
-  /* ---- 3. games ---- */
-  (window.GAMES || []).forEach(function (g, gi) {
+  /* ---- 3. the Arcade games (every status links to the game's own page, game.html?id=...) ---- */
+  var ST = window.ARCADE_STATUS || {};
+  (window.ARCADE_GAMES || []).forEach(function (g, gi) {
+    var st = ST[g.status] || { label: g.status, short: g.status };
     items.push({
-      id: uid('games-' + g.id), cat: 'games', catLabel: 'Games', title: g.title, short: '', sub: g.ready ? 'Play now' : 'Coming soon', credit: g.credit || 'Original game',
-      kind: '', desc: g.desc || '', year: 0, featured: !!g.featured, official: true, thumb: '', img: g.img || '', c: g.c || '', dark: !!g.dark,
-      open: g.ready ? { type: 'href', value: g.href || 'games.html#' + g.id } : { type: 'soon', value: g.title }, order: 200000 + gi
+      id: uid('games-' + g.id), cat: 'games', catLabel: 'Games', title: g.title, short: '', sub: [g.yearLabel, g.platform].filter(Boolean).join(' · '), credit: st.label,
+      kind: g.genre, desc: g.description || '', year: g.year || 0, featured: !!g.featured, official: g.status !== 'soon', thumb: '', img: g.thumb || '', c: '', dark: false,
+      badge: st.short, open: { type: 'href', value: 'game.html?id=' + encodeURIComponent(g.id) }, order: g.featured ? 200000 + g.featured : 300000 + gi
     });
   });
 

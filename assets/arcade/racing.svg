@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240" role="img" aria-label="racing placeholder artwork">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb21f"/><stop offset="1" stop-color="#f46a0c"/></linearGradient></defs>
+<rect width="320" height="240" fill="url(#g)"/>
+<g opacity=".18" fill="#fff"><rect x="0" y="30" width="320" height="2"/><rect x="0" y="90" width="320" height="2"/><rect x="0" y="150" width="320" height="2"/><rect x="0" y="210" width="320" height="2"/></g>
+
+<polygon points="110,70 210,70 320,240 0,240" fill="#2a2140" stroke="#1a0f2e" stroke-width="4"/>
+<polygon points="156,70 164,70 170,240 150,240" fill="#fff6c8"/>
+<polygon points="156,120 164,120 166,150 154,150" fill="#2a2140"/>
+<rect x="0" y="70" width="110" height="8" fill="#8ee33a"/><rect x="210" y="70" width="110" height="8" fill="#8ee33a"/>
+<g stroke="#1a0f2e" stroke-width="4" stroke-linejoin="round"><rect x="126" y="150" width="68" height="34" rx="10" fill="#e8222f"/><rect x="138" y="136" width="44" height="22" rx="8" fill="#ffe81a"/><rect x="120" y="178" width="16" height="22" rx="4" fill="#1a0f2e"/><rect x="184" y="178" width="16" height="22" rx="4" fill="#1a0f2e"/></g>
+<circle cx="266" cy="36" r="18" fill="#fff6c8" stroke="#1a0f2e" stroke-width="4"/>
+</svg>

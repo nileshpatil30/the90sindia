@@ -61,7 +61,7 @@ var HOME = {
     { label: 'TV Shows', href: 'browse.html?cat=tv', icon: 'tv',       c1: '#d9a6ff', c2: '#b980f0' },
     { label: 'Movies',   href: 'browse.html?cat=movies', icon: 'movies',   c1: '#e8f67a', c2: '#c9e83c' },
     { label: 'Ads',      href: 'browse.html?cat=ads', icon: 'ads',      c1: '#ffc2a8', c2: '#ff9d7d' },
-    { label: 'Games',    href: 'games.html', icon: 'games',    c1: '#8fe3ff', c2: '#52c8f2' },
+    { label: 'Games',    href: 'arcade.html', icon: 'games',    c1: '#8fe3ff', c2: '#52c8f2' },
     { label: 'Songs',    href: 'browse.html?cat=songs', icon: 'songs',    c1: '#ffb0ea', c2: '#ff86d8' },
     { label: 'Cricket',  href: 'browse.html?cat=cricket', icon: 'cricket',  c1: '#e2f27e', c2: '#bfe040' },
     { label: 'WWF',      href: 'browse.html?cat=wwf', icon: 'wwf',      c1: '#ffc2a8', c2: '#ff9d7d' },

@@ -51,7 +51,7 @@ var NAV = [
   { label: 'TV Shows',  href: 'browse.html?cat=tv',        icon: 'tv',        color: '#4fd2ff', id: 'tv' },
   { label: 'Movies',    href: 'browse.html?cat=movies',    icon: 'movies',    color: '#ff6fd0', id: 'movies' },
   { label: 'Ads',       href: 'browse.html?cat=ads',       icon: 'ads',       color: '#ffb21f', id: 'ads' },
-  { label: 'Games',     href: 'games.html',                icon: 'games',     color: '#8ee33a', id: 'games' },
+  { label: 'Games',     href: 'arcade.html',                icon: 'games',     color: '#8ee33a', id: 'games' },
   { label: 'Songs',     href: 'browse.html?cat=songs',     icon: 'songs',     color: '#a878f0', id: 'songs' },
   { label: 'Cricket',   href: 'browse.html?cat=cricket',   icon: 'cricket',   color: '#ffa31a', id: 'cricket' },
   { label: 'WWF',       href: 'browse.html?cat=wwf',       icon: 'wwf',       color: '#ff74cf', id: 'wwf' },
