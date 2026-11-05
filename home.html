@@ -8,40 +8,13 @@
 <link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/home.css">
 </head>
-<body>
+<body data-page="home">
 <a class="skip" href="#main">Skip to content</a>
 
-<!-- ======================= HEADER ======================= -->
-<header class="hd" id="top">
-  <div class="hd-in">
-    <a class="hd-logo" href="home.html" aria-label="90s Rewind TV, home"><img src="assets/ui/logo.svg" alt="90s Rewind TV" width="280" height="219"></a>
-    <p class="hd-tag">India's<br>90s Nostalgia<br>Hangout!</p>
-    <img class="hd-vhs" src="assets/ui/vhs.svg" alt="" width="118" height="84">
-    <p class="hd-banner">TV Shows • Movies • Ads • Games • Songs • Cricket • WWF<br>&amp; Everything 90s!</p>
-    <img class="hd-cola" src="assets/ui/cola.svg" alt="" width="44" height="112">
-    <img class="hd-cube" src="assets/ui/rubik.svg" alt="" width="76" height="76">
-    <a class="btn hd-login" href="#login"><img src="assets/ui/icons/user.svg" alt="" width="26" height="26"><span>Login / Join</span></a>
-    <nav class="tabs" id="tabs" aria-label="Main sections"></nav>
-  </div>
-</header>
-
-<!-- ======================= WHAT'S NEW + SEARCH ======================= -->
-<div class="bar">
-  <div class="bar-in">
-    <span class="new-pill"><b aria-hidden="true">»</b> What's New?</span>
-    <div class="ticker" aria-label="What's new">
-      <svg class="ticker-star" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,1.5 15,8.6 22.5,9.3 16.8,14.3 18.6,21.8 12,17.8 5.4,21.8 7.2,14.3 1.5,9.3 9,8.6" fill="#ff2a3a" stroke="#1a0f2e" stroke-width="1.6" stroke-linejoin="round"/></svg>
-      <div class="ticker-items" id="ticker"></div>
-      <button class="ticker-next" id="ticker-next" type="button" aria-label="Next headline">»</button>
-    </div>
-    <form class="search" id="search" role="search" autocomplete="off">
-      <img src="assets/ui/icons/search.svg" alt="" width="22" height="22">
-      <input id="q" type="search" placeholder="Search shows, movies, ads, games.." aria-label="Search shows, movies, ads, games" list="q-list">
-      <datalist id="q-list"></datalist>
-      <button class="btn" type="submit">Go</button>
-    </form>
-  </div>
-</div>
+<!-- header, tabs, What's New ticker and search come from js/site.js (shared by every page) -->
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
 
 <main id="main" class="page">
 
@@ -130,7 +103,7 @@
       </section>
 
       <section class="panel browse" aria-labelledby="h-browse">
-        <header class="browse-h"><h2 id="h-browse"><i aria-hidden="true"></i>Browse 90s Entertainment</h2><a href="tv.html#all-shows">View All »</a></header>
+        <header class="browse-h"><h2 id="h-browse"><i aria-hidden="true"></i>Browse 90s Entertainment</h2><a href="browse.html">View All »</a></header>
         <div class="tiles" id="tiles"></div>
       </section>
     </div>
@@ -141,7 +114,7 @@
         <header class="panel-h"><img src="assets/ui/icons/gallery.svg" alt="" width="40" height="40"><h2 id="h-gal">90s Photo Gallery</h2></header>
         <div class="panel-b">
           <div class="gal" id="gal"></div>
-          <a class="btn" href="#photos">More Photos »</a>
+          <a class="btn" href="gallery.html">More Photos »</a>
         </div>
       </section>
 
@@ -151,7 +124,7 @@
           <ul class="disc" id="disc"></ul>
           <div class="disc-foot">
             <div class="seg" role="tablist" aria-label="Discussions"><button type="button" role="tab" aria-selected="true" data-tab="top">Top</button><button type="button" role="tab" aria-selected="false" data-tab="new">New</button><button type="button" role="tab" aria-selected="false" data-tab="chat">Chat</button></div>
-            <a class="btn" href="#community">More Discussions »</a>
+            <a class="btn" href="community.html#forum">More Discussions »</a>
           </div>
         </div>
       </section>
@@ -162,51 +135,51 @@
   <div class="rows">
 
     <section class="sec" id="tv-shows" aria-labelledby="h-tv">
-      <header class="sec-h"><img src="assets/ui/icons/sec-star.svg" alt="" width="40" height="40"><h2 id="h-tv">Popular TV Shows</h2><a href="tv.html#all-shows">View All »</a></header>
+      <header class="sec-h"><img src="assets/ui/icons/sec-star.svg" alt="" width="40" height="40"><h2 id="h-tv">Popular TV Shows</h2><a href="browse.html?cat=tv">View All »</a></header>
       <div class="sec-b"><div class="cards" id="g-tv"></div></div>
     </section>
 
     <section class="sec" id="movies" aria-labelledby="h-mov">
-      <header class="sec-h"><img src="assets/ui/icons/sec-movies.svg" alt="" width="40" height="40"><h2 id="h-mov">90s Movies</h2><a href="tv.html#all-shows">View All »</a></header>
+      <header class="sec-h"><img src="assets/ui/icons/sec-movies.svg" alt="" width="40" height="40"><h2 id="h-mov">90s Movies</h2><a href="browse.html?cat=movies">View All »</a></header>
       <div class="sec-b"><div class="cards" id="g-movies"></div></div>
     </section>
 
     <section class="sec" id="ads" aria-labelledby="h-ads">
-      <header class="sec-h"><img src="assets/ui/icons/sec-ads.svg" alt="" width="40" height="40"><h2 id="h-ads">Classic Ads <em>&amp; Commercials</em></h2><a href="tv.html#kind=ads">View All »</a></header>
+      <header class="sec-h"><img src="assets/ui/icons/sec-ads.svg" alt="" width="40" height="40"><h2 id="h-ads">Classic Ads <em>&amp; Commercials</em></h2><a href="browse.html?cat=ads">View All »</a></header>
       <div class="sec-b"><div class="cards" id="g-ads"></div></div>
     </section>
 
     <section class="sec" id="games" aria-labelledby="h-games">
-      <header class="sec-h"><img src="assets/ui/icons/sec-games.svg" alt="" width="40" height="40"><h2 id="h-games">Play 90s Games Online</h2><a href="index.html#arcade">View All »</a></header>
+      <header class="sec-h"><img src="assets/ui/icons/sec-games.svg" alt="" width="40" height="40"><h2 id="h-games">Play 90s Games Online</h2><a href="games.html">View All »</a></header>
       <div class="sec-b"><div class="cards" id="g-games"></div></div>
     </section>
 
     <section class="sec" id="songs" aria-labelledby="h-songs">
-      <header class="sec-h"><img src="assets/ui/icons/sec-songs.svg" alt="" width="38" height="38"><h2 id="h-songs">Songs of the 90s</h2><a href="index.html#hit-parade">View All »</a></header>
+      <header class="sec-h"><img src="assets/ui/icons/sec-songs.svg" alt="" width="38" height="38"><h2 id="h-songs">Songs of the 90s</h2><a href="browse.html?cat=songs">View All »</a></header>
       <div class="sec-b"><div class="wides w3" id="g-songs"></div></div>
     </section>
 
     <section class="sec" id="cricket" aria-labelledby="h-cric">
-      <header class="sec-h"><img src="assets/ui/icons/sec-cricket.svg" alt="" width="38" height="38"><h2 id="h-cric">Cricket Classics</h2><a href="tv.html#kind=sports">View All »</a></header>
+      <header class="sec-h"><img src="assets/ui/icons/sec-cricket.svg" alt="" width="38" height="38"><h2 id="h-cric">Cricket Classics</h2><a href="browse.html?cat=cricket">View All »</a></header>
       <div class="sec-b"><div class="wides w2" id="g-cricket"></div></div>
     </section>
 
     <div class="row3">
       <section class="sec sec-wwf" id="wwf" aria-labelledby="h-wwf">
-        <header class="sec-h"><img src="assets/ui/icons/sec-wwf.svg" alt="" width="40" height="40"><h2 id="h-wwf">WWE/WWF 90s</h2><a href="tv.html#kind=sports">View All »</a></header>
+        <header class="sec-h"><img src="assets/ui/icons/sec-wwf.svg" alt="" width="40" height="40"><h2 id="h-wwf">WWE/WWF 90s</h2><a href="browse.html?cat=wwf">View All »</a></header>
         <div class="sec-b sec-b-pink"><div class="wrest" id="g-wwf"></div></div>
       </section>
 
       <section class="sec sec-paper" id="photos" aria-labelledby="h-photos">
-        <header class="sec-h"><img src="assets/ui/icons/sec-photos.svg" alt="" width="40" height="40"><h2 id="h-photos">90s Photos &amp; Wallpapers</h2><a href="#photos">View All »</a></header>
+        <header class="sec-h"><img src="assets/ui/icons/sec-photos.svg" alt="" width="40" height="40"><h2 id="h-photos">90s Photos &amp; Wallpapers</h2><a href="gallery.html">View All »</a></header>
         <div class="sec-b sec-b-paper"><div class="walls" id="g-walls"></div></div>
       </section>
 
       <section class="sec sec-paper" id="community" aria-labelledby="h-comm">
-        <header class="sec-h"><img src="assets/ui/icons/sec-people.svg" alt="" width="42" height="42"><h2 id="h-comm">Community Corner</h2><a href="#community">View All »</a></header>
+        <header class="sec-h"><img src="assets/ui/icons/sec-people.svg" alt="" width="42" height="42"><h2 id="h-comm">Community Corner</h2><a href="community.html">View All »</a></header>
         <div class="sec-b sec-b-paper">
           <ul class="comm" id="comm"></ul>
-          <a class="btn btn-wide" href="#community" id="go-forum">Go to Forum »</a>
+          <a class="btn btn-wide" href="community.html#forum" id="go-forum">Go to Forum »</a>
         </div>
       </section>
     </div>
@@ -219,28 +192,8 @@
   </section>
 </main>
 
-<!-- ======================= FOOTER ======================= -->
-<footer class="ft">
-  <img class="ft-zig ft-zig-l" src="assets/ui/zig-lime.svg" alt="" width="72" height="75">
-  <img class="ft-zig ft-zig-r" src="assets/ui/zig-pink.svg" alt="" width="72" height="75">
-  <div class="ft-art ft-art-l"><img class="ft-cass" src="assets/ui/cassette.svg" alt="" width="216" height="147"><img class="ft-ear" src="assets/ui/earbuds.svg" alt="" width="86" height="76"></div>
-  <div class="ft-mid">
-    <img class="ft-word" src="assets/ui/wordmark.svg" alt="90s Rewind TV" height="66">
-    <p class="ft-tag">Relive the TV, Movies, Ads, Games, Songs and Moments of the 90s!</p>
-    <nav class="ft-links" aria-label="Footer"><a href="#community">About</a><a href="#community">Submit Playlist</a><a href="#community">Community Guidelines</a><a href="#community">Contact</a></nav>
-  </div>
-  <div class="ft-art ft-art-r"><img class="ft-stack" src="assets/ui/vhs-stack.svg" alt="" width="190" height="167"><img class="ft-cube" src="assets/ui/rubik.svg" alt="" width="92" height="92"></div>
-</footer>
-
-<!-- ======================= VIDEO POP-UP (YouTube's own player, nothing drawn over it) ======================= -->
-<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="m-title">
-  <div class="modal-box">
-    <header class="modal-h"><h3 id="m-title">Now playing</h3><button class="modal-x" id="m-close" type="button" aria-label="Close video">✕</button></header>
-    <div class="modal-v"><div id="m-yt"></div></div>
-    <p class="modal-s" id="m-sub"></p>
-  </div>
-</div>
-<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<!-- footer, video/picture pop-up and message toast come from js/site.js -->
+<div id="site-bottom"></div>
 
 <!-- live TV engine + the same timetable data the TV page uses -->
 <script src="js/tv-episodes.js"></script>
@@ -250,6 +203,9 @@
 <script src="js/tv-schedule.js"></script>
 <script src="js/tv-config.js"></script>
 <script src="js/tv-engine.js"></script>
+<script src="js/tv-thumbs.js"></script>
+<script src="js/games-data.js"></script>
+<script src="js/catalogue.js"></script>
 <!-- page content + behaviour -->
 <script src="js/home-data.js"></script>
 <script src="js/home.js"></script>

@@ -29,17 +29,25 @@ all artwork are local files in `assets/`, so the page loads nothing else from ou
 Tests (Node; the browser one needs Playwright):
 
 ```
-node tests/schedule-test.js                      # 1212 checks on the timetable data, no browser
+node tests/schedule-test.js                      # 1270 checks on the timetable data, no browser
+node tests/content-test.js                       # the content file, catalogue, search and add-content tool, no browser
 node tests/tv-smoke.js                           # Live TV in a headless browser, YouTube stubbed
+node tests/site-smoke.js                         # homepage shell: tabs, pop-up, picture zoom, search drop-down
 ```
 
 ## File structure
 
 ```
-home.html            Homepage (markup only; every card is filled in from js/home-data.js)
+home.html            Homepage (markup only; the rows are filled in from js/content.js via js/catalogue.js)
 css/home.css         Homepage styling (desktop-first at 1440; breakpoints 1260 / 1100 / 760)
-js/home-data.js      ALL homepage content: tabs, ticker, tiles, every card row, discussions, goodies
-js/home.js           Homepage rendering, poll, trivia, search, discussions tabs, popup player
+js/content.js        THE CONTENT FILE: categories, tabs, ticker and every video (see below)
+js/catalogue.js      Merges content.js + the TV shows + games into one searchable catalogue
+js/site.js           Shared shell: header, tabs, ticker, search drop-down, pop-up player, footer
+js/tv-thumbs.js      Picture (first video id) for each playlist show
+js/games-data.js     The games list (placeholder until the Arcade)
+js/home-data.js      Homepage-only panels: poll, trivia, photo strip, discussions, tiles, goodies
+tools/add-content.js Adds a video or playlist to content.js after checking it can be embedded
+js/home.js           Homepage rows, poll, trivia, discussions tabs, login note
 js/home-live.js      The homepage TV: real on-air show for the current moment, knobs, UP NEXT
 assets/fonts/        Self-hosted fonts (woff2 + licences)
 assets/ui/           Logo, CRT frame (crt.svg), tab and section icons (ui/icons), decor, mascot
@@ -68,12 +76,10 @@ A dense 1999 to 2003 style portal: cream page, purple section headers, lime tick
 bar, orange CRT with ON AIR and UP NEXT, Browse tiles, and rows of cards. Plain
 HTML, CSS and vanilla JS. Content is kept apart from presentation.
 
-- **Edit content in `js/home-data.js`** (the `HOME` object): ticker items, nav tabs,
-  the Browse tiles, the poll, trivia, and every card row (`tv`, `movies`, `ads`,
-  `games`, `songs`, `cricket`, `wwf`, `walls`, `gallery`, `discussions`, `goodies`).
-  A card is `{ title, sub, credit, yt }` (a YouTube ID; the thumbnail comes from
-  YouTube), or `{ show: 'Title' }` (opens that show in ALL SHOWS), `{ img }` (opens a
-  large picture), `{ href }` (a link) or `{ soon: true }` (a dimmed "coming soon" card).
+- **Edit content in `js/content.js`** (see "The content system" below): the video rows
+  on the homepage, the tabs along the top and the What's New ticker all come from it.
+  `js/home-data.js` now only holds what belongs to the homepage panels (poll, trivia,
+  photo strip, sample discussions, Browse tiles, wallpapers, goodies strip).
 - **The CRT** is a separate frame image (`assets/ui/crt.svg`) laid over a transparent
   screen opening, with the real YouTube player behind it. The top knob changes channel,
   the lower knob turns sound on (video starts muted because browsers block autoplay with
@@ -92,6 +98,44 @@ HTML, CSS and vanilla JS. Content is kept apart from presentation.
   game cards are marked "soon".
 - The page follows the mockup, which is a light cream page. A deep-purple page background
   was also asked for; it is a small CSS variable change if you want it.
+
+## The content system (`js/content.js`)
+
+One file lists everything you can watch, apart from the TV timetable (which has its own
+two files and is not touched by this). Add a line, reload: it appears on its category page,
+in search, and on the homepage row if it has `featured: true`.
+
+```js
+{ cat: 'songs', title: 'Pehla Nasha', sub: 'Jo Jeeta Wohi Sikandar', credit: 'Saregama', official: true,
+  yt: 'iSUK1QoK9-E', year: 1992, featured: true }
+```
+
+- **Categories:** `tv movies ads songs cricket wwf cartoons other`.
+- **What it can open:** `yt` (one video), `playlist` (a whole playlist, YouTube plays the next
+  video itself), `show` (a show from the TV library), `href` (a page), `img` (a picture).
+- **Fields:** title, thumbnail (`thumb` = a video id; defaults to the video itself), video id,
+  playlist id, category, description (`desc`), year, featured.
+- **TV shows and cartoons** are not listed in content.js: they are the 163 shows of the ALL SHOWS
+  player, picked up automatically. Entries with `show:` only choose which are featured.
+- **`js/catalogue.js`** merges content.js, the TV shows and the games into one searchable list.
+  Pages read that, never the data files directly.
+- **`js/site.js`** is the shared shell: header, tabs, ticker, footer, search box with its drop-down,
+  the pop-up player and the card builders. A page opts in with `<body data-page="...">`.
+
+### Adding a video or playlist the easy way
+
+```
+node tools/add-content.js "https://www.youtube.com/watch?v=VIDEO_ID" --cat songs --write
+node tools/add-content.js PLAYLIST_ID --cat tv --featured
+```
+
+It asks YouTube whether the video may be embedded (oEmbed), reads the title and channel, and
+prints the line (or, with `--write`, inserts it in the right place in content.js). It refuses
+videos that cannot be embedded. **No API key is needed.** If you want descriptions too, set
+`YT_API_KEY` in your own terminal when you run it. The key is never put in the website.
+
+If a video is taken down, the card still shows with a plain colour block, and YouTube's
+own player shows its own "unavailable" message. Nothing breaks.
 
 ## The original page (`index.html`): add content in `js/config.js`
 
