@@ -100,8 +100,9 @@
   function episodeIdx(entry, weekIndex) {
     var eps = entry.ref.episodes || [];
     if (!eps.length) return -1;
-    if (entry.ref.startDate) return Math.max(0, weekIndex - weekOfDate(entry.ref.startDate)) % eps.length;
-    return mod(weekIndex, eps.length);
+    var off = entry.ref.epOffset || 0;          // lets one show fill several slots with different episodes
+    if (entry.ref.startDate) return (Math.max(0, weekIndex - weekOfDate(entry.ref.startDate)) + off) % eps.length;
+    return mod(weekIndex + off, eps.length);
   }
   function episodeFor(entry, weekIndex) {
     var i = episodeIdx(entry, weekIndex);

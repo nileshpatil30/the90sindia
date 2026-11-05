@@ -101,6 +101,37 @@ const TV_ADS = [
 // Doordarshan switched off at night: a test card shows in this window.
 const DD_CLOSEDOWN = { from: '23:30', to: '06:30', label: 'Transmission has ended for the day' };
 
+// Rewind Mix: a fixed weekly grid (09:00-23:00 every day) built from js/tv-library.js.
+// Same every week, shuffled with a fixed seed, so the timetable never changes
+// unless you change the library. A show that appears several times a week plays
+// consecutive episodes (epOffset).
+function mixSlots() {
+  var lib = (typeof TV_LIBRARY !== 'undefined') ? TV_LIBRARY : [];
+  if (!lib.length) return [{ day: 'daily', time: '09:00', duration: 30, title: 'Rewind Mix', episodes: [] }];
+  var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], used = {}, out = [];
+  function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hm(t) { return ('0' + Math.floor(t / 60)).slice(-2) + ':' + ('0' + (t % 60)).slice(-2); }
+  days.forEach(function (d, di) {
+    var r = rng(1990 + di * 77), order = lib.slice(), i, j, x;
+    for (i = order.length - 1; i > 0; i--) { j = Math.floor(r() * (i + 1)); x = order[i]; order[i] = order[j]; order[j] = x; }
+    var t = 9 * 60, k = 0, guard = 0;
+    while (t < 23 * 60 && guard++ < 200) {
+      var sh = null, dur = 0, tries = 0;
+      while (tries++ < order.length) {
+        var c = order[k++ % order.length], dd = Math.ceil((c.min + 3) / 30) * 30;
+        if (t + dd <= 23 * 60) { sh = c; dur = dd; break; }
+      }
+      if (!sh) break;
+      var n = used[sh.title] || 0; used[sh.title] = n + 1;
+      out.push({ day: d, time: hm(t), duration: dur, title: sh.title, episodes: [], playlist: sh.playlist,
+        epNums: false, startDate: '2026-11-08', epOffset: n,
+        source: 'Rewind Mix: auto-scheduled from the show library' + (sh.official ? ' (official channel)' : ' (community upload)') });
+      t += dur;
+    }
+  });
+  return out;
+}
+
 const TV_CHANNELS = [
   {
     num: '01',
@@ -115,8 +146,10 @@ const TV_CHANNELS = [
         confidence: 'recalled', source: 'Sunday morning + 35-min episodes verified; 9:30 start recalled (one reader remembers 9:00). Slot is 40 min because the Tilak uploads run 32-40 min. Episodes 1-78 in order, one a week from 8 Nov 2026.' },
       { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
+      { day: 'Sat', time: '10:00', duration: 30, title: 'Malgudi Days', episodes: [], playlist: 'PLJHHPzufWhuqBnKn6h_kjtMzjjE3YjLWZ', epNums: false, startDate: '2026-11-08',
+        confidence: 'recalled', source: '"Every Saturday morning at 10am" (Caleidoscope nostalgia article); videos: community upload' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
-        confidence: 'approx', source: 'Weekly Hindi film on Sunday evening is verified; clock time is a placeholder' }
+        confidence: 'approx', source: 'Weekly Hindi film on Sunday evening is verified; clock time is a placeholder (one blog remembers a 4 pm Sunday matinee)' }
     ]
   },
   {
@@ -134,6 +167,8 @@ const TV_CHANNELS = [
         confidence: 'verified', source: 'Every Sunday for an hour (ThePrint); 9 am (reader memory)' },
       { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
+      { day: 'Sun', time: '18:00', duration: 30, title: 'Vikram Aur Betaal', episodes: [], playlist: 'PLFr_jkwUp0hjTXfIElDpIfgBYUwWhKnSn', epNums: false, startDate: '2026-11-08',
+        confidence: 'approx', source: '"Sunday evening" (nostalgia blog, no clock time); 6 pm is a placeholder; videos: Tilak community playlist' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
         confidence: 'approx', source: 'Sunday-evening Hindi film verified; clock time is a placeholder' }
     ]
@@ -153,6 +188,8 @@ const TV_CHANNELS = [
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'daily', time: '20:30', duration: 15, title: 'Hindi News (Samachar)', episodes: [],
         confidence: 'approx', source: '8:30 pm bulletin remembered in a reader comment (Ravish Kumar blog)' },
+      { day: 'Sun', time: '10:00', duration: 25, title: 'The Jungle Book (Mowgli, from 1 Nov 1992)', episodes: [],
+        confidence: 'recalled', source: 'Sundays 10:00 am, 1 Nov 1992 to 24 Oct 1993, 52 episodes (animemirchi.com fan guide); no embeddable upload found yet' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
         confidence: 'approx', source: 'Sunday-evening Hindi film verified; clock time is a placeholder' }
     ]
@@ -187,7 +224,7 @@ const TV_CHANNELS = [
     slots: [
       { day: ['Mon', 'Tue', 'Wed', 'Thu'], time: '21:00', duration: 60, title: 'Kaun Banega Crorepati (from 3 Jul 2000)', episodes: eps(EP_KBC), epNums: false,
         confidence: 'recalled', source: 'Launch date and evening start verified (IndianTelevision.com); days and clock time recalled' },
-      { day: ['Mon', 'Tue', 'Wed', 'Thu'], time: '22:30', duration: 30, title: 'Kyunki Saas Bhi Kabhi Bahu Thi (from 3 Jul 2000)', episodes: [],
+      { day: ['Mon', 'Tue', 'Wed', 'Thu'], time: '22:30', duration: 30, title: 'Kyunki Saas Bhi Kabhi Bahu Thi (from 3 Jul 2000)', episodes: [], playlist: 'PLuoC-UlfJhaccqey8VPVbbb1s8gTBw5zG', epNums: false, startDate: '2026-11-08',
         confidence: 'recalled', source: 'Launch date and evening start verified (IndianTelevision.com); days and clock time recalled' }
     ]
   },
@@ -215,6 +252,16 @@ const TV_CHANNELS = [
       });
       return out;
     })()
+  },
+  {
+    num: '90',
+    name: 'Rewind Mix',
+    era: '24/7',
+    tag: 'A different classic every half hour, auto-scheduled from the library',
+    tz: 330,
+    ads: TV_ADS,
+    closedown: { from: '23:00', to: '09:00', label: 'Rewind Mix signs off for the night. Back at 9 am IST' },
+    slots: mixSlots()
   },
   {
     num: '00',

@@ -86,7 +86,8 @@
   function applyPlaylist(id, ids) {
     if (!ids || !ids.length) return false;
     slotsWithPlaylist(id).forEach(function (s) { s.episodes = ids.map(function (v) { return { video: v }; }); });
-    S.key = null;
+    // only restart playback if the show on air just got its episodes
+    if (S.loc && S.loc.state === 'show' && S.loc.entry.ref.playlist === id) S.key = null;
     return true;
   }
   function cachedPlaylist(id) {
@@ -96,8 +97,17 @@
     } catch (e) { /* bad cache */ }
     return null;
   }
+  // Only the show on air and the next few are resolved, so a channel with
+  // hundreds of playlist slots stays fast.
   function wantPlaylists(ch) {
-    (ch.slots || []).forEach(function (s) {
+    var now = Date.now(), refs = [];
+    try {
+      var loc = E.locate(ch, now);
+      if (loc.state === 'show') refs.push(loc.entry.ref);
+      if (loc.next) refs.push(loc.next.entry.ref);
+      E.upcoming(ch, now, 4).forEach(function (u) { refs.push(u.entry.ref); });
+    } catch (e) { /* ignore */ }
+    refs.forEach(function (s) {
       if (!s.playlist || (s.episodes && s.episodes.length)) return;
       var c = cachedPlaylist(s.playlist);
       if (c) { applyPlaylist(s.playlist, c); return; }
@@ -181,6 +191,9 @@
     var ref = loc.entry.ref;
     if (mode === 'failed') {
       return { kicker: kicker, title: ref.title, line: 'This episode cannot play here right now. We will be right back.', badge: ref.confidence, next: next };
+    }
+    if ((!loc.episode || !loc.episode.video) && ref.playlist) {
+      return { kicker: 'NOW SHOWING  ·  ' + kicker, title: ref.title, line: 'Finding the episode…', badge: ref.confidence, next: next };
     }
     if (!loc.episode || !loc.episode.video) {
       return { kicker: 'ON AIR  ·  ' + kicker, title: ref.title, line: 'Tonight’s episode is coming soon.', badge: ref.confidence, next: next };
@@ -356,7 +369,7 @@
     el.clock.textContent = 'IST ' + fmtHMS(now, tz) +
       (new Date().getTimezoneOffset() !== -tz ? '  ·  your time ' + new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
 
-    if (loc.key !== S.key) { transition(loc, now); markGuide(loc); } else { maintain(loc, now); }
+    if (loc.key !== S.key) { transition(loc, now); markGuide(loc); wantPlaylists(ch); } else { maintain(loc, now); }
     renderNowNext(loc, now);
 
     if (!S.started) {

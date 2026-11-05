@@ -17,6 +17,7 @@ js/app.js          Rendering logic + the arcade game. Reads from config.js.
 tv.html            The live TV page (weekly timetable player)
 css/tv.css         TV page styling
 js/tv-episodes.js  Official episode lists, in episode order (Ramayan, Hum Paanch)
+js/tv-library.js   Show library: one line per show (title, playlist, minutes) feeds CH 90
 js/tv-config.js    THE TIMETABLE: channels (eras), weekly slots, episode IDs, ads
 js/tv-engine.js    Schedule maths (no DOM). Do not edit.
 js/tv.js           Player: YouTube embeds, commercial cards, guide
@@ -147,6 +148,16 @@ like:
 - Not scheduled with video: Mahabharat (Hindi uploads all block embedding; only a Tamil dub is
   embeddable), Kyunki (no 2000-era episodes found). They show title cards.
 - Every episode slot starts at Episode 1 on 8 Nov 2026, one new episode a week.
+
+**Rewind Mix (CH 90)** runs 9 am to 11 pm every day: a fixed weekly grid built
+automatically from `js/tv-library.js` (31 shows now). To add a show, add one line
+there (`{ title, playlist: 'PLxxxx', min: 22, official: false }`), nothing else.
+Library playlists were auto-found and spot-checked (embeddable); their order was
+not checked episode by episode, so they show no "Episode N".
+
+**New timetable slots from nostalgia blogs** (Nov 2026): Malgudi Days Sat 10 am,
+Vikram Aur Betaal Sunday evening (6 pm is a placeholder), The Jungle Book Sundays
+10 am from 1 Nov 1992 (no embeddable upload found yet).
 
 **Commercials**: add your own clips to `TV_ADS` (`video` = official ID,
 `duration` in seconds, must match the clip). They play in their own slots
