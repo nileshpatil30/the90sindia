@@ -68,7 +68,61 @@
   function tryStore(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
   function tryLoad(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function hasEpisodes(ch) {
-    return (ch.slots || []).some(function (s) { return s.episodes && s.episodes.length; });
+    return (ch.slots || []).some(function (s) { return (s.episodes && s.episodes.length) || s.playlist; });
+  }
+
+  /* ---------- playlists: paste ONE playlist ID, episodes fill themselves ----------
+     A slot may say  playlist: 'PLxxxx'  instead of listing episodes. The page asks
+     YouTube's own player for the playlist's video IDs (no API key needed) and
+     uses them, in order, one per week. The result is cached for a day. */
+  var PL_TTL = 24 * 3600 * 1000;
+  var PL = { queue: [], busy: null, timer: null, probe: null, ready: false };
+
+  function slotsWithPlaylist(id) {
+    var out = [];
+    CH.forEach(function (c) { (c.slots || []).forEach(function (s) { if (s.playlist === id && !(s.episodes && s.episodes.length)) out.push(s); }); });
+    return out;
+  }
+  function applyPlaylist(id, ids) {
+    if (!ids || !ids.length) return false;
+    slotsWithPlaylist(id).forEach(function (s) { s.episodes = ids.map(function (v) { return { video: v }; }); });
+    S.key = null;
+    return true;
+  }
+  function cachedPlaylist(id) {
+    try {
+      var o = JSON.parse(tryLoad('tv.pl.' + id) || 'null');
+      if (o && o.ids && o.ids.length && Date.now() - o.t < PL_TTL) return o.ids;
+    } catch (e) { /* bad cache */ }
+    return null;
+  }
+  function wantPlaylists(ch) {
+    (ch.slots || []).forEach(function (s) {
+      if (!s.playlist || (s.episodes && s.episodes.length)) return;
+      var c = cachedPlaylist(s.playlist);
+      if (c) { applyPlaylist(s.playlist, c); return; }
+      if (PL.queue.indexOf(s.playlist) < 0 && PL.busy !== s.playlist) PL.queue.push(s.playlist);
+    });
+    plNext();
+  }
+  function plNext() {
+    if (!PL.ready || PL.busy || !PL.queue.length) return;
+    PL.busy = PL.queue.shift();
+    try { PL.probe.cuePlaylist({ listType: 'playlist', list: PL.busy }); } catch (e) { plDone(null); return; }
+    PL.timer = setTimeout(function () { plDone(null); }, 10000);   // private/missing list: give up
+  }
+  function plDone(ids) {
+    clearTimeout(PL.timer);
+    var id = PL.busy; PL.busy = null;
+    if (id && ids && applyPlaylist(id, ids)) tryStore('tv.pl.' + id, JSON.stringify({ t: Date.now(), ids: ids }));
+    else if (id && window.console) console.warn('TV: could not read playlist ' + id);
+    plNext(); tick();
+  }
+  function onProbeState(st) {
+    if (st === 5 && PL.busy) {
+      var ids = null; try { ids = PL.probe.getPlaylist(); } catch (e) { /* ignore */ }
+      plDone(ids);
+    }
   }
 
   /* ---------- slate (title card / commercial card / test card) ---------- */
@@ -171,6 +225,13 @@
   function initPlayers() {
     S.main = makePlayer('yt-main', 'main');
     S.ad = makePlayer('yt-ad', 'ad');
+    PL.probe = new YT.Player('yt-probe', {
+      width: '200', height: '200',
+      events: {
+        onReady: function () { PL.ready = true; wantPlaylists(cur()); },
+        onStateChange: function (e) { onProbeState(e.data); }
+      }
+    });
   }
 
   function onPlayerReady() {
@@ -401,6 +462,7 @@
     tryStore('tv.ch', ch.num);
     try { history.replaceState(null, '', '#ch=' + ch.num); } catch (e) { /* file:// etc. */ }
     renderGuide();
+    wantPlaylists(ch);
     showSlate({ kicker: 'TUNING…', title: 'CH ' + ch.num, line: ch.name + ' ' + ch.era });
     if (changed) { flash(); osd('CH ' + ch.num + '  ' + ch.name); }
     tick();

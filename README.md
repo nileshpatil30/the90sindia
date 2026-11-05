@@ -123,6 +123,8 @@ like:
 ```
 
 - `day`: `Sun`..`Sat`, an array, or `daily` / `weekdays` / `weekend`.
+- `playlist`: easiest. Paste ONE official playlist ID (`playlist: 'PLxxxx'`)
+  and the page fills the episodes itself, one per week, in playlist order.
 - `episodes`: official YouTube IDs only. Week 1 plays the first, week 2 the
   second, and so on (one episode a week, like the real thing). Empty = title card.
 - If an episode ends before its slot, the rest fills with commercial cards.

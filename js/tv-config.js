@@ -15,6 +15,10 @@
 
      day       "Sun".."Sat", an array like ["Tue","Thu"], or "daily" /
                "weekdays" / "weekend"
+     playlist  EASIEST: paste ONE official YouTube playlist ID here instead of
+               listing episodes, e.g. playlist: "PLxxxxxxxxxxxx". The page reads
+               the video IDs from YouTube itself (cached a day) and plays one per
+               week, in playlist order. episodes, if given, wins over playlist.
      duration  whole MINUTES the slot is on air
      episodes  OFFICIAL YouTube video IDs only. Week 1 plays episodes[0],
                week 2 plays episodes[1], and so on, looping. Leave empty
