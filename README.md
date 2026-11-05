@@ -7,24 +7,93 @@ all in one Y2K-styled kids'-portal page.
 Plain HTML/CSS/JS. No npm, no build step, no framework. Upload the folder
 as-is to any static host.
 
+## Run it
+
+No install, no build. From this folder:
+
+```
+python3 -m http.server 8123
+```
+
+then open one of these in a browser:
+
+| URL | What it is |
+|---|---|
+| `http://localhost:8123/home.html` | **90s Rewind TV homepage** (the new portal, Phase 1) |
+| `http://localhost:8123/tv.html` | Live TV: 10 networks, 1984 to 2007, weekly timetables, ALL SHOWS |
+| `http://localhost:8123/index.html` | The original single-page site (unchanged) |
+
+Needs internet only for YouTube (the TV player and card thumbnails). Fonts and
+all artwork are local files in `assets/`, so the page loads nothing else from outside.
+
+Tests (Node; the browser one needs Playwright):
+
+```
+node tests/schedule-test.js                      # 1212 checks on the timetable data, no browser
+node tests/tv-smoke.js                           # Live TV in a headless browser, YouTube stubbed
+```
+
 ## File structure
 
 ```
-index.html        Page structure / markup for every section
-css/style.css      All styling (colors, fonts, layout, responsive rules)
-js/config.js       ALL CONTENT LIVES HERE — the only file you should need to edit
-js/app.js          Rendering logic + the arcade game. Reads from config.js.
-tv.html            The live TV page (weekly timetable player)
-css/tv.css         TV page styling
-js/tv-episodes.js  Official episode lists, in episode order (Ramayan, Hum Paanch)
-js/tv-library.js   Show library: one row per show (title, playlist OR video IDs, minutes) feeds CH 90
-js/tv-config.js    THE TIMETABLE: channels (eras), weekly slots, episode IDs, ads
-js/tv-engine.js    Schedule maths (no DOM). Do not edit.
-js/tv.js           Player: YouTube embeds, commercial cards, guide
-README.md          This file
+home.html            Homepage (markup only; every card is filled in from js/home-data.js)
+css/home.css         Homepage styling (desktop-first at 1440; breakpoints 1260 / 1100 / 760)
+js/home-data.js      ALL homepage content: tabs, ticker, tiles, every card row, discussions, goodies
+js/home.js           Homepage rendering, poll, trivia, search, discussions tabs, popup player
+js/home-live.js      The homepage TV: real on-air show for the current moment, knobs, UP NEXT
+assets/fonts/        Self-hosted fonts (woff2 + licences)
+assets/ui/           Logo, CRT frame (crt.svg), tab and section icons (ui/icons), decor, mascot
+assets/photos|wallpapers|games/   Original artwork for the gallery, wallpapers and game cards
+
+tv.html              Live TV page
+css/tv.css           TV page styling
+js/tv-schedule.js    THE TIMETABLE: one row per show per network (years, day, time, confidence, source)
+js/tv-library.js     Show library: one row per show (playlist OR single video IDs, real episode numbers)
+js/tv-episodes.js    Long hand-checked episode lists (Ramayan, Hum Paanch, Shaktimaan, Rangoli, ...)
+js/tv-mahabharat.js  Mahabharat episodes (Dailymotion IDs; 56 of 94 are embeddable)
+js/tv-ads.js         Ad breaks, idents and continuity recordings, per network
+js/tv-config.js      Builds every channel (network x year) from the files above. Rarely edited.
+js/tv-engine.js      Schedule maths (no DOM, IST). Do not edit.
+js/tv.js             Live TV player and guide
+js/tv-shows.js       ALL SHOWS: on-demand player, filters, deep links
+tests/               schedule-test.js, tv-smoke.js
+
+index.html           The original page (css/style.css, js/config.js, js/app.js)
+README.md            This file
 ```
 
-## Adding content — edit only `js/config.js`
+## The homepage (`home.html`)
+
+A dense 1999 to 2003 style portal: cream page, purple section headers, lime ticker
+bar, orange CRT with ON AIR and UP NEXT, Browse tiles, and rows of cards. Plain
+HTML, CSS and vanilla JS. Content is kept apart from presentation.
+
+- **Edit content in `js/home-data.js`** (the `HOME` object): ticker items, nav tabs,
+  the Browse tiles, the poll, trivia, and every card row (`tv`, `movies`, `ads`,
+  `games`, `songs`, `cricket`, `wwf`, `walls`, `gallery`, `discussions`, `goodies`).
+  A card is `{ title, sub, credit, yt }` (a YouTube ID; the thumbnail comes from
+  YouTube), or `{ show: 'Title' }` (opens that show in ALL SHOWS), `{ img }` (opens a
+  large picture), `{ href }` (a link) or `{ soon: true }` (a dimmed "coming soon" card).
+- **The CRT** is a separate frame image (`assets/ui/crt.svg`) laid over a transparent
+  screen opening, with the real YouTube player behind it. The top knob changes channel,
+  the lower knob turns sound on (video starts muted because browsers block autoplay with
+  sound). Nothing is ever drawn over the player. It runs the same IST timetable engine as
+  Live TV and tunes to a channel that has a real show on air right now (or, late at night
+  when nothing is, the channel that comes back soonest).
+- **Cards open a popup player** (nocookie YouTube embed, or a large image). The TV pauses
+  while it is open and resumes on close.
+- **Links into Live TV and ALL SHOWS** use the URL hash: `tv.html#show=Malgudi Days`,
+  `tv.html#kind=ads`, `tv.html#q=cricket`, `tv.html#guide`, `tv.html#all-shows`.
+- **Look-only parts, labelled on the page:** login, Top Discussions and the chat preview are
+  samples (no accounts, database or admin yet; that is a later phase). The poll and trivia
+  work in the visitor's own browser.
+- Movies play official clips (trailers, songs) from rights-holder channels; community
+  uploads are labelled as such. Only Rewind Runner is playable from the Games row; the other
+  game cards are marked "soon".
+- The page follows the mockup, which is a light cream page. A deep-purple page background
+  was also asked for; it is a small CSS variable change if you want it.
+
+## The original page (`index.html`): add content in `js/config.js`
 
 Every card, row and tab on the page is generated from arrays at the top of
 [`js/config.js`](js/config.js). You never need to touch `index.html` or
@@ -112,94 +181,82 @@ broken embed. That's intentional — better than shipping a dead or wrong
 video. Several entries ship this way on purpose (see the copyright section
 below for why).
 
-## Live TV (`tv.html`) — edit only `js/tv-config.js`
+## Live TV (`tv.html`)
 
-Each channel is one **era** (e.g. DD National 1987-88) with a fixed **weekly
-timetable**, India time (IST), the same instant for every viewer. A slot looks
-like:
+**10 networks, 1984 to 2007** (DD National, DD Metro, Zee TV, Home TV, Star Plus, Sony/SET,
+SAB, Cartoon Network, Star Sports, ESPN). Every network and year is its own channel, such
+as "DD National 1992" or "Zee TV 1997", with a fixed weekly timetable in India time (IST),
+the same instant for every viewer. Pick a network and a year in the guide; what is on air
+now plays from the right episode, one new episode a week, with ad breaks between shows.
+
+### The timetable: edit `js/tv-schedule.js`
+
+One row per show per network:
 
 ```js
-{ day: 'Sun', time: '09:00', duration: 60, title: 'Mahabharat',
-  episodes: [ { video: 'OFFICIAL_YT_ID' }, { video: 'ANOTHER_ID' } ],
-  confidence: 'verified', source: 'where the time came from' }
+{ net: 'ddn', from: 1987, to: 1988, show: 'Ramayan', day: 'Sun', time: '09:30', dur: 40,
+  conf: 'verified', src: 'where the time came from', eps: 'RAMAYAN' }
 ```
 
-- `day`: `Sun`..`Sat`, an array, or `daily` / `weekdays` / `weekend`.
-- `playlist`: easiest. Paste ONE official playlist ID (`playlist: 'PLxxxx'`)
-  and the page fills the episodes itself, one per week, in playlist order.
-- `startDate: 'YYYY-MM-DD'`: the week of this date plays `episodes[0]`, the next
-  week `episodes[1]`, and so on, **in list order (Episode 1, 2, 3...)**, then loops.
-- `epNums`: optional real episode numbers when the list skips some.
-- `episodes`: official YouTube IDs only. Week 1 plays the first, week 2 the
-  second, and so on (one episode a week, like the real thing). Empty = title card.
-- If an episode ends before its slot, the rest fills with commercial cards.
-- Between slots: commercial breaks (`TV_ADS`) or, on DD channels, a
-  closedown test card at night.
-- `confidence` shows a badge: `verified` (time found in a source), `recalled`
-  (widely remembered, confirm it), `approx` (placeholder time).
+`day` is `Sun`..`Sat`, an array, or `daily` / `weekdays` / `weekend`. A show on two days
+a week plays consecutive episodes. Every show starts at Episode 1 in the week of `TV_EPOCH`.
 
-**Already filled in (checked 5 Nov 2026, all embeddable, in episode order):**
-- Ramayan Ep 1-78 (Tilak, official), Hum Paanch Ep 1-183 minus 6 non-public (Zee TV, official),
-  Rangoli Ep 1-46 minus gaps (Doordarshan National, official), Cartoon Network India
-  30-min cartoons (official).
-- Shaktimaan Ep 1-235 minus 23 gaps (Ultra TV Series, community upload), KBC season 1 (3 clips)
-  and one Chitrahaar episode (community uploads). Community uploads can be removed by the
-  uploader at any time: re-check now and then.
-- Shri Krishna (Ramanand Sagar) Ep 1-221 minus 129 and 217 (Tilak, official), CH 04 Sundays.
-  The day and time are a placeholder: it is known to have run on DD Metro from 18 Jul 1993.
-- The Jungle Book (Hindi dub), 23 of 52 episodes (Sync, community upload), CH 03 Sundays 10 am.
-- Comedy Circus Ep 1-19 minus 3 (SET India, official), CH 07: launched 16 Jun 2007, Saturdays 9:30 pm.
-- Not scheduled with video: Mahabharat (Hindi uploads all block embedding; only a Tamil dub is
-  embeddable), Kyunki (no 2000-era episodes found). They show title cards.
-- Every episode slot starts at Episode 1 on 8 Nov 2026, one new episode a week.
+**Confidence tiers** (a badge on every slot in the guide):
 
-**Rewind Mix (CH 90)** runs 9 am to 11 pm every day: a fixed weekly grid built
-automatically from `js/tv-library.js` (47 shows now). Every show is on air 3 or 4
-times a week and each airing plays the NEXT episode, so nothing repeats until the
-whole list has been shown. To add a show, add one row there, nothing else:
+| Tier | Meaning | Count now |
+|---|---|---|
+| `verified` | a source states the day AND the time | 9 |
+| `recalled` | day and time are widely remembered, no printed source found | 11 |
+| `approx` | the show really ran on this network in these years; the day or clock time is a placeholder, shown as `~` | 83 |
+
+Old newspaper TV listings settle every `approx` at once: a phone photo of any week's
+listing is enough to fix the slots. Sources are listed at the top of `js/tv-schedule.js`.
+
+### Where the videos come from: `js/tv-library.js`
+
+One row per show, two kinds:
 
 ```js
-// a YouTube playlist
-{ title: 'Nukkad', playlist: 'PLxxxx', min: 24, official: false },
-// or single videos, in episode order, with their real episode numbers
-{ title: 'Fauji', min: 24, official: false,
+{ title: 'Nukkad', playlist: 'PLxxxx', min: 24, official: false, kind: 'drama' },   // a playlist
+{ title: 'Fauji', min: 24, official: false, kind: 'drama',                          // single videos
   nums: '1 2 3 4 5', episodes: 'id1 id2 id3 id4 id5' },
 ```
 
-Playlist rows were auto-found and spot-checked (embeddable); their order was not
-checked episode by episode, so they show no "Episode N". Single-video rows were
-checked one by one on 5 Nov 2026: embeddable, and the video title names the show
-and the episode number (wrong shows such as the Pakistani "Dastaan" and the 2021
-Wagle Ki Duniya remake were removed). Slots sit on a quarter-hour grid
-(episode length + 3 minutes of break). Single-video shows now in the library:
-Fauji (13), Buniyaad (42), Hum Log (52), Shrimaan Shrimati (62), Zee Horror Show (63),
-Swabhimaan (21), Tipu Sultan (40), Ek Tha Rusty (24), Surabhi (16), Office Office (61),
-Kabhi Yeh Kabhi Woh (27), Ulta Pulta (8), Idhar Udhar (20), Wagle Ki Duniya 1988 (11),
-Dekh Bhai Dekh (6), The Jungle Book (23), Shri Krishna (219), Comedy Circus (18),
-Kahani Comedy Circus Ki (29).
+`min` is the episode length in minutes, `official` is true only for the rights-holder's own
+channel, `kind` is the filter chip in ALL SHOWS, `net` and `years` list a show in ALL SHOWS
+before it has a timetable slot. `nums` are the real episode numbers, so skipped numbers stay
+skipped on screen. A playlist's IDs are read lazily by a hidden YouTube player and cached in
+the visitor's browser for 24 hours. Longer hand-checked lists live in `js/tv-episodes.js`.
 
-**New timetable slots from nostalgia blogs** (Nov 2026): Malgudi Days Sat 10 am,
-Vikram Aur Betaal Sunday evening (6 pm is a placeholder), The Jungle Book Sundays
-10 am from 1 Nov 1992.
+### Ad breaks and idents: `js/tv-ads.js`
 
-**Commercials**: add your own clips to `TV_ADS` (`video` = official ID,
-`duration` in seconds, must match the clip). They play in their own slots
-between shows. Nothing is ever drawn over a YouTube video or its ads.
+`TV_AD_PACKS` has one list per network: `{ title, sponsor, duration (seconds), video }`.
+They are recordings of real 90s breaks and idents, and only ever play in OUR gaps between
+shows, never over a show or over YouTube's own ads. A network with no pack shows a plain
+"commercial break" card.
 
-**Still unconfirmed** (not scheduled until a listing is found): Hum Log,
-Buniyaad, Malgudi Days, Nukkad, Fauji, Surabhi, Dekh Bhai Dekh, Superhit
-Muqabla, Byomkesh Bakshi, Saturday Suspense, Antakshari, Banegi Apni Baat,
-Vikram Aur Betaal, Alif Laila, WWF, cricket. They all play in the Rewind Mix
-(CH 90) when they have videos, just not at a fixed weekly time. Old newspaper
-TV listings are the best source. CH 00 is a working demo using open-licence
-Blender films; delete it when real content is in.
+### ALL SHOWS (on demand)
 
-**Videos that cannot be embedded** (the owner switched embedding off, YouTube
-answers 401 / "Video unavailable"): the whole "Dekh Bhai Dekh Official" channel
-(Ep 1-62), SRK's Circus on Prasar Bharati Archives, and the Hindi Mahabharat
-uploads. Only 6 full Dekh Bhai Dekh episodes (Ep 9-14, a community upload) can
-be embedded. Test any video: `https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=VIDEO_ID`
-must answer 200, not 401.
+Under the guide, every show we have (160 now), with filters by network and kind and a search
+box. A click opens it on its own player; Live TV pauses until it is closed. Episodes can be
+picked one by one. Ad recordings and idents are listed too.
+
+### Dailymotion
+
+Mahabharat (B.R. Chopra) has no official upload and the YouTube copies cannot be embedded, so
+its episodes play from Dailymotion (`js/tv-mahabharat.js`): 56 of the 94 episodes, checked
+with Dailymotion's own API. Missing numbers stay missing on screen.
+
+### What is not finished
+
+- Many Zee, Home TV and sports slots are `approx` (the `~` times).
+- Community uploads can be removed by the uploader at any time: if a show says "cannot play",
+  swap in another upload.
+- Videos whose owner switched embedding off (YouTube answers 401 / "Video unavailable")
+  cannot be used: the whole "Dekh Bhai Dekh Official" channel, SRK's Circus on Prasar Bharati
+  Archives, and the Hindi Mahabharat uploads. Test any video:
+  `https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=VIDEO_ID`
+  must answer 200, not 401.
 
 ## Getting a YouTube video ID or playlist ID
 
@@ -346,12 +403,12 @@ No build step — just upload the files:
 2. Open **`public_html`** (or the subfolder for your domain, if this site
    lives on a subdomain/addon domain).
 3. Upload everything **inside** the `the90sindia` folder — `index.html`,
-   `css/`, `js/`, `README.md` — so that `index.html` sits directly in
-   `public_html`, not nested inside another folder.
+   `home.html`, `tv.html`, `css/`, `js/`, `assets/` — so that `index.html` sits
+   directly in `public_html`, not nested inside another folder.
 4. Visit your domain. That's it — no install, no dependencies, no database.
 
-To update the live site later: edit `js/config.js` locally, then re-upload
-just that one file.
+To update the live site later: edit the data file you changed (`js/config.js`,
+`js/home-data.js`, `js/tv-schedule.js` ...) locally, then re-upload just that file.
 
 ## Browser support
 

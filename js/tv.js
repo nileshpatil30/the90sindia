@@ -664,7 +664,11 @@
     var ch = cur();
     S.net = ch.net; if (ch.net !== 'demo') S.year = ch.year;
     tryStore('tv.ch', ch.num);
-    try { history.replaceState(null, '', '#ch=' + ch.num); } catch (e) { /* file:// etc. */ }
+    // On the first tune keep a link such as #show=…, #kind=…, #q=… or #guide intact (js/tv-shows.js reads it).
+    if (S.hashKept || /^(#ch=[\w-]*)?$/.test(location.hash || '')) {
+      try { history.replaceState(null, '', '#ch=' + ch.num); } catch (e) { /* file:// etc. */ }
+    }
+    S.hashKept = true;
     renderGuide();
     markDial();
     renderOnAir(Date.now());
