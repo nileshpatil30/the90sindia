@@ -137,12 +137,16 @@ like:
 - `confidence` shows a badge: `verified` (time found in a source), `recalled`
   (widely remembered, confirm it), `approx` (placeholder time).
 
-**Already filled in (checked 5 Nov 2026, all embeddable):** Ramayan, episodes
-1-78 from the Tilak channel (Sunday, CH 01); Hum Paanch from Zee TV, episodes
-1-183 minus 9, 19, 21, 22, 52, 57 which are not public (Tuesday, CH 04).
-Both start with Episode 1 on 8 Nov 2026. Pen Bhakti's Mahabharat blocks
-embedding on YouTube, so it is not scheduled; shows without an official
-embeddable upload stay as title cards.
+**Already filled in (checked 5 Nov 2026, all embeddable, in episode order):**
+- Ramayan Ep 1-78 (Tilak, official), Hum Paanch Ep 1-183 minus 6 non-public (Zee TV, official),
+  Rangoli Ep 1-46 minus gaps (Doordarshan National, official), Cartoon Network India
+  30-min cartoons (official).
+- Shaktimaan Ep 1-235 minus 23 gaps (Ultra TV Series, community upload), KBC season 1 (3 clips)
+  and one Chitrahaar episode (community uploads). Community uploads can be removed by the
+  uploader at any time: re-check now and then.
+- Not scheduled with video: Mahabharat (Hindi uploads all block embedding; only a Tamil dub is
+  embeddable), Kyunki (no 2000-era episodes found). They show title cards.
+- Every episode slot starts at Episode 1 on 8 Nov 2026, one new episode a week.
 
 **Commercials**: add your own clips to `TV_ADS` (`video` = official ID,
 `duration` in seconds, must match the clip). They play in their own slots

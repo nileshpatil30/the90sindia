@@ -73,6 +73,85 @@ const HUM_PAANCH_NUMS = [
   167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183
 ];
 
+/* ---- Added 5 Nov 2026 ---- */
+// Shaktimaan Ep 1-235 minus 23 gaps (Ultra TV Series: COMMUNITY upload, not the rights holder). Items ~43 min.
+const SHAKTIMAAN_ULTRA = [
+  'YHFpFe-itLE', 'VmmcGkSONY0', '6paOhFRzkto', 'ZJmyotCX0JQ', 'FLJyt5kMibo', '_6jc4GX_oPU',
+  'zNF0lpYQRSA', 'EJZ8EO0XhzQ', 'YehlkFOqMpM', '0RsSo-7tXAo', '6RJaZ0ygqEc', 'hopGDZvooPA',
+  '_lBjxkAYEjQ', '4l8fGrn0iXg', 'VmimZruPiCw', 'ifQCx74FsFo', 'AIk_rWNrlGs', 'pdt0pX1SoSQ',
+  'e3HeMuQOFdc', 'GDrEV4d0mb8', 'XnMOWNhR5wE', 'BCSc83cfizQ', 'GufiRu5I07U', 'asTYo-RUroQ',
+  'uJNusj-Y2xk', '_ZFx2yDV6DY', 'BQRrmxOOaqI', 'uJ2OaLswJhU', '37mrnZfgqqw', 'FcgWdupZYxE',
+  'tl5ESqqPdWw', 'cHLFgaH8ZN4', 'Pj7qkbyZ75Q', 'iX-ja2OBdeI', 'YEjwO1VreE8', '-_j_KtdeA7I',
+  '9kzRfF5a3cY', 'aSd_c3pb56U', '0ptAxqomQiI', 'AyWt6FDg5Wo', 'CZPE4qqq1Cw', 'F0xGduX6SA0',
+  'k_kkMns7ZEM', 'FKLo4heED7M', 'MIMMAdHxpcI', 'PiAY8ub1lDs', 'mE_Qryx2r20', 'rCqHKNEuN3o',
+  'nnyh8pdM-2k', 'WjDzUGt1Jpk', 'ftk2Syp3wSU', '4psjrIY0hrs', '_76xlkg7W9Q', 'p5QtRiSJ-pM',
+  'kTTDAcgh2tI', 'pb37G4dY2F0', 'CiP8YTSMYQk', 'BGGbp0Wlmik', 'KqB2OujAstU', 'jrEwjBFaFcA',
+  '0cixlxhVxnk', 'MsDTML4UJ_c', 'xIghMq6EZms', 'mrS5O7TmaII', 'uQRsHRSzneU', 'rraSAO93_qg',
+  't5sLACnR1co', '2R5eS-ylgIQ', 'Q8M4IX1m75U', 'hzt-t12N7AE', 'RtEcsKBsK8E', '_Ykmj-90m9g',
+  'jkTbkzp5Hpw', 'V5H1V5_1gvM', '6L8719BWPyQ', 'QoZGe8lu6HQ', 'AGTAVwY6KWc', 'DicP3BcO2cU',
+  'jzYk1zO3Ago', 'uep5kwiSocE', 'WD-beBw8GK4', '638fgntpSSw', 'LGflv5rEIEw', 'yqcbs-suUjk',
+  'pLDQ5_7B1YM', '_GWp6tSHmoE', '7jUNFL_nNd0', 'cwdbBuKnijA', 'hPgip6Gl8x8', 'q0KoSPSsOAc',
+  '_C5H7mqTC3I', 'k3nLKlFf3XU', 'fjytV5HL5nA', 'zvpo2xWzBvU', 'eVlIp3Zlb4I', 'rVzEIq7k9UQ',
+  'qmVL0LBNkkQ', '8lyrQiWckPc', 'sFZYP4pyy48', 'SBVReSMXxA4', 'YR2UERM5Gm0', 'WoF_81J3OHY',
+  '-df5X3FlUIk', 'kFualYDmN-s', 'IA02yjtRx3w', 'yWRbYO_V2wQ', 'Lgjgqv_LEd0', 'uOZ4zcqrYhA',
+  '07Y6GCZ9sQ0', 'EYbNom1Tlq4', 'OKQf6wYIkb4', 'e_6olIOfpyA', 'pRoI3UfcgFY', 'WyiqVn2redo',
+  'pvWel2g8CuQ', 'WCmonTMFJE4', 'S-6bH_xOBF4', 'v7xraQ2Bxps', 'uw3pZJmU6hU', 'lRv5h5FxTYo',
+  'eDlmXyZxLnM', '82dDUGzfyTg', 'QeNPxB-7diQ', 'jGu0HcoBIv4', 'EN1d61Cqsf0', 'YrY-zVhXA9c',
+  '5W8YFawX9Cg', '-YgrAxhkl0w', 'GvRcKY0ys1U', '7huch_D9ZAU', 'mSGcpppOV9M', 'M1G70ffwVBc',
+  'X0o1j7YJALQ', 't1rZn8Kv4dI', 'RQ8xHY5rE7c', '5Xuo6Ek6T3E', 'xLwwpTl-APE', 'QoNtPpkwEuQ',
+  'UNNwiSLreo0', 'GY1byCWaEkM', 'rognah8Xy3g', 'KEtVqioYUCo', 'PwSq1HggDoY', 'QgopJnU7qNs',
+  'bDY_sRmkPsY', 'wekGPrGqpBk', 'rmjNGnFPUc4', 'Cl_PHjd4MeI', 'Tbzom3tV25E', 'gFmkwIkQ01c',
+  'a_7V5FZ44Gc', 'pWIWOxxOWbI', 'u5wajt4GBjY', 'Gyh8W3FxX2A', 'Z7BuNoDYZQQ', 'lPwjTqi8OQw',
+  'WKlcxtKOOyU', 'Gl1bdxdLiDI', 'ZKYlHc82w8w', 'BCpSvwXo9m4', 'Ado1u3kG5F8', '6wMdHsid3V0',
+  'RtS_WpZF50Y', 'IMlhciPx-SI', 'z4zo6avHCxc', 'e1H3-LTKH70', 'oJwY271wqW8', 'SGWNO-Me3AM',
+  '2RHY3G409nY', 'f_zyxCh5MrY', 'REqjO2nX_kw', 'iYgBryljOpM', 'tw-2l44IJxE', 'ULdcWPXcf4s',
+  'yYdQJHmnZds', '88ZDkO5ntPo', 'aTiXHb9V2zE', 'Ed0SteawvGw', 'Ix8dvOURVzI', '6so9hcqux5k',
+  'SAIaQhHWfWQ', '30FNoSKylF4', 'vSk-ftM58Dw', 'bISkFPIclyc', 'aXZ698WjdqA', 'Xvl2KVOIWWQ',
+  'pdJeInL7cWs', '7EV4ykNoxhw', 'DTDGeyWE7kw', 'x6W8o3CUGXo', 'SgEqdnp4IsQ', 'eBEZx1QMU4M',
+  'kvlfHiDteuc', 'y6cnp_lKFQU', 'eEqvxQkNtW8', 'W2Wnrf4s_ao', 'kyDcpU717Oc', 'WrhWqVzNHCk',
+  '99dAv7k784Q', 'ltDUvJQM_J8', 'tEZQo_Mipcc', 'jOizkczGcgs', 'm8qtoS8478E', 'MZNW-f7Av6w',
+  'l63eaJm6h3M', 'oiKOejGvp84', 'qnEcjpNYdWw', 'oygiVEPmkds', 'xDIbVyQEvmI', 'E5XZzGjok5U',
+  '_uM3e75t_QU', 'WiMyMkHID10'
+];
+
+const SHAKTIMAAN_NUMS = [
+  1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 25,
+  26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+  47, 48, 49, 50, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+  69, 70, 71, 72, 73, 75, 76, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91,
+  92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  113, 114, 116, 117, 118, 120, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136,
+  137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156,
+  157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 168, 169, 170, 171, 178, 179, 180, 181, 182, 183,
+  184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203,
+  204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
+  224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235
+];
+
+// Rangoli Vividh Bharati Ke Saath, Ep 1-46 minus gaps (Doordarshan National OFFICIAL channel). 15-50 min.
+const RANGOLI_DD = [
+  'YQwoq8ZvWnc', 'pQZ_aTH3ymM', 'F2N-VyXqqng', 'xJxsa6nhqPE', 'lHX7Q1YIiZY', 'jQTJ_FScpVM',
+  'gEnRdrkDPUg', 'UOADf3-D5-Y', 'ZLp_ZLOKsIk', 'uTtPERJqFnc', 'EbgWy239pLw', 'LXkexWfv9k0',
+  'B8DHUCa9xjw', 'YbEJKCUYcI4', '4Sc2yvmooLU', 'HSxOcDLBf0U', 'ObwMoa_shYQ', 'XP0wek17mk4',
+  'HpG_s9O047o', 'c8cwM4Og8oU', 'KeaXUqLIVCc', 'nwQ8lWwbMaI', 'nunXlToFtOo', 'qEC-fkXaMr4',
+  'JZmMl0aZmgs', 'CQRVkMJfnGY', 'x3u0VY-m00g', 'GVhbbeyKgJs', 'Z0AvV1mrK64', '7E6e-WPt07c',
+  '-hw75uGPsDU', 'Yi9LgT1xlVQ', 'nzj3t_zLjtc', 's5zyLe3JII0', 'VVl_HCLEVC0', 'qShtTKQhDrg',
+  'AEfNGwdJHEw', 'D8k7OsuBqVk'
+];
+
+const RANGOLI_NUMS = [1, 3, 4, 6, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46];
+
+// Cartoon Network India OFFICIAL channel, ~30-minute episodes (Courage, Scooby-Doo, Looney Tunes)
+const CARTOON_NETWORK_30 = [
+  'W5bjT5WVCC4', 'gncQe7HPQqM', 'SEj_w9FLikU', 'oXPQz4sP8Vs', 'H2oIn9ZsDhs', 'xooTfO-qCDU',
+  'ueQS1irosM4', 'Bcs19QZZhnM', 'Q77O2jAbqUU', 'JGLcPvbi39c', 'HCEnp04jG9w', 'y_xBJYbWLIM',
+  '-swdIehPjpM', '5JtIEl6hkeQ', 'iCvmvs2Q9pk', 'wcIgzqQb4wk'
+];
+
+// Community uploads (not the rights holder): short sets used where no official upload exists
+const KBC_S1_COMMUNITY = ['XVUHjsL-W2Q', 'IhKM5683bNA', 'WcwToNCQwvg'];
+const CHITRAHAAR_COMMUNITY = ['7lpInoTRsvI'];
+
 function toEpisodes(ids) { return ids.map(function (v) { return { video: v }; }); }
-if (typeof window !== 'undefined') { window.RAMAYAN_TILAK = RAMAYAN_TILAK; window.HUM_PAANCH_ZEE = HUM_PAANCH_ZEE; window.HUM_PAANCH_NUMS = HUM_PAANCH_NUMS; }
-if (typeof module !== 'undefined' && module.exports) { module.exports = { RAMAYAN_TILAK: RAMAYAN_TILAK, HUM_PAANCH_ZEE: HUM_PAANCH_ZEE, HUM_PAANCH_NUMS: HUM_PAANCH_NUMS }; }
+if (typeof window !== 'undefined') { window.RAMAYAN_TILAK = RAMAYAN_TILAK; window.HUM_PAANCH_ZEE = HUM_PAANCH_ZEE; window.HUM_PAANCH_NUMS = HUM_PAANCH_NUMS; window.SHAKTIMAAN_ULTRA = SHAKTIMAAN_ULTRA; window.SHAKTIMAAN_NUMS = SHAKTIMAAN_NUMS; window.RANGOLI_DD = RANGOLI_DD; window.RANGOLI_NUMS = RANGOLI_NUMS; window.CARTOON_NETWORK_30 = CARTOON_NETWORK_30; window.KBC_S1_COMMUNITY = KBC_S1_COMMUNITY; window.CHITRAHAAR_COMMUNITY = CHITRAHAAR_COMMUNITY; }
+if (typeof module !== 'undefined' && module.exports) { module.exports = { RAMAYAN_TILAK: RAMAYAN_TILAK, HUM_PAANCH_ZEE: HUM_PAANCH_ZEE, HUM_PAANCH_NUMS: HUM_PAANCH_NUMS, SHAKTIMAAN_ULTRA: SHAKTIMAAN_ULTRA, SHAKTIMAAN_NUMS: SHAKTIMAAN_NUMS, RANGOLI_DD: RANGOLI_DD, RANGOLI_NUMS: RANGOLI_NUMS, CARTOON_NETWORK_30: CARTOON_NETWORK_30, KBC_S1_COMMUNITY: KBC_S1_COMMUNITY, CHITRAHAAR_COMMUNITY: CHITRAHAAR_COMMUNITY }; }

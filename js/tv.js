@@ -128,6 +128,7 @@
   function epLabel(entry, idx) {
     if (idx == null || idx < 0 || !(entry.ref.episodes && entry.ref.episodes.length)) return '';
     var nums = entry.ref.epNums;
+    if (nums === false) return '';
     return 'Episode ' + (nums && nums[idx] != null ? nums[idx] : idx + 1);
   }
 

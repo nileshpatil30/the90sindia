@@ -23,7 +23,8 @@
                the next week episodes[1], and so on IN LIST ORDER (Episode 1,
                2, 3...). Without it, episodes rotate by calendar week.
      epNums    optional list of the real episode numbers, parallel to episodes
-               (use when the list skips numbers). Default: position + 1.
+               (use when the list skips numbers), or false to hide "Episode N"
+               (for shuffled or unnumbered clips). Default: position + 1.
      duration  whole MINUTES the slot is on air
      episodes  OFFICIAL YouTube video IDs only. Week 1 plays episodes[0],
                week 2 plays episodes[1], and so on, looping. Leave empty
@@ -44,8 +45,10 @@
      NEVER overlay or cover YouTube's own ads: only use these slots.
 
    HOW TO GET A YOUTUBE VIDEO ID: from youtube.com/watch?v=XXXXXXXXXXX the ID
-   is the part after v=. Official rights-holder channels only (DD National /
-   Prasar Bharati, the show's own producer, Zee, Star, Cartoon Network).
+   is the part after v=. Prefer official rights-holder channels (DD National /
+   Prasar Bharati, Zee, Star, Cartoon Network, Tilak). Where none exists,
+   community uploads are used and marked in js/tv-episodes.js; they can be
+   taken down or blocked by the uploader at any time, so re-check now and then.
 
    SOURCES FOR THE VERIFIED TIMES (researched Nov 2026)
      - Rangoli on Sunday mornings from 7:30 am; Chitrahaar in the 8:00-8:30
@@ -79,6 +82,13 @@
 var EP_RAMAYAN = (typeof RAMAYAN_TILAK !== 'undefined') ? RAMAYAN_TILAK : [];
 var EP_HUMPAANCH = (typeof HUM_PAANCH_ZEE !== 'undefined') ? HUM_PAANCH_ZEE : [];
 var EP_HUMPAANCH_NUMS = (typeof HUM_PAANCH_NUMS !== 'undefined') ? HUM_PAANCH_NUMS : [];
+var EP_RANGOLI = (typeof RANGOLI_DD !== 'undefined') ? RANGOLI_DD : [];
+var EP_RANGOLI_NUMS = (typeof RANGOLI_NUMS !== 'undefined') ? RANGOLI_NUMS : [];
+var EP_SHAKTI = (typeof SHAKTIMAAN_ULTRA !== 'undefined') ? SHAKTIMAAN_ULTRA : [];
+var EP_SHAKTI_NUMS = (typeof SHAKTIMAAN_NUMS !== 'undefined') ? SHAKTIMAAN_NUMS : [];
+var EP_CN = (typeof CARTOON_NETWORK_30 !== 'undefined') ? CARTOON_NETWORK_30 : [];
+var EP_KBC = (typeof KBC_S1_COMMUNITY !== 'undefined') ? KBC_S1_COMMUNITY : [];
+var EP_CHITRAHAAR = (typeof CHITRAHAAR_COMMUNITY !== 'undefined') ? CHITRAHAAR_COMMUNITY : [];
 function eps(ids) { return ids.map(function (v) { return { video: v }; }); }
 
 // Shared commercial rotation. Your own clips go here.
@@ -103,7 +113,7 @@ const TV_CHANNELS = [
     slots: [
       { day: 'Sun', time: '09:30', duration: 40, title: 'Ramayan', episodes: eps(EP_RAMAYAN), startDate: '2026-11-08',
         confidence: 'recalled', source: 'Sunday morning + 35-min episodes verified; 9:30 start recalled (one reader remembers 9:00). Slot is 40 min because the Tilak uploads run 32-40 min. Episodes 1-78 in order, one a week from 8 Nov 2026.' },
-      { day: 'Fri', time: '20:00', duration: 25, title: 'Chitrahaar', episodes: [],
+      { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
         confidence: 'approx', source: 'Weekly Hindi film on Sunday evening is verified; clock time is a placeholder' }
@@ -118,11 +128,11 @@ const TV_CHANNELS = [
     ads: TV_ADS,
     closedown: DD_CLOSEDOWN,
     slots: [
-      { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: [],
+      { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: eps(EP_RANGOLI), epNums: EP_RANGOLI_NUMS, startDate: '2026-11-08',
         confidence: 'verified', source: 'Sunday mornings from 7:30 am (Deccan Herald); 60 min (Wikipedia)' },
       { day: 'Sun', time: '09:00', duration: 60, title: 'Mahabharat', episodes: [],
         confidence: 'verified', source: 'Every Sunday for an hour (ThePrint); 9 am (reader memory)' },
-      { day: 'Fri', time: '20:00', duration: 25, title: 'Chitrahaar', episodes: [],
+      { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'Sun', time: '17:00', duration: 150, title: 'Sunday Feature Film', episodes: [],
         confidence: 'approx', source: 'Sunday-evening Hindi film verified; clock time is a placeholder' }
@@ -137,9 +147,9 @@ const TV_CHANNELS = [
     ads: TV_ADS,
     closedown: DD_CLOSEDOWN,
     slots: [
-      { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: [],
+      { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: eps(EP_RANGOLI), epNums: EP_RANGOLI_NUMS, startDate: '2026-11-08',
         confidence: 'verified', source: 'Sunday mornings from 7:30 am (Deccan Herald)' },
-      { day: 'Fri', time: '20:00', duration: 25, title: 'Chitrahaar', episodes: [],
+      { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
       { day: 'daily', time: '20:30', duration: 15, title: 'Hindi News (Samachar)', episodes: [],
         confidence: 'approx', source: '8:30 pm bulletin remembered in a reader comment (Ravish Kumar blog)' },
@@ -156,13 +166,13 @@ const TV_CHANNELS = [
     ads: TV_ADS,
     closedown: null,
     slots: [
-      { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: [],
+      { day: 'Sun', time: '07:30', duration: 60, title: 'Rangoli', episodes: eps(EP_RANGOLI), epNums: EP_RANGOLI_NUMS, startDate: '2026-11-08',
         confidence: 'verified', source: 'Sunday mornings from 7:30 am (Deccan Herald)' },
       { day: 'Tue', time: '20:00', duration: 35, title: 'Hum Paanch (Zee TV)', episodes: eps(EP_HUMPAANCH), epNums: EP_HUMPAANCH_NUMS, startDate: '2026-11-08',
         confidence: 'verified', source: 'Tuesdays 8 pm, ~30 min (Wikipedia). Zee TV official uploads, episodes in order from Ep 1 (6 are not public on YouTube so numbers skip them); slot padded to 35 min for the longest uploads.' },
-      { day: 'Fri', time: '20:00', duration: 25, title: 'Chitrahaar', episodes: [],
+      { day: 'Fri', time: '20:00', duration: 28, title: 'Chitrahaar', episodes: eps(EP_CHITRAHAAR), epNums: false,
         confidence: 'verified', source: 'Friday (Eastern Mirror); 8:00-8:30 pm slot (Deccan Herald)' },
-      { day: 'Sun', time: '12:00', duration: 30, title: 'Shaktimaan (from 27 Sep 1997)', episodes: [],
+      { day: 'Sun', time: '12:00', duration: 47, title: 'Shaktimaan (from 27 Sep 1997)', episodes: eps(EP_SHAKTI), epNums: EP_SHAKTI_NUMS, startDate: '2026-11-08',
         confidence: 'recalled', source: 'Sundays on DD National verified (Wikipedia); noon start recalled' }
     ]
   },
@@ -175,7 +185,7 @@ const TV_CHANNELS = [
     ads: TV_ADS,
     closedown: null,
     slots: [
-      { day: ['Mon', 'Tue', 'Wed', 'Thu'], time: '21:00', duration: 60, title: 'Kaun Banega Crorepati (from 3 Jul 2000)', episodes: [],
+      { day: ['Mon', 'Tue', 'Wed', 'Thu'], time: '21:00', duration: 60, title: 'Kaun Banega Crorepati (from 3 Jul 2000)', episodes: eps(EP_KBC), epNums: false,
         confidence: 'recalled', source: 'Launch date and evening start verified (IndianTelevision.com); days and clock time recalled' },
       { day: ['Mon', 'Tue', 'Wed', 'Thu'], time: '22:30', duration: 30, title: 'Kyunki Saas Bhi Kabhi Bahu Thi (from 3 Jul 2000)', episodes: [],
         confidence: 'recalled', source: 'Launch date and evening start verified (IndianTelevision.com); days and clock time recalled' }
@@ -189,12 +199,22 @@ const TV_CHANNELS = [
     tz: 330,
     ads: TV_ADS,
     closedown: null,
-    slots: [
-      { day: 'weekdays', time: '15:00', duration: 120, title: 'Hindi-dubbed cartoons', episodes: [],
-        confidence: 'verified', source: '3-5 pm on weekdays from 4 Jan 1999 (Wikipedia)' },
-      { day: 'weekend', time: '14:00', duration: 120, title: 'Hindi-dubbed cartoons', episodes: [],
-        confidence: 'verified', source: '2-4 pm on weekends from 4 Jan 1999 (Wikipedia)' }
-    ]
+    // Real blocks: 3-5 pm weekdays, 2-4 pm weekends (verified). Split into 30-min
+    // slots so each day plays different cartoons (official Cartoon Network India uploads).
+    slots: (function () {
+      var out = [], n = 0, days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      days.forEach(function (d) {
+        var start = (d === 'Sat' || d === 'Sun') ? 14 * 60 : 15 * 60;
+        for (var k = 0; k < 4; k++, n++) {
+          var t = start + k * 30;
+          var rot = EP_CN.slice(n % Math.max(1, EP_CN.length)).concat(EP_CN.slice(0, n % Math.max(1, EP_CN.length)));
+          out.push({ day: d, time: ('0' + Math.floor(t / 60)).slice(-2) + ':' + ('0' + (t % 60)).slice(-2), duration: 30,
+            title: 'Hindi-dubbed cartoons', episodes: eps(rot), epNums: false, startDate: '2026-11-08',
+            confidence: 'verified', source: '3-5 pm weekdays, 2-4 pm weekends from 4 Jan 1999 (Wikipedia); videos: Cartoon Network India official channel' });
+        }
+      });
+      return out;
+    })()
   },
   {
     num: '00',
