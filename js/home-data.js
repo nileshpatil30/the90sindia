@@ -3,29 +3,11 @@
    The video rows, tabs and ticker are NOT here any more: they come from the
    central content file js/content.js (through js/catalogue.js), so one edit shows
    up on the homepage, the category pages and in search.
-   What stays here is only what belongs to the homepage panels: the poll, the
-   trivia (both move to their own data files in Phase E), the photo strip,
+   What stays here is only what belongs to the homepage panels: the photo strip,
    the sample discussions, the browse tiles, the wallpapers and the goodies strip.
+   The poll is in js/poll-data.js and the trivia in js/trivia-data.js.
    ========================================================================== */
 var HOME = {
-
-  // Daily poll. Front-end demo: your vote is kept in this browser, the other bars are sample numbers.
-  poll: {
-    id: 'fav-90s-show-1',
-    q: 'Your favourite 90s TV show?',
-    options: ['Shaktimaan', 'Ramayan', 'Malgudi Days', 'Chandrakanta', 'Byomkesh Bakshi'],
-    seed: [412, 388, 301, 274, 236]
-  },
-
-  // 90s trivia, one at a time ("Check Answer" then "Next")
-  trivia: [
-    { q: 'Which company gave us the “Hamara Bajaj” ad?', a: 'Bajaj Auto, for its Chetak scooter. “Buland Bharat ki buland tasveer, Hamara Bajaj.”' },
-    { q: 'Who played Shaktimaan on Doordarshan?', a: 'Mukesh Khanna. The show began on DD National in 1997.' },
-    { q: 'Which channel first aired B. R. Chopra’s Mahabharat?', a: 'Doordarshan (DD National), from 1988 to 1990.' },
-    { q: 'Which was India’s first private Hindi satellite channel?', a: 'Zee TV, launched in October 1992.' },
-    { q: 'Who hosted the first Kaun Banega Crorepati in 2000?', a: 'Amitabh Bachchan, on Star Plus.' },
-    { q: 'When did Doordarshan start colour broadcasts?', a: 'In 1982, in time for the Delhi Asian Games.' }
-  ],
 
   gallery: [
     { src: 'assets/photos/handheld.svg', alt: 'A yellow handheld game console' },

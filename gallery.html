@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photos &amp; Wallpapers — 90s Rewind TV</title>
+<meta name="description" content="90s photos, wallpapers and retro things. Pick a category, open a picture and flip through with Previous and Next.">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/arcade.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="gallery">
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
+
+<main id="main" class="page arc pix">
+
+  <section class="arc-hero is-plain" aria-labelledby="h-gal">
+    <img class="arc-hero-ico" src="assets/ui/icons/sec-photos.svg" alt="" width="84" height="84">
+    <div class="arc-hero-t">
+      <h1 id="h-gal">Photos <em>&amp;</em> Wallpapers</h1>
+      <p class="arc-sub">Pick a category, open a picture, then use Previous and Next (or the arrow keys) to flip through. Every picture can be downloaded.</p>
+    </div>
+  </section>
+
+  <form class="arc-filters pix-filters" id="g-form" aria-label="Filter the pictures" onsubmit="return false">
+    <div class="fchips" id="g-cats" role="group" aria-label="Category"></div>
+    <p class="fcount" id="g-count" role="status" aria-live="polite"></p>
+  </form>
+
+  <ul class="pix-grid" id="g-grid" aria-label="Pictures"><li class="load-err">Loading the pictures…</li></ul>
+  <noscript><p class="load-err">This page needs JavaScript to show the pictures.</p></noscript>
+
+  <p class="prose-n pix-note">These pictures are illustrations made for this site. Want to see one of yours here? Use the <a href="about.html#submit">Submit</a> page or <a href="about.html#contact">contact us</a>; we only add pictures that you made or have permission to share.</p>
+</main>
+
+<div id="site-bottom"></div>
+
+<script src="js/tv-episodes.js"></script>
+<script src="js/tv-library.js"></script>
+<script src="js/tv-mahabharat.js"></script>
+<script src="js/tv-ads.js"></script>
+<script src="js/tv-schedule.js"></script>
+<script src="js/tv-config.js"></script>
+<script src="js/tv-engine.js"></script>
+<script src="js/tv-thumbs.js"></script>
+<script src="js/arcade-data.js"></script>
+<script src="js/catalogue.js"></script>
+<script src="js/gallery-data.js"></script>
+<script src="js/gallery.js"></script>
+</body>
+</html>

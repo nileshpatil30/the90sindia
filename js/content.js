@@ -103,8 +103,8 @@ var CONTENT = [
     yt: 'OPHZKBRI5oc', year: 1995, featured: true, c: '#2a2a3a', desc: 'A song from the 1995 reincarnation drama with Shah Rukh Khan and Salman Khan.' },
   { cat: 'movies', title: 'Border', sub: 'Song · Ishtar', credit: 'Ishtar Music', official: true,
     yt: 'YczkDMTaek4', year: 1997, featured: true, c: '#3a4a2a', desc: 'A song from J. P. Dutta’s 1997 war film.' },
-  { cat: 'movies', title: 'Dilwale Dulhania Le Jayenge', sub: 'Trailer · YRF', credit: 'YRF Movies', official: true,
-    yt: 'cmax1C1p660', year: 1995, c: '#2f55b8', desc: 'The trailer of the 1995 film.' },
+  /* Dilwale Dulhania Le Jayenge was listed twice (a song clip above, a trailer here). One card per film: the song clip stays.
+     The trailer (YRF Movies, official, video cmax1C1p660) can come back as its own clearly named entry in the content step. */
   { cat: 'movies', title: 'Kuch Kuch Hota Hai', sub: 'Trailer · Dharma', credit: 'Dharma Productions', official: true,
     yt: 'IR5ReWgs-iQ', year: 1998, c: '#c24a8a', desc: 'The trailer of Karan Johar’s 1998 debut.' },
   { cat: 'movies', title: 'Hum Saath Saath Hain', sub: 'Part 1 of 16 · Rajshri', credit: 'Rajshri', official: true,

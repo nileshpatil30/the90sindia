@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About, Submit, Guidelines and Contact — 90s Rewind TV</title>
+<meta name="description" content="About 90s Rewind TV, how to submit a playlist, the community guidelines and how to contact us.">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/arcade.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="about">
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
+
+<main id="main" class="page arc abt">
+
+  <nav class="arc-jump abt-jump" aria-label="On this page">
+    <a href="#about">About</a><a href="#submit">Submit a Playlist</a><a href="#guidelines">Community Guidelines</a><a href="#contact">Contact</a>
+  </nav>
+
+  <section class="sec arc-sec" id="about" aria-labelledby="h-about">
+    <header class="sec-h"><img src="assets/ui/icons/sec-star.svg" alt="" width="34" height="34"><h2 id="h-about">About 90s Rewind TV</h2></header>
+    <div class="sec-b prose">
+      <p><b>90s Rewind TV</b> is a fan-made hangout for 1990s India: TV shows, movies, classic ads, songs, cricket, WWF and games, all in one place. It is made by the people behind the <b>@the90sindia</b> Instagram page.</p>
+      <ul>
+        <li><b>Live TV</b> runs a fixed weekly timetable in Indian time, so everyone sees the same show at the same moment. Some timings are approximate and marked so in the guide.</li>
+        <li><b>Videos</b> play in YouTube’s own embedded player. We do not download, copy or re-host anything. Official uploads come first. Where there is none, a community upload is used and labelled as one.</li>
+        <li><b>The Arcade</b> lists original classic games and says honestly where each can be played. No clones, no ROMs.</li>
+        <li><b>Polls, trivia and memories</b> work in your own browser for now. Nothing you type there is sent anywhere.</li>
+      </ul>
+      <p class="prose-n">90s Rewind TV is a fan site. It is not affiliated with Doordarshan, any broadcaster, studio, sports body or game company. All shows, films, songs, brands and games belong to their owners.</p>
+    </div>
+  </section>
+
+  <section class="sec arc-sec" id="submit" aria-labelledby="h-submit">
+    <header class="sec-h"><img src="assets/ui/icons/sec-songs.svg" alt="" width="34" height="34"><h2 id="h-submit">Submit a Playlist or Video</h2></header>
+    <div class="sec-b prose">
+      <p>Know a 90s show, ad, song or match that is on YouTube? Send us the link. We have no sign-up system yet, so submissions go through GitHub: this button opens a ready-filled message on our GitHub page (you need a free GitHub account to send it). Nothing is sent until you press the button there.</p>
+      <form class="subform" id="sub-form" novalidate>
+        <label class="arc-f"><span>YouTube link (video or playlist)</span><input id="s-url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…" required></label>
+        <label class="arc-f"><span>Category</span><select id="s-cat"></select></label>
+        <label class="arc-f"><span>Title (optional)</span><input id="s-title" type="text" maxlength="120"></label>
+        <label class="arc-f"><span>Year (optional)</span><input id="s-year" type="text" inputmode="numeric" maxlength="4" placeholder="1995"></label>
+        <label class="arc-f arc-f-wide"><span>Anything we should know? (optional)</span><textarea id="s-note" rows="3" maxlength="500" placeholder="Is it an official upload? Which channel?"></textarea></label>
+        <p class="sub-err" id="s-err" role="alert" hidden></p>
+        <div class="sub-act"><button class="btn" type="submit">Open the GitHub message »</button></div>
+      </form>
+      <p class="prose-n">Only YouTube links are accepted. We check every submission for embedding and for official sources before adding it.</p>
+    </div>
+  </section>
+
+  <section class="sec arc-sec" id="guidelines" aria-labelledby="h-guide">
+    <header class="sec-h"><img src="assets/ui/icons/sec-photos.svg" alt="" width="34" height="34"><h2 id="h-guide">Community Guidelines</h2></header>
+    <div class="sec-b prose">
+      <p>The community pages (forum, memories, polls) are for people who love the 90s. Please:</p>
+      <ul>
+        <li><b>Be kind.</b> No abuse, hate, bullying or personal attacks, including about actors, players and other fans.</li>
+        <li><b>Keep it 90s.</b> Stay on topic: shows, films, ads, songs, cricket, toys, games and growing up then.</li>
+        <li><b>No piracy.</b> Do not post links to pirated films, shows or game files (ROMs). We will remove them.</li>
+        <li><b>No spam or selling.</b> No advertising, referral links or repeated posts.</li>
+        <li><b>Protect privacy.</b> Do not share phone numbers, addresses or photos of people who did not agree.</li>
+        <li><b>Give credit.</b> Say where a photo or story came from.</li>
+      </ul>
+      <p class="prose-n">Breaking these rules means the post is removed, and repeat offenders lose posting access once accounts exist.</p>
+    </div>
+  </section>
+
+  <section class="sec arc-sec" id="contact" aria-labelledby="h-contact">
+    <header class="sec-h"><img src="assets/ui/icons/sec-games.svg" alt="" width="34" height="34"><h2 id="h-contact">Contact</h2></header>
+    <div class="sec-b prose">
+      <ul id="contact-list"></ul>
+      <p><b>Rights holder?</b> If you own something shown here and want it changed or removed, say so in a message and we will act on it quickly. Videos are YouTube’s own embeds, so you can also report them to YouTube.</p>
+    </div>
+  </section>
+</main>
+
+<div id="site-bottom"></div>
+
+<script src="js/about.js"></script>
+</body>
+</html>

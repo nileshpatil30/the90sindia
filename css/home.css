@@ -131,6 +131,8 @@ ul { list-style: none; }
 
 /* ---- left column ---- */
 .pl-poll .panel-b { padding-right: 0; }
+.pl-poll .panel-h { min-height: 44px; }
+.pl-poll .panel-h > img { width: 38px; height: 38px; }
 .bubble { position: relative; margin: 0 0 6px; padding: 4px 12px; width: calc(100% - 14px); font: 800 18px/1.1 var(--f-head); text-align: center; background: #f4daff; border: 2.5px solid var(--ink); border-radius: 16px; }
 .bubble::after { content: ""; position: absolute; right: 14px; bottom: -11px; width: 14px; height: 12px; background: #f4daff; border: 2.5px solid var(--ink); border-top: 0; border-left: 0; transform: skewX(-30deg); }
 .poll-form { position: relative; z-index: 2; margin-top: 9px; }
@@ -138,16 +140,31 @@ ul { list-style: none; }
 .poll-opts label { display: flex; align-items: center; gap: 8px; padding: 0; font: 700 18px/1.2 var(--f-head); cursor: pointer; }
 .poll-opts input { appearance: none; flex: none; width: 17px; height: 17px; margin: 0; border: 2.5px solid var(--ink); border-radius: 50%; background: #fff; }
 .poll-opts input:checked { background: radial-gradient(var(--ink) 40%, #fff 45%); }
-.poll-opts .res { position: relative; display: block; width: 100%; padding: 1px 0; font-size: 16px; }
+.poll-opts .res { position: relative; display: block; width: 100%; padding: 1px 0; min-height: 21.6px; font-size: 16px; }
 .poll-opts .res i { position: absolute; left: 0; top: 0; bottom: 0; z-index: -1; background: rgba(138,63,224,.35); border-radius: 4px; }
-.poll-form .btn { margin-top: 6px; padding: 2px 16px; font-size: 21px; }
+.poll-form .btn { margin-top: 4px; padding: 2px 16px; font-size: 21px; }
 .mascot { position: absolute; right: 0; bottom: -4px; width: 124px; height: auto; pointer-events: none; }
 
-.pl-trivia .panel-b { padding-top: 5px; }
-.trivia-q, .trivia-a { width: 196px; min-height: 3.1em; font: 700 17px/1.16 var(--f-head); }
-.trivia-a { position: relative; z-index: 2; color: #3b1380; font-size: 16px; }
-.pl-trivia .btn { margin-top: 4px; padding: 2px 14px; font-size: 20px; position: relative; z-index: 2; }
-.scooter { position: absolute; right: 8px; bottom: 6px; width: 98px; pointer-events: none; }
+.pl-trivia .panel-b { padding: 4px 12px 6px; }
+.pl-trivia .panel-h { position: relative; }
+.trivia-q, .trivia-a { height: 47px; overflow: hidden; font: 700 15.5px/1.15 var(--f-head); }      /* the question and the answer take the same space: nothing jumps */
+.trivia-a { color: #3b1380; font-size: 14px; line-height: 1.13; }
+.trivia-a[hidden] { display: none; }
+.pl-trivia .panel-h { min-height: 40px; }
+.pl-trivia .panel-h > img:first-child { width: 32px; height: 32px; }
+.trivia-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 4px; margin-top: 3px; }
+.trivia-opts button { min-width: 0; height: 23px; padding: 0 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; font: 800 14px/1 var(--f-head); background: #fff; border: 2px solid var(--ink); border-radius: 8px; }
+.trivia-opts button:hover:not(:disabled) { background: #fff45a; }
+.trivia-opts button:disabled { cursor: default; opacity: .6; }
+.trivia-opts .is-right, .trivia-opts button.is-right:disabled { opacity: 1; background: #b8f02c; }
+.trivia-opts .is-wrong, .trivia-opts button.is-wrong:disabled { opacity: 1; background: #ff9d7d; }
+.trivia-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; min-height: 27px; }
+.trivia-score { font: 700 15px/1 var(--f-head); color: #3b1380; }
+.pl-trivia .btn { margin-top: 0; padding: 0 12px; font-size: 18px; line-height: 1.1; position: relative; z-index: 2; }
+.btn[hidden] { display: none; }
+.scooter { position: absolute; right: 8px; top: -6px; width: 64px; height: auto; pointer-events: none; }
+/* the vote total sits in the panel's bottom padding, and its space is always reserved, so voting never changes the height */
+.poll-note { display: block; max-width: 160px; height: 13px; margin: 2px 0 -9px; white-space: nowrap; overflow: hidden; font: 700 12px/13px var(--f-head); color: #4a3a77; }
 
 .login-form { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 5px 10px; align-content: start; }
 .login-form label { font: 700 18px/1 var(--f-head); }
