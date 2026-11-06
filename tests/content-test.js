@@ -34,6 +34,8 @@ CONTENT.forEach((c, i) => {
   const key = c.cat + '|' + (c.yt || c.playlist || c.show || c.href) + '|' + c.title;
   ok(!seen[key], tag + ': listed twice in ' + c.cat); seen[key] = 1;
   if (c.yt) { ok(!seen['yt|' + c.yt], tag + ': the video ' + c.yt + ' is used by two items'); seen['yt|' + c.yt] = 1; }
+  const tk = 'title|' + c.cat + '|' + String(c.title).toLowerCase().trim();       // one card per title in a category (a second video of the same film needs its own name)
+  ok(!seen[tk], tag + ': another item in ' + c.cat + ' has the same title'); seen[tk] = 1;
 });
 NAV.forEach((n) => ok(n.label && n.href && n.icon && fs.existsSync(path.join(root, 'assets/ui/icons', n.icon + '.svg')), 'NAV ' + n.label + ': icon missing'));
 CATEGORIES.forEach((c) => ok(fs.existsSync(path.join(root, 'assets/ui/icons', c.icon + '.svg')), 'category ' + c.id + ': icon missing'));
