@@ -143,51 +143,108 @@
     var dec = t.closest('[data-dec]'); if (dec) { var d = +dec.getAttribute('data-dec'); go({ tab: 'year', y: firstYearOf(d) }, '[data-dec="' + d + '"]'); return; }
     var yr = t.closest('[data-year]'); if (yr) { var y = +yr.getAttribute('data-year'); go({ tab: 'year', y: y }, '[data-year="' + y + '"]'); }
   });
-  window.addEventListener('popstate', function () { state = T.parseState(location.search, LIVE); render(); });
+  window.addEventListener('popstate', function () { state = T.parseState(location.search, LIVE); render(); closePanel(); });     // Back or Forward redraws the page, so an open panel closes with it
 
-  /* ---------------------------------------------------------------- the Sources panel */
-  var panel = null, lastFocus = null;
+  /* ---------------------------------------------------------------- the Sources panel: a modal dialog
+     Opening it: the rest of the page is made inert and hidden from screen readers, the page behind stops scrolling, and focus moves to the dialog itself, so a
+     screen reader announces "Sources, dialog" and the event before anything else. Tab then walks Close and the links, and wraps round inside.
+     Closing it (Escape, Close, or a click on the dim area) puts back exactly what was changed: focus on the button that opened it, and the scroll position. */
+  var panel = null, pop = null, opener = null, openerId = '', held = null, downOnVeil = false;
   var TYPE_NOTE = '<b>The four types.</b> Primary: a government record or a company’s own statement. Authoritative: a statistical record, such as a scorecard archive. Reference: an encyclopaedia. Press: a news report.';
   function buildPanel() {
     panel = document.createElement('div');
     panel.className = 'tl-veil'; panel.hidden = true;
-    panel.innerHTML = '<div class="tl-pop" role="dialog" aria-modal="true" aria-labelledby="tl-pop-h"><div class="tl-pop-h"><h2 id="tl-pop-h">Sources</h2>' +
-      '<button class="btn tl-btn" type="button" id="tl-pop-x">Close</button></div><div class="tl-pop-b" id="tl-pop-b"></div></div>';
+    panel.innerHTML = '<div class="tl-pop" id="tl-pop" role="dialog" aria-modal="true" aria-labelledby="tl-pop-h" aria-describedby="tl-pop-t" tabindex="-1">' +
+      '<div class="tl-pop-h"><h2 id="tl-pop-h">Sources</h2><button class="btn tl-btn" type="button" id="tl-pop-x" aria-label="Close sources">Close</button></div>' +
+      '<div class="tl-pop-b" id="tl-pop-b"></div></div>';
     document.body.appendChild(panel);
+    pop = document.getElementById('tl-pop');
     document.getElementById('tl-pop-x').addEventListener('click', closePanel);
-    panel.addEventListener('click', function (e) { if (e.target === panel) closePanel(); });
+    panel.addEventListener('pointerdown', function (e) { downOnVeil = e.target === panel; });                   // a drag that starts inside the panel and ends on the dim area is not a click outside
+    panel.addEventListener('click', function (e) { var outside = e.target === panel && downOnVeil; downOnVeil = false; if (outside) closePanel(); });
+    panel.addEventListener('touchmove', function (e) { if (!pop.contains(e.target)) e.preventDefault(); }, { passive: false });   // older phones: do not scroll the page through the dim area
     document.addEventListener('keydown', function (e) {
       if (panel.hidden) return;
-      if (e.key === 'Escape') { e.preventDefault(); closePanel(); return; }
-      if (e.key === 'Tab') {                                          // keep the keyboard inside the panel
-        var f = [].filter.call(panel.querySelectorAll('button, a[href]'), function (x) { return !x.disabled; });
-        if (!f.length) return;
-        var first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
+      if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+      else if (e.key === 'Tab') trapTab(e);
     });
+    document.addEventListener('focusin', function (e) {                                                          // a browser without `inert`: pull stray focus back in
+      if (!panel.hidden && !panel.contains(e.target)) pop.focus({ preventScroll: true });
+    });
+  }
+  function stops() { return [].filter.call(pop.querySelectorAll('a[href], button:not([disabled])'), function (x) { return !x.closest('[hidden]'); }); }
+  function trapTab(e) {                                                                                          // Tab and Shift+Tab wrap round inside the panel
+    var f = stops(), a = document.activeElement;
+    if (!f.length) { e.preventDefault(); pop.focus({ preventScroll: true }); return; }
+    var first = f[0], last = f[f.length - 1];
+    if (!pop.contains(a)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }
+    if (e.shiftKey && (a === first || a === pop)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
+  }
+  // Everything the open panel changes outside itself is recorded here, so that closing puts it back exactly as it was.
+  function holdPage() {
+    var de = document.documentElement;
+    var bar = window.innerWidth - de.clientWidth, pad = parseFloat(window.getComputedStyle(de).paddingRight) || 0;     // bar: the width of the page's scrollbar, 0 for overlay scrollbars
+    held = { x: window.pageXOffset, y: window.pageYOffset, overflow: de.style.overflow, padRight: de.style.paddingRight, nodes: [] };
+    [].forEach.call(document.body.children, function (el) {
+      if (el === panel || /^(SCRIPT|STYLE|LINK|NOSCRIPT)$/.test(el.tagName)) return;
+      held.nodes.push({ el: el, inert: el.hasAttribute('inert'), hidden: el.getAttribute('aria-hidden') });
+      el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true');
+    });
+    de.style.overflow = 'hidden';                                                                                // the page behind stops scrolling; padding stands in for the scrollbar so nothing shifts
+    if (bar > 0) {
+      de.style.paddingRight = (pad + bar) + 'px';
+      panel.style.paddingRight = ((parseFloat(window.getComputedStyle(panel).paddingRight) || 0) + bar) + 'px';        // and the panel stays centred where it was, not 7px to the right
+    }
+  }
+  function releasePage() {
+    var h = held; if (!h) return null;
+    held = null;
+    h.nodes.forEach(function (n) {
+      if (!n.inert) n.el.removeAttribute('inert');
+      if (n.hidden === null) n.el.removeAttribute('aria-hidden'); else n.el.setAttribute('aria-hidden', n.hidden);
+    });
+    var de = document.documentElement;
+    de.style.overflow = h.overflow; de.style.paddingRight = h.padRight;
+    panel.style.paddingRight = '';
+    return h;
+  }
+  function scrollTo(x, y) {
+    if (window.pageXOffset === x && window.pageYOffset === y) return;
+    try { window.scrollTo({ left: x, top: y, behavior: 'instant' }); } catch (e) { window.scrollTo(x, y); }
+  }
+  function backToOpener() {
+    var t = opener && document.contains(opener) ? opener : null;
+    if (!t && openerId) [].forEach.call(out.querySelectorAll('[data-sources]'), function (b) { if (!t && b.getAttribute('data-sources') === openerId) t = b; });   // the page was redrawn: the same event's button, if it is still there
+    if (!t) t = tabs.querySelector('[aria-pressed="true"]');                                                     // otherwise the open tab
+    if (t && t.focus) t.focus({ preventScroll: true });
   }
   function sourceHTML(s, all) {
     var rep = s.basedOn ? all.filter(function (o) { return o.url === s.basedOn; })[0] : null;
     var line = 'Published: ' + T.fmtPublishedOn(s.publishedOn) + ' · Opened ' + T.fmtIso(s.opened) + (rep ? ' · Repeats ' + rep.publisher : '');
-    return '<li class="tl-src"><b>' + esc(s.publisher) + '</b><span class="tl-chip' + (s.type === 'primary' || s.type === 'authoritative' ? ' tl-t' : '') + '">' + T.SOURCE_TYPE_LABEL[s.type] + '</span>' +
-      '<a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">' + esc(s.label) + '</a><small>' + esc(line) + '</small></li>';
+    return '<li class="tl-src"><b>' + esc(s.publisher) + '</b><span class="tl-chip' + (s.type === 'primary' || s.type === 'authoritative' ? ' tl-t' : '') + '"><span class="sr">Type: </span>' + T.SOURCE_TYPE_LABEL[s.type] + '</span>' +
+      '<a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">' + esc(s.label) + '<span class="sr"> (opens in a new tab)</span></a><small>' + esc(line) + '</small></li>';
   }
   function openPanel(id, from) {
     var ev = BY_ID[id]; if (!ev) return;
     if (!panel) buildPanel();
-    lastFocus = from || document.activeElement;
+    if (!panel.hidden) return;
+    opener = from || document.activeElement; openerId = id;
     var why = ev.confidence !== 'verified' && ev.confidenceNote ? '<p class="tl-pop-why"><b>Why ' + T.CONFIDENCE_LABEL[ev.confidence] + '.</b> ' + esc(ev.confidenceNote) + '</p>' : '';
-    document.getElementById('tl-pop-b').innerHTML = '<p class="tl-pop-t">' + esc(ev.title) + ' · ' + esc(T.fmtShort(ev.date)) + '</p>' + why +
-      '<ul class="tl-srcs">' + ev.sources.map(function (s) { return sourceHTML(s, ev.sources); }).join('') + '</ul><p class="tl-key">' + TYPE_NOTE + '</p>';
+    document.getElementById('tl-pop-b').innerHTML = '<p class="tl-pop-t" id="tl-pop-t">' + esc(ev.title) + ' · ' + esc(T.fmtShort(ev.date)) + '</p>' + why +
+      '<ul class="tl-srcs" role="list">' + ev.sources.map(function (s) { return sourceHTML(s, ev.sources); }).join('') + '</ul><p class="tl-key">' + TYPE_NOTE + '</p>';
     panel.hidden = false;
-    document.getElementById('tl-pop-x').focus();
+    holdPage();
+    pop.scrollTop = 0;
+    pop.focus({ preventScroll: true });
   }
   function closePanel() {
     if (!panel || panel.hidden) return;
     panel.hidden = true;
-    if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus();
+    var was = releasePage();
+    backToOpener();
+    if (was) scrollTo(was.x, was.y);
+    opener = null; openerId = '';
   }
 
   render();

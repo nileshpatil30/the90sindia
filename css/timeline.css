@@ -49,6 +49,7 @@
 .tl-veil { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(26, 15, 46, .62); }
 .tl-veil[hidden] { display: none; }
 .tl-pop { width: min(560px, 100%); max-height: 100%; overflow: auto; background: var(--cream); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 6px 8px 0 var(--ink); }
+.tl-pop:focus { outline: none; }                       /* the panel itself takes focus when it opens, so a screen reader announces it; the ring would only frame the whole box */
 .tl-pop-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px 6px 14px; color: #fff; background: linear-gradient(#7a2bd0, #5a17a5); border-bottom: 3px solid var(--ink); }
 .tl-pop-h h2 { font: 800 28px/1 var(--f-head); text-shadow: 0 2px 0 rgba(26, 15, 46, .45); }
 .tl-pop-b { display: grid; gap: 10px; padding: 12px; }

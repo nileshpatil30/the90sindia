@@ -280,6 +280,43 @@ ok(errs(mk({ title: 'The first thing' })).length === 0, 'rule 9: a warning is no
   ok(eq(n, 2028, 2, 29), '29 February waits for the next leap year, never an invented date (' + JSON.stringify(n) + ')');
   n = T.nextOccurrence({ m: 2, d: 29 }, { y: 2028, m: 2, d: 29 }); ok(eq(n, 2028, 2, 29) && n.days === 0, '29 February on 29 February is today');
   n = T.nextOccurrence({ m: 7, d: 24 }, { y: 2026, m: 7, d: 25 }); ok(eq(n, 2027, 7, 24) && n.days === 364, 'an anniversary that has passed rolls to next year');
+
+  /* regression: nextOccurrence() once stopped looking after eight years. It now works the date out directly, however far away it is. */
+  const NO = (m, d, y, tm, td) => T.nextOccurrence({ m, d }, { y, m: tm, d: td });
+  n = NO(2, 29, 2096, 3, 1); ok(eq(n, 2104, 2, 29) && n.days === 2920, 'leap day: after 29 February 2096 the next is 2104, eight years on, not 2100 (' + JSON.stringify(n) + ')');
+  n = NO(2, 29, 2100, 1, 1); ok(eq(n, 2104, 2, 29), 'leap day: 2100 is not a leap year, so from 1 January 2100 the next is 2104');
+  n = NO(2, 29, 2100, 2, 28); ok(eq(n, 2104, 2, 29), 'leap day: 28 February 2100 has no 29 February after it');
+  n = NO(2, 29, 2096, 2, 29); ok(eq(n, 2096, 2, 29) && n.days === 0, 'leap day: on 29 February 2096 it is today');
+  n = NO(2, 29, 2097, 1, 1); ok(eq(n, 2104, 2, 29), 'leap day: from 2097 the next is 2104');
+  n = NO(2, 29, 1900, 1, 1); ok(eq(n, 1904, 2, 29), 'leap day: 1900 was not a leap year either');
+  n = NO(2, 29, 2000, 3, 1); ok(eq(n, 2004, 2, 29), 'leap day: 2000 was a leap year (divisible by 400), the next is 2004');
+  n = NO(2, 29, 2397, 1, 1); ok(eq(n, 2400, 2, 29), 'leap day: 2400 is a leap year again (divisible by 400)');
+  n = NO(2, 29, 2200, 3, 1); ok(eq(n, 2204, 2, 29), 'leap day: from March 2200 the next is 2204');
+  n = NO(2, 29, 2026, 3, 1); ok(eq(n, 2028, 2, 29) && n.days === T.daysBetween({ y: 2026, m: 3, d: 1 }, { y: 2028, m: 2, d: 29 }), 'leap day: the day count matches daysBetween');
+  n = NO(12, 31, 3000, 12, 31); ok(eq(n, 3000, 12, 31) && n.days === 0, 'far future: 31 December 3000 on itself is today');
+  n = NO(1, 1, 3000, 12, 31); ok(eq(n, 3001, 1, 1) && n.days === 1, 'far future: 1 January 3001 is a day away');
+  ok(NO(2, 30, 2026, 1, 1) === null && NO(4, 31, 2026, 1, 1) === null && NO(13, 1, 2026, 1, 1) === null && NO(0, 5, 2026, 1, 1) === null, 'a month and day that never exist give null, not a made-up date');
+  ok(T.nextOccurrence({ m: 7, d: 24 }, { y: 2026, m: 2, d: 30 }) === null && T.nextOccurrence({ m: 7, d: 24 }, null) === null && T.nextOccurrence(null, { y: 2026, m: 1, d: 1 }) === null, 'a bad "today" or a missing date gives null, never a throw');
+  const leapTable = [[2024, 2024], [2025, 2028], [2028, 2028], [2029, 2032], [2096, 2096], [2097, 2104], [2100, 2104], [2101, 2104], [2103, 2104], [1900, 1904], [1897, 1904], [2000, 2000], [1999, 2000], [2400, 2400], [2397, 2400], [2200, 2204], [2300, 2304], [-1, 0], [-3, 0]];
+  const leapBad = leapTable.filter(([from, want]) => T.nextLeapYear(from) !== want);
+  ok(!leapBad.length, 'nextLeapYear: ' + leapTable.length + ' starting years, including the century years (wrong: ' + JSON.stringify(leapBad) + ')');
+  ok(Array.from({ length: 4000 }, (_, i) => 1600 + i).every((yy) => T.nextLeapYear(yy) >= yy && T.isLeap(T.nextLeapYear(yy)) && (T.nextLeapYear(yy) === yy || !Array.from({ length: T.nextLeapYear(yy) - yy - 1 }, (_, k) => yy + k).some(T.isLeap))), 'nextLeapYear: for 4000 years it is always a leap year, never before the start, and never skips an earlier one');
+  // every month and day, from starting days spread across the leap-year cycle and the century years, against a plain day-by-day walk
+  const walk = (m, d, t) => { let ms = Date.UTC(t.y, t.m - 1, t.d); for (let k = 0; k < 366 * 400; k++, ms += 86400000) { const x = new Date(ms); if (x.getUTCMonth() + 1 === m && x.getUTCDate() === d) return { y: x.getUTCFullYear(), m, d, days: k }; } return null; };
+  let cases = 0; const wrong = [];
+  for (const sy of [1899, 1900, 1999, 2000, 2024, 2025, 2026, 2027, 2028, 2096, 2097, 2099, 2100, 2101, 2103, 2104, 2196, 2200, 2396, 2400]) {
+    for (let sm = 1; sm <= 12; sm++) for (const sd of [1, 15, 28, 29, 30, 31]) {
+      if (!T.isValidDate(sy, sm, sd)) continue;
+      for (let m = 1; m <= 12; m++) for (const d of [1, 14, 28, 29, 30, 31]) {
+        cases++;
+        const got = T.nextOccurrence({ m, d }, { y: sy, m: sm, d: sd }), want = T.isValidDate(2000, m, d) ? walk(m, d, { y: sy, m: sm, d: sd }) : null;
+        if (JSON.stringify(got) !== JSON.stringify(want)) wrong.push([sy, sm, sd, m, d, got, want]);
+      }
+    }
+  }
+  ok(cases > 50000 && !wrong.length, 'nextOccurrence agrees with a day-by-day walk in all ' + cases + ' cases (first miss: ' + JSON.stringify(wrong[0]) + ')');
+  const occSrc = T.nextOccurrence.toString();
+  ok(!/\b(for|while|do)\b/.test(occSrc) && !/\+\s*8\b/.test(occSrc), 'nextOccurrence has no loop and no fixed search window: the answer is worked out, so no distance can fall outside it');
   ok(T.fmtDayMonth(7, 24) === '24 July' && T.fmtShort(D(1991, 7, 24)) === '24 Jul 1991' && T.fmtShort(D(1995, 8, undefined, 'month')) === 'Aug 1995' && T.fmtShort({ y: 1995, precision: 'year' }) === '1995', 'date formats');
   ok(T.yearsAgo(1991, { y: 2026 }) === '35 years ago' && T.yearsAgo(2025, { y: 2026 }) === '1 year ago', 'years ago: plural and singular');
   ok(T.inDays(9) === 'in 9 days' && T.inDays(1) === 'in 1 day', 'in N days: plural and singular');
@@ -326,6 +363,13 @@ ok(errs(mk({ title: 'The first thing' })).length === 0, 'rule 9: a warning is no
   ok(view([leapDay], [2027, 2, 28]).step === 'next' && view([leapDay], [2027, 2, 28]).items[0].next.y === 2028 && view([leapDay], [2027, 2, 28]).items[0].next.d === 29, 'steps: a 29 February event is never shown on 28 February or 1 March of a normal year, its real date is 29 February 2028');
   ok(view([leapDay], [2027, 3, 1]).step === 'next', 'steps: 1 March 2027 does not borrow the 29 February event');
   ok(view([leapDay], [2028, 2, 29]).step === 'today', 'steps: it shows on 29 February in a leap year');
+  // regression: no eight-year search window. The fallback finds a leap-day event however far off its next 29 February is.
+  const farLeap = view([leapDay], [2096, 3, 1]);
+  ok(farLeap.step === 'next' && farLeap.count === 1 && farLeap.items[0].next.y === 2104 && farLeap.items[0].next.m === 2 && farLeap.items[0].next.d === 29 && farLeap.items[0].days === 2920, 'steps: on 1 March 2096 the only event is a leap-day one, and the fallback finds 29 February 2104 (' + farLeap.step + ', ' + JSON.stringify(farLeap.items[0] && farLeap.items[0].next) + ')');
+  ok(view([leapDay], [2100, 1, 1]).items[0].next.y === 2104 && view([leapDay], [2100, 1, 1]).step === 'next', 'steps: 2100 has no 29 February, the fallback skips to 2104');
+  const farMix = view([leapDay, E(1994, 5, 5)], [2096, 3, 1]);
+  ok(farMix.step === 'next' && ids(farMix) === '1994-5-5' && farMix.items[0].days === 65, 'steps: a nearer ordinary event still comes before a far-off leap-day one');
+  ok(view([leapDay], [2096, 2, 29]).step === 'today' && view([leapDay], [2096, 2, 28]).step === 'week', 'steps: 29 February 2096 shows today, and the day before sees it one day ahead');
   // probable exact-day events take part; the order is days first, then year
   const prob = E(1992, 10, 2, { tag: 'p', o: { confidence: 'probable', sources: [B] } });
   ok(view([prob], [2026, 10, 2]).step === 'today', 'steps: a Probable exact-day event is shown on its day');
@@ -458,21 +502,126 @@ const clipId = (window.Catalogue.items.find((i) => i.open && i.open.type === 'yt
     ok(pop.includes('The four types'), w + 'the key to the four types');
     const links = await pg.locator('.tl-src a').evaluateAll((as) => as.map((a) => [a.getAttribute('href'), a.target, a.rel]));
     ok(links.length === 2 && links.every((l) => /^https:\/\//.test(l[0]) && l[1] === '_blank' && /noopener/.test(l[2])), w + 'source links are https and open in a new tab safely ' + JSON.stringify(links));
-    ok(await pg.evaluate(() => document.activeElement.id) === 'tl-pop-x', w + 'focus moves to Close');
-    for (let i = 0; i < 6; i++) { await pg.keyboard.press('Tab'); if (!(await pg.evaluate(() => !!document.activeElement.closest('.tl-pop')))) break; }
-    ok(await pg.evaluate(() => !!document.activeElement.closest('.tl-pop')), w + 'Tab stays inside the panel');
-    await pg.keyboard.press('Shift+Tab');
-    ok(await pg.evaluate(() => !!document.activeElement.closest('.tl-pop')), w + 'Shift+Tab stays inside the panel');
+    // ---- the Sources dialog, by keyboard and for a screen reader
+    const OPEN = '.tl-veil:not([hidden])', WHERE = () => document.activeElement.id || ('link' + [...document.querySelectorAll('.tl-src a')].indexOf(document.activeElement));
+    const where = () => pg.evaluate(WHERE);
+    const dlg = await pg.evaluate(() => { const d = document.getElementById('tl-pop'), t = (id) => (document.getElementById(id) || {}).innerText; return { role: d.getAttribute('role'), modal: d.getAttribute('aria-modal'), name: t(d.getAttribute('aria-labelledby')), desc: t(d.getAttribute('aria-describedby')), tab: d.getAttribute('tabindex'), closeName: document.getElementById('tl-pop-x').getAttribute('aria-label'), list: document.querySelector('.tl-srcs').getAttribute('role') }; });
+    ok(dlg.role === 'dialog' && dlg.modal === 'true', w + 'dialog: it is a modal dialog for assistive technology');
+    ok(dlg.name === 'Sources' && dlg.desc === 'Union Budget 1991-92 presented · 24 Jul 1991', w + 'dialog: named "Sources" and described by the event (' + dlg.name + ' | ' + dlg.desc + ')');
+    ok(dlg.closeName === 'Close sources' && /^Close/.test(await text(pg, '#tl-pop-x')), w + 'dialog: the Close button says what it closes, and its name starts with the visible word');
+    ok(dlg.list === 'list', w + 'dialog: the sources stay a list for screen readers');
+    ok((await pg.locator('.tl-src a').first().textContent()).includes('(opens in a new tab)') && (await pg.locator('.tl-src .tl-chip').first().textContent()) === 'Type: Primary', w + 'dialog: each link says it opens a new tab, each chip says "Type:" for a screen reader');
+    ok(await where() === 'tl-pop', w + 'focus: it moves to the dialog itself, so the title and event are read first (' + await where() + ')');
+    ok(await pg.evaluate(() => { const d = document.getElementById('tl-pop'); return getComputedStyle(d).outlineStyle === 'none'; }), w + 'focus: no ring is drawn round the whole dialog');
+    const others = () => pg.evaluate(() => [...document.body.children].filter((e) => !/^(SCRIPT|STYLE|LINK|NOSCRIPT)$/.test(e.tagName) && !e.classList.contains('tl-veil')).map((e) => e.tagName + '#' + e.id + ':' + e.inert + ':' + e.getAttribute('aria-hidden')));
+    let bg = await others();
+    ok(bg.length >= 3 && bg.every((x) => /:true:true$/.test(x)), w + 'background: the header, page and footer are inert and hidden from screen readers while it is open (' + bg + ')');
+    ok(await pg.evaluate(() => { const v = document.querySelector('.tl-veil'); return !v.inert && v.getAttribute('aria-hidden') === null; }), w + 'background: the dialog itself is not hidden');
+    const seq = [];
+    for (let i = 0; i < 5; i++) { await pg.keyboard.press('Tab'); seq.push(await where()); }
+    ok(seq.join() === 'tl-pop-x,link0,link1,tl-pop-x,link0', w + 'keyboard: Tab goes Close, link, link, then wraps to Close (' + seq + ')');
+    await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Shift+Tab');
+    ok(await where() === 'link1', w + 'keyboard: Shift+Tab from Close wraps to the last link (' + await where() + ')');
     await pg.keyboard.press('Escape');
-    ok(await pg.locator('.tl-veil:not([hidden])').count() === 0, w + 'Escape closes the panel');
-    ok(await pg.evaluate(() => document.activeElement.hasAttribute('data-sources')), w + 'focus returns to the Sources button');
+    ok(await pg.locator(OPEN).count() === 0, w + 'Escape closes the panel');
+    ok(await pg.evaluate(() => document.activeElement.getAttribute('data-sources')) === '1991-07-24-union-budget', w + 'focus returns to the Sources button of that same event');
+    bg = await others();
+    ok(bg.every((x) => /:false:null$/.test(x)), w + 'background: everything is live again and nothing is left hidden (' + bg + ')');
+    await pg.keyboard.press('Enter');                                                     // the Sources button is focused: open it from the keyboard alone
+    ok(await pg.locator(OPEN).count() === 1 && await where() === 'tl-pop', w + 'keyboard: Enter on Sources opens the dialog');
+    await pg.keyboard.press('Shift+Tab');
+    ok(await where() === 'link1', w + 'keyboard: Shift+Tab from the dialog itself wraps to the last link (' + await where() + ')');
+    await pg.keyboard.press('Tab');
+    ok(await where() === 'tl-pop-x', w + 'keyboard: Tab from the last link wraps to Close');
+    await pg.keyboard.press('Space');
+    ok(await pg.locator(OPEN).count() === 0 && await pg.evaluate(() => document.activeElement.hasAttribute('data-sources')), w + 'keyboard: Space on Close closes it and focus goes back');
+    await pg.keyboard.press('Space');
+    ok(await pg.locator(OPEN).count() === 1, w + 'keyboard: Space on Sources opens it too');
+    await pg.keyboard.press('Tab'); await pg.keyboard.press('Enter');
+    ok(await pg.locator(OPEN).count() === 0 && await pg.evaluate(() => document.activeElement.hasAttribute('data-sources')), w + 'keyboard: Enter on Close closes it and focus goes back');
     await btn.click(); await pg.click('#tl-pop-x');
-    ok(await pg.locator('.tl-veil:not([hidden])').count() === 0, w + 'Close closes the panel');
-    await btn.click(); await pg.mouse.click(2, 2);
-    ok(await pg.locator('.tl-veil:not([hidden])').count() === 0, w + 'a click outside closes the panel');
+    ok(await pg.locator(OPEN).count() === 0, w + 'Close closes the panel');
+    // a drag that starts inside the panel and lets go over the dim area is not a click outside
+    await btn.click();
+    const box = await pg.locator('#tl-pop').boundingBox();
+    await pg.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await pg.mouse.down(); await pg.mouse.move(box.x + box.width / 2, 3); await pg.mouse.up();
+    ok(await pg.locator(OPEN).count() === 1, w + 'a drag that ends outside the panel does not close it');
+    await pg.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    ok(await pg.locator(OPEN).count() === 1, w + 'a click inside the panel does not close it');
+    await pg.mouse.click(2, 2);
+    ok(await pg.locator(OPEN).count() === 0, w + 'a click outside closes the panel');
+    ok(await pg.evaluate(() => document.activeElement.hasAttribute('data-sources')), w + 'focus returns to the Sources button after a click outside too');
+    // the page redraws under an open panel (Back or Forward): the panel closes and focus lands somewhere sensible
+    await btn.click();
+    await pg.evaluate(() => window.dispatchEvent(new PopStateEvent('popstate')));
+    ok(await pg.locator(OPEN).count() === 0 && await pg.evaluate(() => document.activeElement.getAttribute('data-sources')) === '1991-07-24-union-budget', w + 'Back: the panel closes and the same event\'s button gets focus back when it is still on the page');
+    await btn.click();
+    await pg.evaluate(() => { history.replaceState(null, '', 'timeline.html?tab=year&y=1983'); window.dispatchEvent(new PopStateEvent('popstate')); });
+    ok(await pg.locator(OPEN).count() === 0 && await pg.evaluate(() => document.activeElement.getAttribute('data-tab')) === 'year', w + 'Back: when its button is gone, focus goes to the open tab, never to the top of nowhere');
+    ok((await others()).every((x) => /:false:null$/.test(x)), w + 'Back: nothing is left inert');
+    // what was already on the page is put back as it was
+    await pg.evaluate(() => { history.replaceState(null, '', 'timeline.html'); window.dispatchEvent(new PopStateEvent('popstate')); });
+    await pg.evaluate(() => { const x = document.createElement('div'); x.id = 'pre'; x.setAttribute('inert', ''); x.setAttribute('aria-hidden', 'true'); document.body.appendChild(x); document.querySelector('main').setAttribute('aria-hidden', 'false'); });
+    await pg.locator('[data-sources]').first().click(); await pg.keyboard.press('Escape');
+    ok(await pg.evaluate(() => { const x = document.getElementById('pre'), m = document.querySelector('main'); return x.hasAttribute('inert') && x.getAttribute('aria-hidden') === 'true' && m.getAttribute('aria-hidden') === 'false' && !m.inert; }), w + 'background: attributes the page already had are restored as they were, not removed');
+    ok(await pg.evaluate(() => document.documentElement.style.overflow === '' && document.documentElement.style.paddingRight === ''), w + 'scroll: the page is unlocked again with no leftover style');
     ok(pg.errs.length === 0, w + 'no page errors ' + pg.errs);
     ok(pg.outside.length === 0, w + 'nothing outside localhost was contacted ' + pg.outside);
     await ctx.close();
+  }
+
+  /* ---- the Sources dialog and the scroll position, with the page long enough to scroll and real (not overlay) scrollbars ---- */
+  {
+    const real = await chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] });
+    for (const vp of [{ width: 1000, height: 420 }, { width: 390, height: 420 }]) {
+      const w = 'scroll ' + vp.width + 'px: ';
+      const { ctx, pg } = await open(real, null, { vp, events: SAMPLES.concat([]), now: '2026-07-24T10:00:00+05:30' });
+      await pg.goto(BASE + '/timeline.html?tab=year&y=1995', { waitUntil: 'load' });
+      const room = await pg.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+      const bar = await pg.evaluate(() => window.innerWidth - document.documentElement.clientWidth);
+      ok(room > 400, w + 'the test page really scrolls (' + room + 'px to spare)');
+      ok(bar > 0, w + 'the test browser really has a page scrollbar (' + bar + 'px), so the width check below means something');
+      const target = pg.locator('[data-sources]').nth(2);
+      await pg.evaluate((y) => window.scrollTo(0, y), 260);
+      await target.focus();
+      const y0 = await pg.evaluate(() => window.scrollY);
+      const lay = () => pg.evaluate(() => { const r = (s) => { const b = document.querySelector(s).getBoundingClientRect(); return [b.x, b.y, b.width, b.height].map((n) => Math.round(n * 10) / 10).join(','); }; return [r('h1'), r('.tl-bar'), r('.tl-row')].join(' | '); });
+      const before = await lay();
+      await pg.keyboard.press('Enter');
+      ok(await pg.locator('.tl-veil:not([hidden])').count() === 1, w + 'opens from the keyboard on a scrolled page');
+      ok(await pg.evaluate(() => window.scrollY) === y0, w + 'opening does not move the page (' + y0 + ' -> ' + await pg.evaluate(() => window.scrollY) + ')');
+      ok(await lay() === before, w + 'nothing behind the dialog shifts sideways when the scrollbar goes (' + before + ' vs ' + await lay() + ')');
+      const mid = await pg.evaluate(() => { const r = document.getElementById('tl-pop').getBoundingClientRect(); return r.x + r.width / 2; });
+      ok(Math.abs(mid - (vp.width - bar) / 2) < 0.6, w + 'the dialog stays centred where it was with the scrollbar there (' + mid + ' vs ' + (vp.width - bar) / 2 + ')');
+      await pg.mouse.move(vp.width / 2, 6); await pg.mouse.wheel(0, 500);
+      await pg.keyboard.press('PageDown'); await pg.keyboard.press('End'); await pg.keyboard.press('ArrowDown');
+      await pg.waitForTimeout(150);
+      ok(await pg.evaluate(() => window.scrollY) === y0, w + 'wheel, PageDown, End and Arrow keys do not scroll the page behind (' + await pg.evaluate(() => window.scrollY) + ')');
+      await pg.keyboard.press('Escape');
+      ok(await pg.evaluate(() => window.scrollY) === y0, w + 'closing puts the page back where it was (' + await pg.evaluate(() => window.scrollY) + ')');
+      ok(await pg.evaluate(() => document.activeElement.getAttribute('data-sources')) === await target.getAttribute('data-sources'), w + 'and focus is back on the button that opened it');
+      ok(await lay() === before, w + 'the page looks exactly as before once closed');
+      ok(await pg.evaluate(() => document.querySelector('.tl-veil').style.paddingRight === '' && document.documentElement.style.paddingRight === '' && document.documentElement.style.overflow === ''), w + 'and no style is left behind');
+      await pg.mouse.wheel(0, -120); await pg.waitForTimeout(120);
+      ok(await pg.evaluate(() => window.scrollY) < y0, w + 'the page scrolls normally again');
+      // a long panel scrolls inside itself, and opening another event starts it at the top
+      await pg.evaluate((y) => window.scrollTo(0, y), 300);
+      await pg.evaluate(() => { const b = document.querySelector('[data-sources]'); b.focus(); });
+      await pg.keyboard.press('Enter');
+      await pg.evaluate(() => { const p = document.getElementById('tl-pop'); p.querySelector('.tl-pop-b').style.paddingBottom = '900px'; p.scrollTop = 200; });
+      ok(await pg.evaluate(() => document.getElementById('tl-pop').scrollTop) > 0, w + 'a tall panel scrolls inside itself');
+      const yInside = await pg.evaluate(() => window.scrollY);
+      await pg.mouse.move(vp.width / 2, vp.height / 2); await pg.mouse.wheel(0, 3000); await pg.waitForTimeout(150);
+      ok(await pg.evaluate(() => window.scrollY) === yInside, w + 'scrolling to the end of the panel does not spill onto the page');
+      await pg.keyboard.press('Escape');
+      await pg.evaluate(() => { document.querySelector('.tl-pop-b').style.paddingBottom = ''; });
+      await pg.locator('[data-sources]').nth(1).focus(); await pg.keyboard.press('Enter');
+      ok(await pg.evaluate(() => document.getElementById('tl-pop').scrollTop) === 0, w + 'opening another event starts the panel at the top');
+      await pg.keyboard.press('Escape');
+      ok(pg.errs.length === 0, w + 'no page errors ' + pg.errs);
+      await ctx.close();
+    }
+    await real.close();
   }
 
   /* ---- "Today" is the date in India, from any time zone ---- */

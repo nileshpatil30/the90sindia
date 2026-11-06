@@ -5,7 +5,7 @@
    rules that are tested are the rules the page runs.
 
    What is in here
-     dates      istToday(now)  isValidDate  daysBetween  nextOccurrence  ago/format helpers
+     dates      istToday(now)  isValidDate  daysBetween  nextOccurrence  nextLeapYear  ago/format helpers
      the rules  validateEvent(ev)  validateSet(all)  — the schema and the nine rules of the Phase 1 spec
      who shows  placement(ev)  liveEvents(all)       — where an event may appear, worked out from its fields
      views      dayView(events, today)               — events for today, or the empty-day fallback
@@ -69,14 +69,25 @@
     var t = new Date((now || new Date()).getTime() + 330 * 60000);
     return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
   }
-  // The next real calendar day, on or after `today`, on which this month and day fall. 29 February waits for the next leap year.
+  // The first leap year on or after y, worked out directly: every fourth year, except a century year that 400 does not divide (2100, 2200, 2300).
+  // The next multiple of 4 is either leap or such a century year, and four years after a century year is always leap.
+  function nextLeapYear(y) {
+    var n = y + ((4 - (((y % 4) + 4) % 4)) % 4);
+    return isLeap(n) ? n : n + 4;
+  }
+  // The next real calendar day, on or after `today`, on which this month and day fall, however far away it is.
+  // Every date except 29 February exists in every year, so it is this year or next. 29 February waits for the next leap year,
+  // which can be eight years off across a century (2096 to 2104). Returns null only for a month and day that never exist (31 April).
   function nextOccurrence(date, today) {
-    for (var y = today.y; y <= today.y + 8; y++) {
-      if (!isValidDate(y, date.m, date.d)) continue;
-      var days = daysBetween(today, { y: y, m: date.m, d: date.d });
-      if (days >= 0) return { y: y, m: date.m, d: date.d, days: days };
+    if (!date || !today || !isValidDate(today.y, today.m, today.d) || !isValidDate(2000, date.m, date.d)) return null;   // 2000 is a leap year: it accepts 29 February and rejects 30 February or 31 April
+    var leapDay = date.m === 2 && date.d === 29;
+    var y = leapDay ? nextLeapYear(today.y) : today.y;
+    var days = daysBetween(today, { y: y, m: date.m, d: date.d });
+    if (days < 0) {                                                                           // this year's has already gone by
+      y = leapDay ? nextLeapYear(today.y + 1) : today.y + 1;
+      days = daysBetween(today, { y: y, m: date.m, d: date.d });
     }
-    return null;
+    return isFinite(days) ? { y: y, m: date.m, d: date.d, days: days } : null;
   }
   function fmtDayMonth(m, d) { return d + ' ' + MONTHS[m - 1]; }                         // 24 July
   function fmtShort(date) {                                                                // 24 Jul 1991 · Jul 1991 · 1991
@@ -344,7 +355,7 @@
     MIN_YEAR: MIN_YEAR, MAX_YEAR: MAX_YEAR, CATEGORIES: CATEGORIES, CATEGORY_LABEL: CATEGORY_LABEL, CONFIDENCE: CONFIDENCE, CONFIDENCE_LABEL: CONFIDENCE_LABEL,
     SOURCE_TYPES: SOURCE_TYPES, SOURCE_TYPE_LABEL: SOURCE_TYPE_LABEL, SENSITIVITY: SENSITIVITY, SENSITIVITY_REASONS: SENSITIVITY_REASONS, INDIVIDUAL_FIRST: INDIVIDUAL_FIRST,
     MONTHS: MONTHS,
-    isLeap: isLeap, daysInMonth: daysInMonth, isValidDate: isValidDate, daysBetween: daysBetween, istToday: istToday, nextOccurrence: nextOccurrence,
+    isLeap: isLeap, daysInMonth: daysInMonth, isValidDate: isValidDate, daysBetween: daysBetween, istToday: istToday, nextOccurrence: nextOccurrence, nextLeapYear: nextLeapYear,
     fmtDayMonth: fmtDayMonth, fmtShort: fmtShort, fmtIso: fmtIso, fmtPublishedOn: fmtPublishedOn, yearsAgo: yearsAgo, inDays: inDays, plural: plural, decadeOf: decadeOf,
     validateEvent: validateEvent, validateSet: validateSet, independentSources: independentSources,
     liveEvents: liveEvents, placement: placement, sampleSize: sampleSize,
