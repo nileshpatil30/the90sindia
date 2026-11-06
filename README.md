@@ -20,7 +20,7 @@ then open one of these in a browser:
 | URL | What it is |
 |---|---|
 | `http://localhost:8123/home.html` | **90s Rewind TV homepage** (the new portal, Phase 1) |
-| `http://localhost:8123/tv.html` | Live TV: 10 networks, 1984 to 2007, weekly timetables, ALL SHOWS |
+| `http://localhost:8123/tv.html` | Live TV: 11 networks, 1984 to 2007, weekly timetables, ALL SHOWS |
 | `http://localhost:8123/index.html` | The original single-page site (unchanged) |
 
 Needs internet only for YouTube (the TV player and card thumbnails). Fonts and
@@ -29,21 +29,39 @@ all artwork are local files in `assets/`, so the page loads nothing else from ou
 Tests (Node; the browser one needs Playwright):
 
 ```
-node tests/schedule-test.js                      # 1212 checks on the timetable data, no browser
+node tests/schedule-test.js                      # 1270 checks on the timetable data, no browser
+node tests/content-test.js                       # the content file, catalogue, search and add-content tool, no browser
 node tests/tv-smoke.js                           # Live TV in a headless browser, YouTube stubbed
+node tests/site-smoke.js                         # homepage shell: tabs, pop-up, picture zoom, search drop-down
+node tests/arcade-test.js                        # the Arcade catalogue rules (all 40 games, honest statuses, no suspicious links), no browser
+node tests/arcade-smoke.js                       # the Arcade in a headless browser: sections, search, every filter, game pages, embedded player
 ```
 
 ## File structure
 
 ```
-home.html            Homepage (markup only; every card is filled in from js/home-data.js)
+home.html            Homepage (markup only; the rows are filled in from js/content.js via js/catalogue.js)
 css/home.css         Homepage styling (desktop-first at 1440; breakpoints 1260 / 1100 / 760)
-js/home-data.js      ALL homepage content: tabs, ticker, tiles, every card row, discussions, goodies
-js/home.js           Homepage rendering, poll, trivia, search, discussions tabs, popup player
+js/content.js        THE CONTENT FILE: categories, tabs, ticker and every video (see below)
+js/catalogue.js      Merges content.js + the TV shows + games into one searchable catalogue
+js/site.js           Shared shell: header, tabs, ticker, search drop-down, pop-up player, footer
+js/tv-thumbs.js      Picture (first video id) for each playlist show
+arcade.html          The 90s Rewind Arcade (sections, search, filters)
+game.html            One reusable game page (play on our site / official site / coming soon)
+css/arcade.css       Arcade and game page styling (after css/home.css)
+js/arcade-data.js    THE ARCADE CATALOGUE: every game and what was checked (see "The Arcade" below)
+js/arcade-ui.js      Game card, Recently Played (browser only), shared by both Arcade pages
+js/arcade.js         Arcade page: sections, search, filters, address state
+js/game.js           Game page: the three play modes, embedded player, "What we checked"
+assets/arcade/       Neutral placeholder art for the game cards (our own, one per genre)
+docs/arcade-research.md  The audit and the research behind each status
+js/home-data.js      Homepage-only panels: poll, trivia, photo strip, discussions, tiles, goodies
+tools/add-content.js Adds a video or playlist to content.js after checking it can be embedded
+js/home.js           Homepage rows, poll, trivia, discussions tabs, login note
 js/home-live.js      The homepage TV: real on-air show for the current moment, knobs, UP NEXT
 assets/fonts/        Self-hosted fonts (woff2 + licences)
 assets/ui/           Logo, CRT frame (crt.svg), tab and section icons (ui/icons), decor, mascot
-assets/photos|wallpapers|games/   Original artwork for the gallery, wallpapers and game cards
+assets/photos|wallpapers|games/   Original artwork for the gallery, wallpapers and the old prototype
 
 tv.html              Live TV page
 css/tv.css           TV page styling
@@ -68,12 +86,10 @@ A dense 1999 to 2003 style portal: cream page, purple section headers, lime tick
 bar, orange CRT with ON AIR and UP NEXT, Browse tiles, and rows of cards. Plain
 HTML, CSS and vanilla JS. Content is kept apart from presentation.
 
-- **Edit content in `js/home-data.js`** (the `HOME` object): ticker items, nav tabs,
-  the Browse tiles, the poll, trivia, and every card row (`tv`, `movies`, `ads`,
-  `games`, `songs`, `cricket`, `wwf`, `walls`, `gallery`, `discussions`, `goodies`).
-  A card is `{ title, sub, credit, yt }` (a YouTube ID; the thumbnail comes from
-  YouTube), or `{ show: 'Title' }` (opens that show in ALL SHOWS), `{ img }` (opens a
-  large picture), `{ href }` (a link) or `{ soon: true }` (a dimmed "coming soon" card).
+- **Edit content in `js/content.js`** (see "The content system" below): the video rows
+  on the homepage, the tabs along the top and the What's New ticker all come from it.
+  `js/home-data.js` now only holds what belongs to the homepage panels (poll, trivia,
+  photo strip, sample discussions, Browse tiles, wallpapers, goodies strip).
 - **The CRT** is a separate frame image (`assets/ui/crt.svg`) laid over a transparent
   screen opening, with the real YouTube player behind it. The top knob changes channel,
   the lower knob turns sound on (video starts muted because browsers block autoplay with
@@ -92,6 +108,44 @@ HTML, CSS and vanilla JS. Content is kept apart from presentation.
   game cards are marked "soon".
 - The page follows the mockup, which is a light cream page. A deep-purple page background
   was also asked for; it is a small CSS variable change if you want it.
+
+## The content system (`js/content.js`)
+
+One file lists everything you can watch, apart from the TV timetable (which has its own
+two files and is not touched by this). Add a line, reload: it appears on its category page,
+in search, and on the homepage row if it has `featured: true`.
+
+```js
+{ cat: 'songs', title: 'Pehla Nasha', sub: 'Jo Jeeta Wohi Sikandar', credit: 'Saregama', official: true,
+  yt: 'iSUK1QoK9-E', year: 1992, featured: true }
+```
+
+- **Categories:** `tv movies ads songs cricket wwf cartoons other`.
+- **What it can open:** `yt` (one video), `playlist` (a whole playlist, YouTube plays the next
+  video itself), `show` (a show from the TV library), `href` (a page), `img` (a picture).
+- **Fields:** title, thumbnail (`thumb` = a video id; defaults to the video itself), video id,
+  playlist id, category, description (`desc`), year, featured.
+- **TV shows and cartoons** are not listed in content.js: they are the 163 shows of the ALL SHOWS
+  player, picked up automatically. Entries with `show:` only choose which are featured.
+- **`js/catalogue.js`** merges content.js, the TV shows and the games into one searchable list.
+  Pages read that, never the data files directly.
+- **`js/site.js`** is the shared shell: header, tabs, ticker, footer, search box with its drop-down,
+  the pop-up player and the card builders. A page opts in with `<body data-page="...">`.
+
+### Adding a video or playlist the easy way
+
+```
+node tools/add-content.js "https://www.youtube.com/watch?v=VIDEO_ID" --cat songs --write
+node tools/add-content.js PLAYLIST_ID --cat tv --featured
+```
+
+It asks YouTube whether the video may be embedded (oEmbed), reads the title and channel, and
+prints the line (or, with `--write`, inserts it in the right place in content.js). It refuses
+videos that cannot be embedded. **No API key is needed.** If you want descriptions too, set
+`YT_API_KEY` in your own terminal when you run it. The key is never put in the website.
+
+If a video is taken down, the card still shows with a plain colour block, and YouTube's
+own player shows its own "unavailable" message. Nothing breaks.
 
 ## The original page (`index.html`): add content in `js/config.js`
 
@@ -183,7 +237,7 @@ below for why).
 
 ## Live TV (`tv.html`)
 
-**10 networks, 1984 to 2007** (DD National, DD Metro, Zee TV, Home TV, Star Plus, Sony/SET,
+**11 networks, 1984 to 2007** (DD National, DD Metro, Zee TV, Home TV, Star Plus, Sony/SET, MTV India,
 SAB, Cartoon Network, Star Sports, ESPN). Every network and year is its own channel, such
 as "DD National 1992" or "Zee TV 1997", with a fixed weekly timetable in India time (IST),
 the same instant for every viewer. Pick a network and a year in the guide; what is on air
@@ -355,9 +409,39 @@ ICC) turned out, on the first search pass, to mostly return reupload or
 unrelated channels. Their real RSS feeds are what turned up the entries that
 actually ship in this repo.
 
-## The Arcade game
+## The Arcade (`arcade.html`, `game.html`)
 
-The Arcade section is an **original HTML5 `<canvas>` dodge-the-obstacle
+The 90s Rewind Arcade lists 40 classic games and says honestly where each can be played.
+It hosts no game files: no ROMs, BIOS files, clones or remakes, and no links to ROM sites.
+
+**Three play modes** (the `status` of a game in `js/arcade-data.js`):
+
+| status | what the visitor sees | needs |
+|---|---|---|
+| `website` | the game inside our game page (lazy-loaded, sandboxed iframe, Fullscreen, Restart) | an https `embedUrl` AND the owner's explicit embedding permission, with evidence in `embedding` |
+| `official` | a Play Now button that opens the owner's own page in a new tab, with the source named | an https `sourceUrl` on a verified host |
+| `soon` | "Coming soon". No Play button, no link | nothing |
+
+Today 4 games are `official` (Tetris, Pac-Man via Google's Doodle, Space Invaders via Taito, Street Fighter II via Capcom Town),
+none is `website`, and 36 are `soon`. The research is in `docs/arcade-research.md`.
+
+**Add a game:** add one object to `ARCADE_RAW` in `js/arcade-data.js` (copy a neighbour). Only the fields that differ from the
+"Coming soon" defaults are needed. Nothing else changes: the cards, search, filters, game page and homepage row all read that file.
+
+**Move a game to a better status:** verify it first (open the page, read its Terms, read its `X-Frame-Options` and
+`frame-ancestors` headers), then fill `sourceUrl`/`embedUrl`, the four permission fields, `notes` and `verified`.
+`tests/arcade-test.js` refuses an `official` or `website` game whose host is not in its `VERIFIED_HOSTS` list: add the host
+there as part of the same change, so the check is a deliberate step. It also refuses a Coming Soon game that has any link.
+
+The four permissions are kept apart on every game page: **A** software licence, **B** game content rights,
+**C** embedding permission, **D** commercial use. One does not imply another. "Unknown" means "could not confirm", not "allowed".
+
+Thumbnails are our own neutral art (`assets/arcade/`, one per genre), not publisher artwork, because we hold no artwork rights.
+Recently Played is kept in this browser's `localStorage` only. "Popular Games" is an editorial list (`popular` rank), not visit counts.
+
+## The old prototype's game (`index.html`)
+
+The old prototype page has an **original HTML5 `<canvas>` dodge-the-obstacle
 runner**, written from scratch in `js/app.js` (see `initArcade()`). It uses
 no game assets, ROMs, or emulator — just canvas shapes — so it carries zero
 third-party IP risk. Deliberately, this project does **not** build or embed

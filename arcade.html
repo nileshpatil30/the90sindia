@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>90s Rewind Arcade — Your childhood games are back</title>
+<meta name="description" content="The 90s Rewind Arcade: 40 classic games from the 80s and 90s, with the real play link for each, shown honestly. Search by title, genre, platform and year.">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/arcade.css">
+</head>
+<body data-page="games">
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- header, tabs, What's New ticker and search come from js/site.js (shared by every page) -->
+<div id="site-top"></div>
+<script src="js/content.js"></script>
+<script src="js/site.js"></script>
+
+<main id="main" class="page arc">
+
+  <!-- ======================= BANNER ======================= -->
+  <section class="arc-hero" aria-labelledby="h-arcade">
+    <img class="arc-hero-ico" src="assets/ui/icons/sec-games.svg" alt="" width="84" height="84">
+    <div class="arc-hero-t">
+      <h1 id="h-arcade">90s Rewind <em>Arcade</em></h1>
+      <p class="arc-tag">Your childhood games are back. Play them again!</p>
+      <p class="arc-sub">Real classics, played the legal way: each card says exactly where the game can be played. No clones, no downloads, no dodgy ROM sites.</p>
+    </div>
+    <ul class="arc-legend" aria-label="What the labels mean">
+      <li><span class="stat stat-web">PLAY ON SITE</span><span>Plays right here, when the owner allows it.</span></li>
+      <li><span class="stat stat-ext">OFFICIAL SITE</span><span>Opens the owner’s own page in a new tab.</span></li>
+      <li><span class="stat stat-soon">COMING SOON</span><span>No authorised version found yet. No fake Play button.</span></li>
+    </ul>
+  </section>
+
+  <!-- ======================= SEARCH AND FILTERS ======================= -->
+  <form class="arc-filters" id="arc-form" role="search" aria-label="Search and filter the Arcade" autocomplete="off">
+    <div class="arc-row">
+      <label class="arc-f arc-f-q"><span>Search by title</span><input id="f-q" type="search" placeholder="Try “mario”, “road rash” or “pacman”" autocapitalize="off" spellcheck="false"></label>
+      <label class="arc-f"><span>Genre</span><select id="f-genre"></select></label>
+      <label class="arc-f"><span>Original platform</span><select id="f-platform"></select></label>
+      <label class="arc-f"><span>Release period</span><select id="f-period"></select></label>
+    </div>
+    <div class="arc-row arc-row-2">
+      <div class="fchips" id="f-status" role="group" aria-label="Show games that are"></div>
+      <button class="btn fclear" id="f-clear" type="button" hidden>Clear filters</button>
+      <p class="fcount" id="f-count" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+  <nav class="arc-jump" id="arc-jump" aria-label="Jump to a section" hidden></nav>
+
+  <!-- ======================= SECTIONS (drawn by js/arcade.js) ======================= -->
+  <div class="arc-out" id="arc-out"><p class="load-err">Loading the Arcade…</p></div>
+  <noscript><p class="load-err">The Arcade needs JavaScript to list the games.</p></noscript>
+
+  <aside class="arc-rules" aria-labelledby="h-rules">
+    <h2 id="h-rules">How the Arcade works</h2>
+    <ul>
+      <li>We only list <b>original classic games</b>, never clones or remakes, and we host no game files, ROMs or BIOS files.</li>
+      <li>A game plays <b>on this site</b> only if its owner explicitly allows embedding. None do yet, so today every playable game opens on the owner’s own site.</li>
+      <li>Each game’s page shows what we checked: software licence, embedding, commercial use and the date we last checked.</li>
+      <li>Rights holder and want a game changed or removed? <a href="https://github.com/nileshpatil30/the90sindia/issues/new" target="_blank" rel="noopener noreferrer">Tell us</a>.</li>
+    </ul>
+  </aside>
+</main>
+
+<div id="site-bottom"></div>
+
+<script src="js/tv-episodes.js"></script>
+<script src="js/tv-library.js"></script>
+<script src="js/tv-mahabharat.js"></script>
+<script src="js/tv-ads.js"></script>
+<script src="js/tv-schedule.js"></script>
+<script src="js/tv-config.js"></script>
+<script src="js/tv-engine.js"></script>
+<script src="js/tv-thumbs.js"></script>
+<script src="js/arcade-data.js"></script>
+<script src="js/catalogue.js"></script>
+<script src="js/arcade-ui.js"></script>
+<script src="js/arcade.js"></script>
+</body>
+</html>
