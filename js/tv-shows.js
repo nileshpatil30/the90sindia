@@ -342,5 +342,24 @@
     close: closeShow
   };
 
+  // Links into this list, e.g. from the homepage:  tv.html#show=Malgudi Days   #kind=ads   #q=cricket
+  function param(h, k) { var m = new RegExp('(?:^|&)' + k + '=([^&]*)').exec(h); if (!m) return null; try { return decodeURIComponent(m[1]); } catch (e) { return m[1]; } }
+  function applyHash() {
+    var h = (location.hash || '').replace(/^#/, ''), v;
+    if ((v = param(h, 'show')) != null) {
+      var key = v.toLowerCase(), hit = null;
+      for (var i = 0; i < SHOWS.length; i++) { if (SHOWS[i].title.toLowerCase() === key || SHOWS[i].id === key) { hit = SHOWS[i]; break; } }
+      if (hit) { openShow(hit, 0); return; }
+      F.q = key; el.q.value = v; renderGrid();
+    } else if ((v = param(h, 'kind')) != null) {
+      if (KIND_GROUPS.some(function (g) { return g[0] === v; })) { F.kind = v; render(); } else return;
+    } else if ((v = param(h, 'q')) != null) {
+      F.q = v.trim().toLowerCase(); el.q.value = v; renderGrid();
+    } else return;
+    if (el.section && el.section.scrollIntoView) el.section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   render();
+  applyHash();
+  window.addEventListener('hashchange', applyHash);
 })();
